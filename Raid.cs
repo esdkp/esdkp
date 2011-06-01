@@ -784,9 +784,17 @@ namespace ES_DKP_Utils
 				double d;
 				string q;
 				d = (double) numraids/totalraids;
-				if (d>=.60) c = 'A';
-				else if (d>.30) c = 'B';
-				else c = 'C';
+				//if (d>=.60) c = 'A';
+				//else if (d>.30) c = 'B';
+				//else c = 'C';
+                if (d >= owner.TierAPct)
+                    c = 'A';
+                else if (d >= owner.TierBPct)
+                    c = 'B';
+                else if (d >= owner.TierCPct)
+                    c = 'C';
+                else
+                    c = 'E';
 				q = "INSERT INTO NamesTiers VALUES (\"" + r.ItemArray[0] + "\",\"" + c + "\"," + numraids + "," + d * 100 + ")";
 				try
 				{

@@ -35,6 +35,12 @@ namespace ES_DKP_Utils
 		private frmMain owner;
         private Label lblMinDKP;
         private TextBox txtMinDKP;
+        private Label lblTierAPct;
+        private TextBox txtTierAPct;
+        private TextBox txtTierBPct;
+        private Label lblTierBPct;
+        private TextBox txtTierCPct;
+        private Label lblTierCPct;
         private DebugLogger debugLogger;
 		#endregion
 
@@ -56,6 +62,9 @@ namespace ES_DKP_Utils
 			txtOutputDirectory.Text = iniFile.Configs["Files"].GetString("outdir","");
 			txtTax.Text = iniFile.Configs["Other"].GetDouble("tax",0)*100 + "";
             txtMinDKP.Text = iniFile.Configs["Other"].GetDouble("mindkp", 0) + "";
+            txtTierAPct.Text = iniFile.Configs["Other"].GetDouble("tierapct", 0.60) + "";
+            txtTierBPct.Text = iniFile.Configs["Other"].GetDouble("tierbpct", 0.40) + "";
+            txtTierCPct.Text = iniFile.Configs["Other"].GetDouble("tiercpct", 0.30) + "";
 
             debugLogger.WriteDebug_3("End Method: frmSettings.frmSettings()");
 		}
@@ -182,6 +191,12 @@ namespace ES_DKP_Utils
             this.txtLocalDBFile = new System.Windows.Forms.TextBox();
             this.lblMinDKP = new System.Windows.Forms.Label();
             this.txtMinDKP = new System.Windows.Forms.TextBox();
+            this.lblTierAPct = new System.Windows.Forms.Label();
+            this.txtTierAPct = new System.Windows.Forms.TextBox();
+            this.txtTierBPct = new System.Windows.Forms.TextBox();
+            this.lblTierBPct = new System.Windows.Forms.Label();
+            this.txtTierCPct = new System.Windows.Forms.TextBox();
+            this.lblTierCPct = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // txtLogFile
@@ -212,7 +227,7 @@ namespace ES_DKP_Utils
             // btnOK
             // 
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOK.Location = new System.Drawing.Point(94, 161);
+            this.btnOK.Location = new System.Drawing.Point(94, 233);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(72, 32);
             this.btnOK.TabIndex = 6;
@@ -222,7 +237,7 @@ namespace ES_DKP_Utils
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(172, 161);
+            this.btnCancel.Location = new System.Drawing.Point(175, 233);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(72, 32);
             this.btnCancel.TabIndex = 7;
@@ -319,10 +334,68 @@ namespace ES_DKP_Utils
             this.txtMinDKP.Size = new System.Drawing.Size(60, 20);
             this.txtMinDKP.TabIndex = 5;
             // 
+            // lblTierAPct
+            // 
+            this.lblTierAPct.AutoSize = true;
+            this.lblTierAPct.Location = new System.Drawing.Point(43, 142);
+            this.lblTierAPct.Name = "lblTierAPct";
+            this.lblTierAPct.Size = new System.Drawing.Size(57, 13);
+            this.lblTierAPct.TabIndex = 40;
+            this.lblTierAPct.Text = "Tier A Pct:";
+            this.lblTierAPct.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // txtTierAPct
+            // 
+            this.txtTierAPct.Location = new System.Drawing.Point(106, 139);
+            this.txtTierAPct.Name = "txtTierAPct";
+            this.txtTierAPct.Size = new System.Drawing.Size(60, 20);
+            this.txtTierAPct.TabIndex = 41;
+            // 
+            // txtTierBPct
+            // 
+            this.txtTierBPct.Location = new System.Drawing.Point(106, 162);
+            this.txtTierBPct.Name = "txtTierBPct";
+            this.txtTierBPct.Size = new System.Drawing.Size(60, 20);
+            this.txtTierBPct.TabIndex = 43;
+            // 
+            // lblTierBPct
+            // 
+            this.lblTierBPct.AutoSize = true;
+            this.lblTierBPct.Location = new System.Drawing.Point(43, 165);
+            this.lblTierBPct.Name = "lblTierBPct";
+            this.lblTierBPct.Size = new System.Drawing.Size(57, 13);
+            this.lblTierBPct.TabIndex = 42;
+            this.lblTierBPct.Text = "Tier B Pct:";
+            this.lblTierBPct.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblTierBPct.Click += new System.EventHandler(this.label1_Click);
+            // 
+            // txtTierCPct
+            // 
+            this.txtTierCPct.Location = new System.Drawing.Point(106, 188);
+            this.txtTierCPct.Name = "txtTierCPct";
+            this.txtTierCPct.Size = new System.Drawing.Size(60, 20);
+            this.txtTierCPct.TabIndex = 45;
+            // 
+            // lblTierCPct
+            // 
+            this.lblTierCPct.AutoSize = true;
+            this.lblTierCPct.Location = new System.Drawing.Point(43, 191);
+            this.lblTierCPct.Name = "lblTierCPct";
+            this.lblTierCPct.Size = new System.Drawing.Size(57, 13);
+            this.lblTierCPct.TabIndex = 44;
+            this.lblTierCPct.Text = "Tier C Pct:";
+            this.lblTierCPct.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // SettingsDialog
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(337, 203);
+            this.ClientSize = new System.Drawing.Size(337, 277);
+            this.Controls.Add(this.txtTierCPct);
+            this.Controls.Add(this.lblTierCPct);
+            this.Controls.Add(this.txtTierBPct);
+            this.Controls.Add(this.lblTierBPct);
+            this.Controls.Add(this.txtTierAPct);
+            this.Controls.Add(this.lblTierAPct);
             this.Controls.Add(this.txtMinDKP);
             this.Controls.Add(this.lblMinDKP);
             this.Controls.Add(this.lblDatabase);
@@ -345,6 +418,7 @@ namespace ES_DKP_Utils
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Settings";
             this.TopMost = true;
+            this.Load += new System.EventHandler(this.SettingsDialog_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -361,6 +435,16 @@ namespace ES_DKP_Utils
             base.Dispose(disposing);
         }
         #endregion
+
+        private void SettingsDialog_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
 
 	}
 }

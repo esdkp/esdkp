@@ -199,6 +199,27 @@ namespace ES_DKP_Utils
             set { _MinDKP = value; }
         }
 
+        private System.Double _TierAPct;
+        public System.Double TierAPct
+        {
+            get { return _TierAPct; }
+            set { _TierAPct = value; }
+        }
+
+        private System.Double _TierBPct;
+        public System.Double TierBPct
+        {
+            get { return _TierBPct; }
+            set { _TierBPct = value; }
+        }
+
+        private System.Double _TierCPct;
+        public System.Double TierCPct
+        {
+            get { return _TierCPct; }
+            set { _TierCPct = value; }
+        }
+
 		private string _ItemDKP = "B";
 		public string ItemDKP
 		{
@@ -1429,6 +1450,7 @@ namespace ES_DKP_Utils
             this.lblName.Size = new System.Drawing.Size(72, 16);
             this.lblName.TabIndex = 15;
             this.lblName.Text = "Name:";
+            this.lblName.Click += new System.EventHandler(this.lblName_Click);
             // 
             // listOfDKP
             // 
@@ -1539,6 +1561,11 @@ namespace ES_DKP_Utils
 		}
 
 		#endregion
+
+        private void lblName_Click(object sender, EventArgs e)
+        {
+
+        }
 
 	}
 }
