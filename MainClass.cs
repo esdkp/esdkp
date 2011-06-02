@@ -318,6 +318,9 @@ namespace ES_DKP_Utils
 				OutputDirectory = inifile.Configs["Files"].GetString("outdir","");
 				DKPTax = inifile.Configs["Other"].GetDouble("tax",0.0);
                 MinDKP = inifile.Configs["Other"].GetDouble("mindkp", 0);
+                TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.6);
+                TierBPct = inifile.Configs["Other"].GetDouble("tierbpct", 0.3);
+                TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.0);
 				debugLogger.WriteDebug_1("Read settings from INI: DBFile=" + DBString + ", LogFile=" + LogFile + ", OutputDirectory=" + OutputDirectory + ", DKPTax=" + DKPTax);
 
 				StatusMessage ="Read settings from INI...";
@@ -347,6 +350,9 @@ namespace ES_DKP_Utils
 					OutputDirectory = inifile.Configs["Files"].GetString("outdir","");
 					DKPTax = inifile.Configs["Other"].GetDouble("tax",0.0);
                     MinDKP = inifile.Configs["Other"].GetDouble("mindkp", 0);
+                    TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.6);
+                    TierBPct = inifile.Configs["Other"].GetDouble("tierbpct", 0.3);
+                    TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.0);
 					inifile.Save();
 					debugLogger.WriteDebug_1("Read settings from INI: dbFile=" + DBString + ", logFile=" + LogFile + ", outDir=" + OutputDirectory + ", tax=" + DKPTax + ", mindkp=" + MinDKP);
 				} 
