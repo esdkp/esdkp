@@ -141,6 +141,9 @@ namespace ES_DKP_Utils
 			iniFile.Configs["Files"].Set("dbfile",txtLocalDBFile.Text);
 			iniFile.Configs["Files"].Set("outdir",txtOutputDirectory.Text);
             iniFile.Configs["Other"].Set("mindkp", Double.Parse(txtMinDKP.Text));
+            iniFile.Configs["Other"].Set("tierapct", Double.Parse(txtTierAPct.Text));
+            iniFile.Configs["Other"].Set("tierbpct", Double.Parse(txtTierBPct.Text));
+            iniFile.Configs["Other"].Set("tiercpct", Double.Parse(txtTierCPct.Text));
 
             try { 
 				double d = Double.Parse(txtTax.Text);	
