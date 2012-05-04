@@ -7,7 +7,10 @@ namespace ES_DKP_Utils
         #region Constants
         public const double NODKP = -99999;
 		public const string NOTIER = "E";
-        // public const double MINDKP = -300;
+        public const double NOATTENDANCE = 0;
+        #endregion
+
+        #region Settings
         public double MINDKP = 0;
         #endregion
 
@@ -51,23 +54,30 @@ namespace ES_DKP_Utils
                 
 			}
 		}
+        private System.Double _AttendancePCT;
+        public System.Double AttendancePCT
+        {
+            get { return _AttendancePCT; }
+            set { _AttendancePCT = value; }
+        }
 		private frmMain owner;
         private DebugLogger debugLogger;
         #endregion
 
         #region Constructor
-        public Raider(frmMain owner, string p, string t, double d)
+        public Raider(frmMain owner, string p, string t, double d, double a)
 		{
 #if (DEBUG_1||DEBUG_2||DEBUG_3)
             debugLogger = new DebugLogger("Raider.log");
 #endif
-            debugLogger.WriteDebug_3("Begin Method: Raider.Raider(frmMain,string,string,double) (" + 
-                owner.ToString() + "," + p.ToString() + "," + t.ToString() + "," + d.ToString() + ")");
+            debugLogger.WriteDebug_3("Begin Method: Raider.Raider(frmMain,string,string,double,double) (" + 
+                owner.ToString() + "," + p.ToString() + "," + t.ToString() + "," + d.ToString() + "," + a.ToString() + ")");
 
 			this.owner = owner;
 			Person = p;
 			Tier = t;
 			DKP = d;
+            AttendancePCT = a;
             MINDKP = owner.MinDKP;
 
             debugLogger.WriteDebug_3("End Method: Raider.Raider()");
@@ -77,7 +87,7 @@ namespace ES_DKP_Utils
         #region Methods
         public override string ToString()
 		{
-			return Person + ": " + DKP + " " + Tier;
+			return Person + ": " + DKP + " " + Tier + " (" + AttendancePCT + ")";
 		}
 
 		public int CompareTo(object obj)
@@ -119,6 +129,12 @@ namespace ES_DKP_Utils
 					else if (this.DKP < that.DKP) return 1;
 					else return -1;
 				}
+
+                else if (owner.ItemDKP.Equals("ATTD"))
+                {
+                    if (this.AttendancePCT > that.AttendancePCT) return -1;
+                    else return 1;
+                }
 
 			}
 			else throw new ArgumentException("Object to compare to is not a Raider object.");

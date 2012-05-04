@@ -144,7 +144,7 @@ namespace ES_DKP_Utils
 			try 
 			{
 				dbConnect = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + owner.DBString);
-				string query = "Select NamesTiers.Name, NamesTiers.Tier, Sum(DKS.PTS) as SumOfPTS From (NamesTiers INNER JOIN DKS ON NamesTiers.Name = DKS.Name) GROUP BY NamesTiers.Name, NamesTiers.Tier";
+				string query = "Select NamesTiers.Name, NamesTiers.Tier, NamesTiers.TPercent, Sum(DKS.PTS) as SumOfPTS From (NamesTiers INNER JOIN DKS ON NamesTiers.Name = DKS.Name) GROUP BY NamesTiers.Name, NamesTiers.Tier, NamesTiers.TPercent";
 				OleDbDataAdapter dkpDA = new OleDbDataAdapter(query,dbConnect);
 				dbConnect.Open();
 				dkpDA.Fill(namesTiers);
@@ -212,11 +212,11 @@ namespace ES_DKP_Utils
 						DataRow[] k = namesTiers.Select("Name='" + name + "'");
 						if (k.Length>0) 
 						{
-							TellsDKP.Add(new Raider(owner,(string)k[0]["Name"],(string)k[0]["Tier"],(double)k[0]["SumOfPTS"]));
+							TellsDKP.Add(new Raider(owner,(string)k[0]["Name"],(string)k[0]["Tier"],(double)k[0]["SumOfPTS"],(double)Decimal.ToDouble((decimal)k[0]["TPercent"])));
 						} 
 						else 
 						{
-							TellsDKP.Add(new Raider(owner,name,Raider.NOTIER,Raider.NODKP));
+							TellsDKP.Add(new Raider(owner,name,Raider.NOTIER,Raider.NODKP,Raider.NOATTENDANCE));
 						}
 						TellsDKP.Sort();
                         owner.RefreshTells = true;					

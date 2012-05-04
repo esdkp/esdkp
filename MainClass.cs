@@ -40,8 +40,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Nini.Config;
 
-
-
 namespace ES_DKP_Utils
 {
 	/// <summary>
@@ -90,13 +88,16 @@ namespace ES_DKP_Utils
 		private System.Windows.Forms.Button btnLoot;
 		private System.Windows.Forms.Label dkpLabel;
 		private System.Windows.Forms.Label lblTier;
+        private System.Windows.Forms.Label lblAttd;
 		private System.Windows.Forms.ListBox listOfDKP;
 		private System.Windows.Forms.ListBox listOfTiers;
 		private System.Windows.Forms.ListBox listOfNames;
+        private System.Windows.Forms.ListBox listOfAttd;
 		private System.Windows.Forms.GroupBox grpItemTier;
 		private System.Windows.Forms.RadioButton rdoA;
 		private System.Windows.Forms.RadioButton rdoB;
 		private System.Windows.Forms.RadioButton rdoC;
+        private System.Windows.Forms.RadioButton rdoATTD;
 		private System.Windows.Forms.Button btnRecordLoot;
 		private System.Windows.Forms.Button btnSaveRaid;
 		private System.Windows.Forms.TextBox txtZoneNames;
@@ -108,8 +109,7 @@ namespace ES_DKP_Utils
 		private System.Windows.Forms.CheckBox chkDouble;
 		private System.Windows.Forms.Button btnAdd;
 		private System.Windows.Forms.Button btnRemove;
-		private System.Windows.Forms.DateTimePicker dtpRaidDate;	
-		private System.Windows.Forms.Label lblItemTier;
+        private System.Windows.Forms.DateTimePicker dtpRaidDate;
 		private System.Windows.Forms.Label lblName;
         private System.Windows.Forms.StatusBarPanel sbpProgressBar;
         private System.Windows.Forms.ProgressBar pgbProgress;
@@ -295,6 +295,9 @@ namespace ES_DKP_Utils
         private LogParser parser;
         private IContainer components;
         private DebugLogger debugLogger;
+
+
+
         private System.Windows.Forms.Timer UITimer;
 
 		#region Constructor
@@ -396,6 +399,7 @@ namespace ES_DKP_Utils
 			listOfNames.Items.Clear();
 			listOfTiers.Items.Clear();
 			listOfDKP.Items.Clear();
+            listOfAttd.Items.Clear();
 
 			foreach (Raider r in a)
 			{
@@ -406,6 +410,7 @@ namespace ES_DKP_Utils
 				else listOfTiers.Items.Add(r.Tier);
 				if (r.DKP == Raider.NODKP) listOfDKP.Items.Add("?");
 				else listOfDKP.Items.Add(r.DKP.ToString());
+                listOfAttd.Items.Add(r.AttendancePCT);
 			}
 			debugLogger.WriteDebug_3("End Method: frmMain.RefreshList()");
 		}													
@@ -620,6 +625,7 @@ namespace ES_DKP_Utils
 			listOfNames.Enabled = true;
 			listOfTiers.Enabled = true;
 			listOfDKP.Enabled = true;
+            listOfAttd.Enabled = true;
             rdoB.Checked = true;
 			parser.TellsOn = false;
 			parser.AttendanceOn = false;
@@ -668,6 +674,7 @@ namespace ES_DKP_Utils
 				listOfNames.Enabled = true;
 				listOfTiers.Enabled = true;
 				listOfDKP.Enabled = true;
+                listOfAttd.Enabled = true;
 
                 parser.TellsOn = false;
                 parser.AttendanceOn = false;
@@ -896,9 +903,10 @@ namespace ES_DKP_Utils
 		{
             debugLogger.WriteDebug_3("Begin Method: rbA_CheckChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
-			if (rdoA.Checked) this.ItemDKP = "A";
-			else if (rdoB.Checked) this.ItemDKP = "B";
-			else this.ItemDKP = "C";
+            if (rdoA.Checked) this.ItemDKP = "A";
+            else if (rdoB.Checked) this.ItemDKP = "B";
+            else if (rdoC.Checked) this.ItemDKP = "C";
+            else this.ItemDKP = "ATTD";
 			parser.TellsDKP.Sort();
 			RefreshTells = true;
 
@@ -911,7 +919,8 @@ namespace ES_DKP_Utils
 
 			if (rdoA.Checked) this.ItemDKP = "A";
 			else if (rdoB.Checked) this.ItemDKP = "B";
-			else this.ItemDKP = "C";
+            else if (rdoC.Checked) this.ItemDKP = "C";
+            else this.ItemDKP = "ATTD";
 			parser.TellsDKP.Sort();
 			RefreshTells = true;
 
@@ -924,12 +933,27 @@ namespace ES_DKP_Utils
 
 			if (rdoA.Checked) this.ItemDKP = "A";
 			else if (rdoB.Checked) this.ItemDKP = "B";
-			else this.ItemDKP = "C";
+            else if (rdoC.Checked) this.ItemDKP = "C";
+            else this.ItemDKP = "ATTD";
 			parser.TellsDKP.Sort();
 			RefreshTells = true;
 
             debugLogger.WriteDebug_3("End Method: rbC_CheckChanged()");
 		}
+
+        private void rbATTD_CheckedChanged(object sender, EventArgs e)
+        {
+            debugLogger.WriteDebug_3("Begin Method: rbATTD_CheckChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+
+            if (rdoA.Checked) this.ItemDKP = "A";
+            else if (rdoB.Checked) this.ItemDKP = "B";
+            else if (rdoC.Checked) this.ItemDKP = "C";
+            else this.ItemDKP = "ATTD";
+            parser.TellsDKP.Sort();
+            RefreshTells = true;
+
+            debugLogger.WriteDebug_3("End Method: rbATTD_CheckChanged()");
+        }
 
 		private void btnClear_Click(object sender, System.EventArgs e)
 		{
@@ -993,6 +1017,8 @@ namespace ES_DKP_Utils
             this.sbpLineCount = new System.Windows.Forms.StatusBarPanel();
             this.sbpParseCount = new System.Windows.Forms.StatusBarPanel();
             this.panel = new System.Windows.Forms.Panel();
+            this.lblAttd = new System.Windows.Forms.Label();
+            this.listOfAttd = new System.Windows.Forms.ListBox();
             this.btnClear = new System.Windows.Forms.Button();
             this.dtpRaidDate = new System.Windows.Forms.DateTimePicker();
             this.btnRemove = new System.Windows.Forms.Button();
@@ -1006,8 +1032,8 @@ namespace ES_DKP_Utils
             this.btnSaveRaid = new System.Windows.Forms.Button();
             this.btnParseWho = new System.Windows.Forms.Button();
             this.btnRecordLoot = new System.Windows.Forms.Button();
-            this.lblItemTier = new System.Windows.Forms.Label();
             this.grpItemTier = new System.Windows.Forms.GroupBox();
+            this.rdoATTD = new System.Windows.Forms.RadioButton();
             this.rdoA = new System.Windows.Forms.RadioButton();
             this.rdoB = new System.Windows.Forms.RadioButton();
             this.rdoC = new System.Windows.Forms.RadioButton();
@@ -1212,7 +1238,7 @@ namespace ES_DKP_Utils
             this.sbpLineCount,
             this.sbpParseCount});
             this.stbStatusBar.ShowPanels = true;
-            this.stbStatusBar.Size = new System.Drawing.Size(540, 24);
+            this.stbStatusBar.Size = new System.Drawing.Size(567, 24);
             this.stbStatusBar.SizingGrip = false;
             this.stbStatusBar.TabIndex = 0;
             // 
@@ -1239,6 +1265,8 @@ namespace ES_DKP_Utils
             // 
             // panel
             // 
+            this.panel.Controls.Add(this.lblAttd);
+            this.panel.Controls.Add(this.listOfAttd);
             this.panel.Controls.Add(this.btnClear);
             this.panel.Controls.Add(this.dtpRaidDate);
             this.panel.Controls.Add(this.btnRemove);
@@ -1252,7 +1280,6 @@ namespace ES_DKP_Utils
             this.panel.Controls.Add(this.btnSaveRaid);
             this.panel.Controls.Add(this.btnParseWho);
             this.panel.Controls.Add(this.btnRecordLoot);
-            this.panel.Controls.Add(this.lblItemTier);
             this.panel.Controls.Add(this.grpItemTier);
             this.panel.Controls.Add(this.dkpLabel);
             this.panel.Controls.Add(this.lblTier);
@@ -1268,12 +1295,28 @@ namespace ES_DKP_Utils
             this.panel.Enabled = false;
             this.panel.Location = new System.Drawing.Point(7, 8);
             this.panel.Name = "panel";
-            this.panel.Size = new System.Drawing.Size(537, 265);
+            this.panel.Size = new System.Drawing.Size(556, 265);
             this.panel.TabIndex = 1;
+            // 
+            // lblAttd
+            // 
+            this.lblAttd.Location = new System.Drawing.Point(511, 1);
+            this.lblAttd.Name = "lblAttd";
+            this.lblAttd.Size = new System.Drawing.Size(32, 16);
+            this.lblAttd.TabIndex = 35;
+            this.lblAttd.Text = "Attd:";
+            // 
+            // listOfAttd
+            // 
+            this.listOfAttd.Location = new System.Drawing.Point(514, 16);
+            this.listOfAttd.Name = "listOfAttd";
+            this.listOfAttd.Size = new System.Drawing.Size(37, 186);
+            this.listOfAttd.TabIndex = 34;
+            this.listOfAttd.TabStop = false;
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(384, 208);
+            this.btnClear.Location = new System.Drawing.Point(272, 208);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(24, 24);
             this.btnClear.TabIndex = 33;
@@ -1310,7 +1353,7 @@ namespace ES_DKP_Utils
             // 
             // lbl2Tier
             // 
-            this.lbl2Tier.Location = new System.Drawing.Point(240, 216);
+            this.lbl2Tier.Location = new System.Drawing.Point(144, 214);
             this.lbl2Tier.Name = "lbl2Tier";
             this.lbl2Tier.Size = new System.Drawing.Size(88, 16);
             this.lbl2Tier.TabIndex = 32;
@@ -1318,7 +1361,7 @@ namespace ES_DKP_Utils
             // 
             // chkDouble
             // 
-            this.chkDouble.Location = new System.Drawing.Point(224, 216);
+            this.chkDouble.Location = new System.Drawing.Point(128, 214);
             this.chkDouble.Name = "chkDouble";
             this.chkDouble.Size = new System.Drawing.Size(16, 16);
             this.chkDouble.TabIndex = 12;
@@ -1384,24 +1427,29 @@ namespace ES_DKP_Utils
             this.btnRecordLoot.Text = "Record Loot";
             this.btnRecordLoot.Click += new System.EventHandler(this.btnRecordLoot_Click);
             // 
-            // lblItemTier
-            // 
-            this.lblItemTier.Location = new System.Drawing.Point(360, 240);
-            this.lblItemTier.Name = "lblItemTier";
-            this.lblItemTier.Size = new System.Drawing.Size(56, 16);
-            this.lblItemTier.TabIndex = 21;
-            this.lblItemTier.Text = "Item Tier:";
-            // 
             // grpItemTier
             // 
+            this.grpItemTier.Controls.Add(this.rdoATTD);
             this.grpItemTier.Controls.Add(this.rdoA);
             this.grpItemTier.Controls.Add(this.rdoB);
             this.grpItemTier.Controls.Add(this.rdoC);
-            this.grpItemTier.Location = new System.Drawing.Point(416, 216);
+            this.grpItemTier.Location = new System.Drawing.Point(327, 212);
             this.grpItemTier.Name = "grpItemTier";
-            this.grpItemTier.Size = new System.Drawing.Size(104, 48);
+            this.grpItemTier.Size = new System.Drawing.Size(162, 48);
             this.grpItemTier.TabIndex = 22;
             this.grpItemTier.TabStop = false;
+            this.grpItemTier.Text = "Item Tier";
+            // 
+            // rdoATTD
+            // 
+            this.rdoATTD.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rdoATTD.Location = new System.Drawing.Point(102, 16);
+            this.rdoATTD.Name = "rdoATTD";
+            this.rdoATTD.Size = new System.Drawing.Size(54, 24);
+            this.rdoATTD.TabIndex = 17;
+            this.rdoATTD.Text = "ATTD";
+            this.rdoATTD.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.rdoATTD.CheckedChanged += new System.EventHandler(this.rbATTD_CheckedChanged);
             // 
             // rdoA
             // 
@@ -1411,6 +1459,7 @@ namespace ES_DKP_Utils
             this.rdoA.Size = new System.Drawing.Size(24, 24);
             this.rdoA.TabIndex = 14;
             this.rdoA.Text = "A";
+            this.rdoA.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.rdoA.CheckedChanged += new System.EventHandler(this.rbA_CheckedChanged);
             // 
             // rdoB
@@ -1421,6 +1470,7 @@ namespace ES_DKP_Utils
             this.rdoB.Size = new System.Drawing.Size(24, 24);
             this.rdoB.TabIndex = 15;
             this.rdoB.Text = "B";
+            this.rdoB.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.rdoB.CheckedChanged += new System.EventHandler(this.rbB_CheckedChanged);
             // 
             // rdoC
@@ -1431,11 +1481,12 @@ namespace ES_DKP_Utils
             this.rdoC.Size = new System.Drawing.Size(24, 24);
             this.rdoC.TabIndex = 16;
             this.rdoC.Text = "C";
+            this.rdoC.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.rdoC.CheckedChanged += new System.EventHandler(this.rbC_CheckedChanged);
             // 
             // dkpLabel
             // 
-            this.dkpLabel.Location = new System.Drawing.Point(448, 0);
+            this.dkpLabel.Location = new System.Drawing.Point(433, 1);
             this.dkpLabel.Name = "dkpLabel";
             this.dkpLabel.Size = new System.Drawing.Size(56, 16);
             this.dkpLabel.TabIndex = 17;
@@ -1443,7 +1494,7 @@ namespace ES_DKP_Utils
             // 
             // lblTier
             // 
-            this.lblTier.Location = new System.Drawing.Point(400, 0);
+            this.lblTier.Location = new System.Drawing.Point(405, 1);
             this.lblTier.Name = "lblTier";
             this.lblTier.Size = new System.Drawing.Size(32, 16);
             this.lblTier.TabIndex = 16;
@@ -1451,16 +1502,15 @@ namespace ES_DKP_Utils
             // 
             // lblName
             // 
-            this.lblName.Location = new System.Drawing.Point(248, 0);
+            this.lblName.Location = new System.Drawing.Point(269, 1);
             this.lblName.Name = "lblName";
             this.lblName.Size = new System.Drawing.Size(72, 16);
             this.lblName.TabIndex = 15;
             this.lblName.Text = "Name:";
-            this.lblName.Click += new System.EventHandler(this.lblName_Click);
             // 
             // listOfDKP
             // 
-            this.listOfDKP.Location = new System.Drawing.Point(456, 16);
+            this.listOfDKP.Location = new System.Drawing.Point(436, 16);
             this.listOfDKP.Name = "listOfDKP";
             this.listOfDKP.Size = new System.Drawing.Size(72, 186);
             this.listOfDKP.TabIndex = 14;
@@ -1468,7 +1518,7 @@ namespace ES_DKP_Utils
             // 
             // listOfTiers
             // 
-            this.listOfTiers.Location = new System.Drawing.Point(416, 16);
+            this.listOfTiers.Location = new System.Drawing.Point(406, 16);
             this.listOfTiers.Name = "listOfTiers";
             this.listOfTiers.Size = new System.Drawing.Size(24, 186);
             this.listOfTiers.TabIndex = 13;
@@ -1536,7 +1586,7 @@ namespace ES_DKP_Utils
             // frmMain
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(540, 301);
+            this.ClientSize = new System.Drawing.Size(567, 301);
             this.Controls.Add(this.pgbProgress);
             this.Controls.Add(this.panel);
             this.Controls.Add(this.stbStatusBar);
@@ -1567,11 +1617,6 @@ namespace ES_DKP_Utils
 		}
 
 		#endregion
-
-        private void lblName_Click(object sender, EventArgs e)
-        {
-
-        }
 
 	}
 }
