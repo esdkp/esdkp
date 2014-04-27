@@ -919,7 +919,9 @@ namespace ES_DKP_Utils
 			DataTable dtFinal = new DataTable("FINAL");
 
 			FileStream fs = null;
+            FileStream fs2 = null;
 			StreamWriter sw = null;
+            StreamWriter sw2 = null;
 			int i = 1;
 			double dkp = 0.0;
 			int ppl = 1;
@@ -981,16 +983,21 @@ namespace ES_DKP_Utils
 
 			try 
 			{
+                // Terrible hack while I convert to BBCode output
 				fs = new FileStream(owner.OutputDirectory + "DKPReport.txt",FileMode.Create);
 				sw = new StreamWriter(fs);
+                fs2 = new FileStream(owner.OutputDirectory + "DKPReport-bbcode.txt", FileMode.Create);
+                sw2 = new StreamWriter(fs2);
 			}
 			catch (Exception ex) 
 			{
 				MessageBox.Show("File IO Error. \n(" + ex.Message + ")","Error");
 			}
 
+            // Events + Loot table
 			sw.Write("<table width ='100%' border='1' cellspacing='0' cellpadding='3' bordercolor='#0000ff' bordercolorlight='#000000' bordercolordark='#ffffff' frame='border' rules='all' class='gensmall'>");
 			sw.Write("<tr><td colspan='4' bgcolor='black'><b>Events and Loot</b></td></tr>");
+            sw2.Write("[p][table][tr][th][b]Events and Loot[/b][/th][/tr]");
 			foreach (DataRow ev in dtEL.Select("EventName NOT LIKE '%1'","RaidNumber ASC"))
 			{
 				dkp=0;
@@ -1003,26 +1010,47 @@ namespace ES_DKP_Utils
 					twotier = true;
 				}
 				sw.Write("<tr><td colspan='4' bgcolor='black'><b>" + i + ".</b> " + evstr);
-				if (twotier) sw.Write("<b><i> Double Tier</b></i>");
+                sw2.Write("[tr][th][b]" + i + ".[/b] " + evstr);
+                if (twotier)
+                {
+                    sw.Write("<b><i> Double Tier</b></i>");
+                    sw2.Write("[b][i] Double Tier[/b][/i]");
+                }
 				sw.Write("</td></tr>");
+                sw2.Write("[/th][/tr]");
 				sw.Write("<tr><td width='30%'><i><b>Loot</b></i></td><td width='25%'><b><i>Recipient</b></i></td><td width='15%'><b><i>Cost</b></i></td><td width='30%'><b><i>DKP Per Person</b></i></td></tr>");
+                sw2.Write("[tr][td][i][b]Loot[/b][/i][/td][td][b][i]Recipient[/b][/i][/td][td][b][i]Cost[/b][/i][/td][td][b][i]DKP Per Person[/b][/i][/td][/tr]");
 				DataRow[] loots = dtDKS.Select("LootRaid='" + ev["EventName"] + "'");
 				i++;
 				foreach (DataRow r in loots) 
 				{
 					dkp += (double)r["PTS"] * -1;
-					sw.Write("<tr><td>" + r["EventNameOrLoot"] + "</td><td>" + r["Name"] + "</td><td>" + r["PTS"] + "</td><td>" + (double)r["PTS"] * -1 / ppl * (1 - owner.DKPTax) + "</td></tr>");                  				
+					sw.Write("<tr><td>" + r["EventNameOrLoot"] + "</td><td>" + r["Name"] + "</td><td>" + r["PTS"] + "</td><td>" + (double)r["PTS"] * -1 / ppl * (1 - owner.DKPTax) + "</td></tr>");
+                    sw2.Write("[tr][td]" + r["EventNameOrLoot"] + "[/td][td]" + r["Name"] + "[/td][td]" + r["PTS"] + "[/td][td]" + (double)r["PTS"] * -1 / ppl * (1 - owner.DKPTax) + "[/td][/tr]");			
 				}
 				sw.Write("<tr><td><b><i>Totals:</b></i></td><td>-</td><td>" + dkp * -1 + "</td><td>" + dkp/ppl * (1 - owner.DKPTax) + "</td></tr>");
+                sw2.Write("[tr][td][b][i]Totals:[/b][/i][/td][td]-[/td][td]" + dkp * -1 + "[/td][td]" + dkp / ppl * (1 - owner.DKPTax) + "[/td][/tr]");
             }
 			sw.Write("</table>\n\n");
+            sw2.Write("[/table][/p]");
             owner.PBVal += 10;
+
+            // Attendance table
 			sw.Write("<table width ='100%' border='1' cellspacing='0' cellpadding='3' bordercolor='#0000ff' bordercolorlight='#000000' bordercolordark='#ffffff' frame='border' rules='all' class='gensmall'>");
+            sw2.Write("[p][table]");
 			i=1;
 			sw.Write("<tr><td colspan='" + (5 + dtEL.Select("EventName NOT LIKE '%1'").Length) + "' bgcolor='black'><b>Attendance</b></td></tr>");
+            sw2.Write("[tr][th][b]Attendance[/b][/th][/tr]");
 			sw.Write("<tr><td width='15%'><b><i>Name</b></i></td>");
-			foreach (DataRow ev in dtEL.Select("EventName NOT LIKE '%1'")) sw.Write("<td width='15'><b><i>" + i++ + "</b></i>");
+            sw2.Write("[tr][td][b][i]Name[/b][/i][/td]");
+			foreach (DataRow ev in dtEL.Select("EventName NOT LIKE '%1'"))
+            { 
+                sw.Write("<td width='15'><b><i>" + i + "</b></i></td>");
+                sw2.Write("[td][b][i]" + i + "[/i][/b][/td]");
+                i++;
+            }
 			sw.Write("<td width='15%'><b><i>DKP Net Change</b></i></td><td width='15%'><b><i>DKP Total</b></i><td width='15'></td><td width='*'><b><i>Tier</b></i></td></tr>");
+            sw2.Write("[td][b][i]DKP Net Change[/i][/b][/td][td][b][i]DKP Total[/i][/b][/td][td][/td][td][b][i]Tier[/i][/b][/td][/tr]");
             owner.PBVal += 10;
 			foreach (DataRow r in dtNT.Rows)
 			{
@@ -1030,14 +1058,22 @@ namespace ES_DKP_Utils
 				if (dtTotal.Select("Name='" + r["Name"] + "'").Length==0) continue;
 
 				sw.Write("<td>" + r["Name"] + "</td>");
+                sw2.Write("[tr][td]" + r["Name"] + "[/td]");
+                int event_counter = 1;
 				foreach (DataRow ev in dtEL.Select("EventName NOT LIKE '%1'","RaidNumber ASC"))
 				{
 					if (dtDKS.Select("Name='" + r["Name"] + "' AND EventNameOrLoot='" + ev["EventName"] + "'").Length>0) 
 					{
 						earned += (double)dtDKS.Select("Name='" + r["Name"] + "' AND EventNameOrLoot='" + ev["EventName"] + "'")[0]["PTS"];
 						sw.Write("<td>•</td>");
+                        sw2.Write("[td]" + event_counter  + "[/td]");
 					}
-					else sw.Write("<td></td>");			
+					else 
+                    {
+                        sw.Write("<td></td>");
+                        sw2.Write("[td][/td]");
+                    }
+                    event_counter++;
 				}
 				foreach (DataRow deduct in dtDKS.Select("Name='" + r["Name"] + "' AND PTS<0")) earned += (double)deduct["PTS"];
 				totalnetchange += earned;
@@ -1045,52 +1081,84 @@ namespace ES_DKP_Utils
 				sw.Write("<td>" + String.Format("{0:+0.00;-0.00;00.00}",earned) + "</td>");
 				sw.Write("<td>" + String.Format("{0:+0.000#;-0.000#;00.000#}",dtTotal.Select("Name='" + r["Name"]+ "'")[0]["Total"]) + "</td>");
 				sw.Write("<td>" + r["Tier"] + "</td><td>" + String.Format("{0:00.00}",r["TPercent"]) + "% (" + r["NumRaids"] + "/" + dtAllEvents.Rows.Count + ")</td></tr>");
+                sw2.Write("[td]" + String.Format("{0:+0.00;-0.00;00.00}",earned) + "[/td]");
+				sw2.Write("[td]" + String.Format("{0:+0.000#;-0.000#;00.000#}",dtTotal.Select("Name='" + r["Name"]+ "'")[0]["Total"]) + "[/td]");
+				sw2.Write("[td]" + r["Tier"] + "[/td][td]" + String.Format("{0:00.00}",r["TPercent"]) + "% (" + r["NumRaids"] + "/" + dtAllEvents.Rows.Count + ")[/td][/tr]");
 			}
 			sw.Write("<tr><td><b><i>Totals:</b></i></td>");
-			foreach (DataRow ev in dtEL.Select("EventName NOT LIKE '%1'")) sw.Write("<td></td>");
+            sw2.Write("[tr][td][b][i]Totals:[/i][/b][/td]");
+			foreach (DataRow ev in dtEL.Select("EventName NOT LIKE '%1'")) 
+            {
+                sw.Write("<td></td>");
+                sw2.Write("[td][/td]");
+            }
 			sw.Write("<td>" + String.Format("{0:+0.00;-0.00;00.00}",totalnetchange) + "</td>");
 			sw.Write("<td>" + String.Format("{0:0.0#}",totaldkp) + "</td><td></td><td></td></tr>");
 			sw.Write("</table>\n\n");
+            sw2.Write("[td]" + String.Format("{0:+0.00;-0.00;00.00}",totalnetchange) + "[/td]");
+			sw2.Write("[td]" + String.Format("{0:0.0#}",totaldkp) + "[/td][td][/td][td][/td][/tr]");
+			sw2.Write("[/table][/p]\n\n");
             owner.PBVal += 10;
 
+
+            // Tier table
 			DataRow[] a = dtFinal.Select("Tier='A'","Total DESC");
 			DataRow[] b = dtFinal.Select("Tier='B'","Total DESC");
 			DataRow[] c = dtFinal.Select("Tier='C'","Total DESC");
 			int j =0;
-
+                        
 			sw.Write("<table width ='100%' border='1' cellspacing='0' cellpadding='3' bordercolor='#0000ff' bordercolorlight='#000000' bordercolordark='#ffffff' frame='border' rules='all' class='gensmall'>");
 			sw.Write("<tr><td colspan='3' bgcolor='black'><b>Tier A</b></td><td colspan='3' bgcolor='black'><b>Tier B</b></td><td colspan='3' bgcolor='black'><b>Tier C</b></td></tr>");
 			sw.Write("<tr><td width='15%'><b><i>Name</b></i></td><td width='5%'><b><i>%</b></i></td><td width='13%'><b><i>DKP Total</b></i></td><td width='15%'><b><i>Name</b></i></td><td width='5%'><b><i>%</b></i></td><td width='13%'><b><i>DKP Total</b></i></td><td width='15%'><b><i>Name</b></i></td><td width='5%'><b><i>%</b></i></td><td width='13%'><b><i>DKP Total</b></i></td></tr>");
+            sw2.Write("[p][table][tr][th][b]Tier A[/b][/th][th][/th][th][/th][th][b]Tier B[/b][/th][th][/th][th][/th][th]>[b]Tier C[/b][/th][th][/th][th][/th][/tr]");
+            sw2.Write("[tr][td][b][i]Name[/i][/b][/td][td][b][i]%[/i][/b][/td][td][b][i]DKP Total[/i][/b][/td][td][b][i]Name[/i][/b][/td][td][b][i]%[/i][/b][/td][td][b][i]DKP Total[/i][/b][/td][td][b][i]Name[/i][/b][/td][td][b][i]%[/i][/b][/td][td][b][i]DKP Total[/i][/b][/td][/tr]");
 			double atd, btd, ctd, att, btt, ctt;
 			atd = btd = ctd = att = btt = ctt = 0.00;
 
 			while (a.Length>j||b.Length>j||c.Length>j)
 			{
 				sw.Write("<tr>");
-				if (a.Length>j) 
-				{
-					sw.Write("<td>" + a[j]["Name"] + "</td><td>" + String.Format("{0:00.00}",a[j]["TPercent"]) + "</td><td>" + String.Format("{0:+0.0#;-0.0#;0.00}",a[j]["Total"]));
-					atd += (double)a[j]["Total"];
-					att += double.Parse(a[j]["TPercent"].ToString());
-				}
-				else sw.Write("<td></td><td></td><td></td>");
+                sw2.Write("[tr]");
+                if (a.Length > j)
+                {
+                    sw.Write("<td>" + a[j]["Name"] + "</td><td>" + String.Format("{0:00.00}", a[j]["TPercent"]) + "</td><td>" + String.Format("{0:+0.0#;-0.0#;0.00}", a[j]["Total"]));
+                    sw2.Write("[td]" + a[j]["Name"] + "[/td][td]" + String.Format("{0:00.00}", a[j]["TPercent"]) + "[/td][td]" + String.Format("{0:+0.0#;-0.0#;0.00}", a[j]["Total"]) + "[/td]");
+                    atd += (double)a[j]["Total"];
+                    att += double.Parse(a[j]["TPercent"].ToString());
+                }
+                else
+                {
+                    sw.Write("<td></td><td></td><td></td>");
+                    sw2.Write("[td][/td][td][/td][td][/td]");
+                }
 
-				if (b.Length>j) 
-				{
-					sw.Write("<td>" + b[j]["Name"] + "</td><td>" + String.Format("{0:00.00}",b[j]["TPercent"]) + "</td><td>" + String.Format("{0:+0.0#;-0.0#;0.00}",b[j]["Total"]));
-					btd += (double)b[j]["Total"];
-					btt += double.Parse(b[j]["TPercent"].ToString());
-				}
-				else sw.Write("<td></td><td></td><td></td>");
+                if (b.Length > j)
+                {
+                    sw.Write("<td>" + b[j]["Name"] + "</td><td>" + String.Format("{0:00.00}", b[j]["TPercent"]) + "</td><td>" + String.Format("{0:+0.0#;-0.0#;0.00}", b[j]["Total"]));
+                    sw2.Write("[td]" + b[j]["Name"] + "[/td][td]" + String.Format("{0:00.00}", b[j]["TPercent"]) + "[/td][td]" + String.Format("{0:+0.0#;-0.0#;0.00}", b[j]["Total"]) + "[/td]");
+                    btd += (double)b[j]["Total"];
+                    btt += double.Parse(b[j]["TPercent"].ToString());
+                }
+                else
+                {
+                    sw.Write("<td></td><td></td><td></td>");
+                    sw2.Write("[td][/td][td][/td][td][/td]");
+                }
 
-				if (c.Length>j) 
-				{
-					sw.Write("<td>" + c[j]["Name"] + "</td><td>" + String.Format("{0:00.00}",c[j]["TPercent"]) + "</td><td>" + String.Format("{0:+0.0#;-0.0#;0.00}",c[j]["Total"]));
-					ctd += (double)c[j]["Total"];
-					ctt += double.Parse(c[j]["TPercent"].ToString());
-				}
-				else sw.Write("<td></td><td></td><td></td>");
+                if (c.Length > j)
+                {
+                    sw.Write("<td>" + c[j]["Name"] + "</td><td>" + String.Format("{0:00.00}", c[j]["TPercent"]) + "</td><td>" + String.Format("{0:+0.0#;-0.0#;0.00}", c[j]["Total"]));
+                    sw2.Write("[td]" + c[j]["Name"] + "[/td][td]" + String.Format("{0:00.00}", c[j]["TPercent"]) + "[/td][td]" + String.Format("{0:+0.0#;-0.0#;0.00}", c[j]["Total"]) + "[/td]");
+                    ctd += (double)c[j]["Total"];
+                    ctt += double.Parse(c[j]["TPercent"].ToString());
+                }
+                else
+                {
+                    sw.Write("<td></td><td></td><td></td>");
+                    sw2.Write("[td][/td][td][/td][td][/td]");
+                }
 				sw.Write("</tr>");
+                sw2.Write("[/tr]");
 				j++;
 			}
 			sw.Write("<tr><td><b><i>Averages:</i></b></td><td>" 
@@ -1098,11 +1166,20 @@ namespace ES_DKP_Utils
 				+ String.Format("{0:00.00}",btt/b.Length) + "</td><td>" + String.Format("{0:+0.0#;-0.0#;0.00}",btd/b.Length) + "</td><td></td><td>"  
 				+ String.Format("{0:00.00}",ctt/c.Length) + "</td><td>" + String.Format("{0:+0.0#;-0.0#;0.00}",ctd/c.Length) + "</td></tr>");
 
+            sw2.Write("[tr][td][b][i]Averages:[/i][/b][/td][td]"
+                + String.Format("{0:00.00}", att / a.Length) + "[/td][td]" + String.Format("{0:+0.0#;-0.0#;0.00}", atd / a.Length) + "[/td][td][/td][td]"
+                + String.Format("{0:00.00}", btt / b.Length) + "[/td][td]" + String.Format("{0:+0.0#;-0.0#;0.00}", btd / b.Length) + "[/td][td][/td][td]"
+                + String.Format("{0:00.00}", ctt / c.Length) + "[/td][td]" + String.Format("{0:+0.0#;-0.0#;0.00}", ctd / c.Length) + "[/td][/tr]");
 
 			sw.Write("</table>\n\n");
+            sw2.Write("[/table][/p]\n\n");
             owner.PBVal += 10;
+
+            // Events Table
 			sw.Write("<table width ='100%' border='1' cellspacing='0' cellpadding='3' bordercolor='#0000ff' bordercolorlight='#000000' bordercolordark='#ffffff' frame='border' rules='all' class='gensmall'>");
 			sw.Write("<tr><td colspan='2' bgcolor='black'><b>Events Counted Towards Tier</b></td>");
+            sw2.Write("[p][table][tr][th][b]Events Counted Towards Tier[/b][/th][th][/th][/tr]");
+            sw2.Write("[tr][td]");
 			DateTime n = new DateTime(1,1,1);
   
 			foreach (DataRow r in dtAllEvents.Rows)
@@ -1111,14 +1188,19 @@ namespace ES_DKP_Utils
 				{
 					n = (DateTime)r["EventDate"];
 					sw.Write("</td></tr><tr><td>" + n.Month + "/" + n.Day + "/" + n.Year + "</td><td>");
+                    sw2.Write("[/td][/tr][tr][td]" + n.Month + "/" + n.Day + "/" + n.Year + "[/td][td]");
 				}
 				sw.Write(r["EventName"] + "\n");
+                sw2.Write(r["EventName"] + "\n");
 			}
 			sw.Write("</td></tr></table>");
+            sw2.Write("[/td][/tr][/table][/p]");
             owner.PBVal += 10;
                                                                                                
 			sw.Close();
 			fs.Close();
+            sw2.Close();
+            fs2.Close();
             owner.StatusMessage = "Finished writing daily report...";
         }
         #endregion
