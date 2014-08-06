@@ -329,6 +329,100 @@ namespace ES_DKP_Utils
 			}
 		}
 
+        public void ParseRaidDump(string logFile)
+        {
+            debugLogger.WriteDebug_3("Begin Method: Raid.ParseRaidDump(string) (" + logFile.ToString() + ")");
+
+            FileStream input;
+            StreamReader sr;
+            string line;
+            char[] delimiters = new char[] { '\t' };
+            ArrayList people = new ArrayList();
+
+            try
+            {
+                input = new FileStream(logFile, FileMode.Open, FileAccess.Read);
+                sr = new StreamReader(input);
+            }
+            catch (Exception ex)
+            {
+                debugLogger.WriteDebug_1("Failed to open raid dump file to parse: " + ex.Message);
+                MessageBox.Show("File IO Error.\n(" + ex.Message + ")");
+                return;
+            }
+
+            do
+            {
+                line = sr.ReadLine();
+
+                if (line == null)
+                {
+                    debugLogger.WriteDebug_3("Line in file empty, skipping");
+                    break;
+                }
+
+                string[] parts = line.Split(delimiters);
+
+                people.Add(parts[1]);
+            } while (line != null);
+
+            if (people.Count > 0)
+            {
+                MessageBox.Show("Found " + people.Count + " raiders including " + people[0] + ".");
+            }
+
+            foreach (string s in people)
+            {
+                DataRow[] rows = dbPeople.Select("Name='" + s + "'");
+
+                if (rows.Length > 0)
+                {
+                    DataRow[] rs = dbRaid.Select("Name='" + s + "' AND PTS>=0");
+                    if (rs.Length == 0)
+                    {
+                        dbRaid.Rows.Add(new object[] { s, RaidDate, RaidName, 0, null, null });
+                        debugLogger.WriteDebug_3("Added attendance row for " + s);
+                    }
+                }
+                else
+                {
+                    string t = GetAlt(s);
+                    if ((t != null && t.Length != 0))
+                    {
+                        if (!people.Contains(t))
+                        {
+                            DataRow[] rs = dbRaid.Select("Name='" + t + "' AND PTS>=0");
+                            if (rs.Length == 0)
+                            {
+                                dbRaid.Rows.Add(new object[] { t, RaidDate, RaidName, 0, null, null });
+                                debugLogger.WriteDebug_3("Added attendance row for " + t + " (Alt: " + s + ")");
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        AppAltDialog alt = new AppAltDialog(owner, s, dbPeople);
+                        t = alt.GetName();
+                        if ((t != null && t.Length != 0))
+                        {
+                            DataRow[] rs = dbRaid.Select("Name='" + t + "' AND PTS>=0");
+                            if (rs.Length == 0)
+                            {
+                                dbRaid.Rows.Add(new object[] { t, RaidDate, RaidName, 0, null, null });
+                                debugLogger.WriteDebug_3("Added attendance row for " + t);
+                            }
+                            if (t != s) dbAlts.Rows.Add(new object[] { s, t });
+                            altDA.Update(dbAlts);
+                        }
+                    }
+                }
+
+            }
+
+            debugLogger.WriteDebug_3("End Method: Raid.ParseRaidDump()");
+        }
+
 		public void ParseAttendance(string logFile, string zo) 
 		{
             debugLogger.WriteDebug_3("Begin Method: Raid.ParseAttendance(string,string) (" + logFile.ToString() + "," + zo.ToString() + ")");

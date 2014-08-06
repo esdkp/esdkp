@@ -295,6 +295,9 @@ namespace ES_DKP_Utils
         private LogParser parser;
         private IContainer components;
         private DebugLogger debugLogger;
+        private MenuItem menuItem1;
+        private MenuItem mnuImportRaidDump;
+        private MenuItem mnuImportLog;
 
 
 
@@ -387,7 +390,7 @@ namespace ES_DKP_Utils
 		#region Methods
 		[STAThread]
 		static void Main() 
-		{
+	{
 			Application.Run(new frmMain());
 		}
 
@@ -991,6 +994,9 @@ namespace ES_DKP_Utils
             this.mnuNewRaid = new System.Windows.Forms.MenuItem();
             this.mnuOpenRaid = new System.Windows.Forms.MenuItem();
             this.mnuSettings = new System.Windows.Forms.MenuItem();
+            this.menuItem1 = new System.Windows.Forms.MenuItem();
+            this.mnuImportLog = new System.Windows.Forms.MenuItem();
+            this.mnuImportRaidDump = new System.Windows.Forms.MenuItem();
             this.mnuReports = new System.Windows.Forms.MenuItem();
             this.mnuDailyReport = new System.Windows.Forms.MenuItem();
             this.mnuDetailedTier = new System.Windows.Forms.MenuItem();
@@ -1070,6 +1076,7 @@ namespace ES_DKP_Utils
             this.mnuNewRaid,
             this.mnuOpenRaid,
             this.mnuSettings,
+            this.menuItem1,
             this.mnuReports,
             this.mnuQueries,
             this.mnuTables,
@@ -1095,9 +1102,29 @@ namespace ES_DKP_Utils
             this.mnuSettings.Text = "Settings";
             this.mnuSettings.Click += new System.EventHandler(this.mnuSettings_Click);
             // 
+            // menuItem1
+            // 
+            this.menuItem1.Index = 3;
+            this.menuItem1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.mnuImportLog,
+            this.mnuImportRaidDump});
+            this.menuItem1.Text = "Import";
+            // 
+            // mnuImportLog
+            // 
+            this.mnuImportLog.Index = 0;
+            this.mnuImportLog.Text = "Log";
+            this.mnuImportLog.Click += new System.EventHandler(this.mnuImportLog_Click);
+            // 
+            // mnuImportRaidDump
+            // 
+            this.mnuImportRaidDump.Index = 1;
+            this.mnuImportRaidDump.Text = "Raid Dump";
+            this.mnuImportRaidDump.Click += new System.EventHandler(this.mnuImportRaidDump_Click);
+            // 
             // mnuReports
             // 
-            this.mnuReports.Index = 3;
+            this.mnuReports.Index = 4;
             this.mnuReports.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.mnuDailyReport,
             this.mnuDetailedTier,
@@ -1131,7 +1158,7 @@ namespace ES_DKP_Utils
             // 
             // mnuQueries
             // 
-            this.mnuQueries.Index = 4;
+            this.mnuQueries.Index = 5;
             this.mnuQueries.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.mnuBalanceQuery,
             this.mnuDKPTotals,
@@ -1172,7 +1199,7 @@ namespace ES_DKP_Utils
             // 
             // mnuTables
             // 
-            this.mnuTables.Index = 5;
+            this.mnuTables.Index = 6;
             this.mnuTables.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.mnuDKS,
             this.mnuAlts,
@@ -1213,12 +1240,12 @@ namespace ES_DKP_Utils
             // 
             // mnuFileSep
             // 
-            this.mnuFileSep.Index = 6;
+            this.mnuFileSep.Index = 7;
             this.mnuFileSep.Text = "-";
             // 
             // mnuExit
             // 
-            this.mnuExit.Index = 7;
+            this.mnuExit.Index = 8;
             this.mnuExit.Text = "Exit";
             this.mnuExit.Click += new System.EventHandler(this.mnuExit_Click);
             // 
@@ -1617,6 +1644,37 @@ namespace ES_DKP_Utils
 		}
 
 		#endregion
+
+        private void mnuImportLog_Click(object sender, EventArgs e)
+        {
+            debugLogger.WriteDebug_3("Begin Method: mnuImportLogClick(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            // Do the same thing as the button.
+            btnImport_Click(sender, e);
+            debugLogger.WriteDebug_3("End Method: mnuImportLogClick()");
+        }
+
+        private void mnuImportRaidDump_Click(object sender, EventArgs e)
+        {
+            debugLogger.WriteDebug_3("Begin Method: mnuImportRaidDump_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+
+            String logdir = System.IO.Path.GetDirectoryName(this.LogFile);
+            String eqdir = System.IO.Directory.GetParent(logdir).FullName;
+            
+            OpenFileDialog filedg = new OpenFileDialog();
+            filedg.InitialDirectory = eqdir;
+            filedg.Filter = "Raid Roster (*.txt)|RaidRoster-*.txt|All files (*.*)|*.*";
+            filedg.FilterIndex = 1;
+            
+            if (filedg.ShowDialog() == DialogResult.OK)
+            {
+                debugLogger.WriteDebug_3("Log file dialog returns: " + filedg.FileName);
+                CurrentRaid.ParseRaidDump(filedg.FileName);
+                StatusMessage = "Finished parsing attendance...";
+                filedg.Dispose();
+            }
+
+            debugLogger.WriteDebug_3("End Method: mnuImportRaidDump_Click()");
+        }
 
 	}
 }
