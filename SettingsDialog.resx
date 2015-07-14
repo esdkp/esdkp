@@ -120,29 +120,29 @@
   <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="btnChangeLogFile.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAIhJREFUOE+1kgsO
-        gCAMQzk6R9vNJot2fNY4SJTEoIvtymOlfLlqrbo+2/4mZMvqqQnEItI8is67hlRI6ca9+yrGd8z2JLvT
-        vSfgpm7AwGU1O+ZkQOmRIkTGKBhwgDF+O7FDtfdjBuhMIcYr5ACRwhOMN7FjMnTvQ5aRJyNu4jClKJ7s
-        6aT/+8MFg3zbUfLgpsoAAAAASUVORK5CYII=
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6
+        JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAdElEQVQ4T8WOAQqAMAwD+/Q9rT/ThbW1
+        64pbQTAQI8w7R5+mtXbFytE++DjLkURhZu5PCjskWQX3f4/wI4kRwZCoIIfzNQFeqoUEa4LTKLTcAHm7
+        rl9AYEyAVCQKpoIdrLsIkIrEwbOg0o7MAok/OO2vIboBg3zbUa/eBXsAAAAASUVORK5CYII=
 </value>
   </data>
   <data name="btnChangeOutputDirectory.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAIhJREFUOE+1kgsO
-        gCAMQzk6R9vNJot2fNY4SJTEoIvtymOlfLlqrbo+2/4mZMvqqQnEItI8is67hlRI6ca9+yrGd8z2JLvT
-        vSfgpm7AwGU1O+ZkQOmRIkTGKBhwgDF+O7FDtfdjBuhMIcYr5ACRwhOMN7FjMnTvQ5aRJyNu4jClKJ7s
-        6aT/+8MFg3zbUfLgpsoAAAAASUVORK5CYII=
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6
+        JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAdElEQVQ4T8WOAQqAMAwD+/Q9rT/ThbW1
+        64pbQTAQI8w7R5+mtXbFytE++DjLkURhZu5PCjskWQX3f4/wI4kRwZCoIIfzNQFeqoUEa4LTKLTcAHm7
+        rl9AYEyAVCQKpoIdrLsIkIrEwbOg0o7MAok/OO2vIboBg3zbUa/eBXsAAAAASUVORK5CYII=
 </value>
   </data>
   <data name="btnChangeLocalDBFile.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAIhJREFUOE+1kgsO
-        gCAMQzk6R9vNJot2fNY4SJTEoIvtymOlfLlqrbo+2/4mZMvqqQnEItI8is67hlRI6ca9+yrGd8z2JLvT
-        vSfgpm7AwGU1O+ZkQOmRIkTGKBhwgDF+O7FDtfdjBuhMIcYr5ACRwhOMN7FjMnTvQ5aRJyNu4jClKJ7s
-        6aT/+8MFg3zbUfLgpsoAAAAASUVORK5CYII=
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6
+        JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAdElEQVQ4T8WOAQqAMAwD+/Q9rT/ThbW1
+        64pbQTAQI8w7R5+mtXbFytE++DjLkURhZu5PCjskWQX3f4/wI4kRwZCoIIfzNQFeqoUEa4LTKLTcAHm7
+        rl9AYEyAVCQKpoIdrLsIkIrEwbOg0o7MAok/OO2vIboBg3zbUa/eBXsAAAAASUVORK5CYII=
 </value>
   </data>
+  <metadata name="toolTipGuildNames.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
 </root>

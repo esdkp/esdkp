@@ -431,7 +431,7 @@ namespace ES_DKP_Utils
 			string line;
 			FileStream input;
 			StreamReader sr;
-			Regex regex = new Regex("\\[.*?\\]\\s\\[.*?\\]\\s[a-zA-Z]*?\\s\\(.*?\\)\\s<Eternal Sovereign>\\sZONE:\\s[a-z]*.*");
+			Regex regex = new Regex("\\[.*?\\]\\s\\[.*?\\]\\s[a-zA-Z]*?\\s\\(.*?\\)\\s<(" + owner.GuildNames +")>\\sZONE:\\s[a-z]*.*");
 			Match m;
 			ArrayList people = new ArrayList();
 		
@@ -571,7 +571,7 @@ namespace ES_DKP_Utils
 
 			string parsed = line.Trim();
 			parsed = Regex.Replace(parsed,"\\[.*?\\]\\s\\[.*?\\]\\s","");
-			parsed = Regex.Replace(parsed,"\\(.*?\\)\\s<Eternal Sovereign>\\sZONE:\\s","");
+			parsed = Regex.Replace(parsed,"\\(.*?\\)\\s<(" + owner.GuildNames + ")>\\sZONE:w\\s","");
 			string[] parsedSplit = parsed.Split(new char[] { ' ' });
 
             debugLogger.WriteDebug_3("End Method: Raid.ParseLine(), returning {" + parsedSplit[0] + "," + parsedSplit[1] + "}");

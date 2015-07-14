@@ -220,6 +220,13 @@ namespace ES_DKP_Utils
             set { _TierCPct = value; }
         }
 
+        private System.String _GuildNames;
+        public System.String GuildNames
+        {
+            get { return _GuildNames; }
+            set { _GuildNames = value; }
+        }
+
 		private string _ItemDKP = "B";
 		public string ItemDKP
 		{

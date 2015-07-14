@@ -229,7 +229,7 @@ namespace ES_DKP_Utils
 			if (AttendanceOn)
 			{
 				string[] z = owner.Zones;
-				Regex regex = new Regex("\\[.*?\\]\\s\\[.*?\\]\\s[a-zA-Z]*?\\s\\(.*?\\)\\s<Eternal Sovereign>\\sZONE:\\s[a-z]*.*");
+				Regex regex = new Regex("\\[.*?\\]\\s\\[.*?\\]\\s[a-zA-Z]*?\\s\\(.*?\\)\\s<(" + owner.GuildNames + ")>\\sZONE:\\s[a-z]*.*");
 				Match m = regex.Match(s);
 				if (m.Success)
 				{
