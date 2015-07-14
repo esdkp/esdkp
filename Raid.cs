@@ -567,16 +567,20 @@ namespace ES_DKP_Utils
 
 		public string[] ParseLine(string line)
 		{
-            /* Whatever is using this function is expecting a string array to come back with these elments:
+            /* Whatever is using this function is expecting a string array to come back with these elements:
              *   0: Raider's Name
              *   1: Zone
+             *   
+             * I've added guild as paramater [2], in case we want to use it in guild name matching.
              */
             debugLogger.WriteDebug_3("Begin Method: Raid.ParseLine(string) (" + line.ToString() + ")");
 
             Regex r = new Regex(@"\[.*\] \[.*\] (?<name>\S+).*<(?<guild>.*)> ZONE: (?<zone>.*)$");
             Match m = r.Match(line.Trim());
 
-            string[] results = new string[2] {m.Groups["name"].ToString(), m.Groups["zone"].ToString()};
+            string[] results = new string[3] {m.Groups["name"].ToString(), 
+                                              m.Groups["zone"].ToString(),
+                                              m.Groups["guild"].ToString() };
 
             debugLogger.WriteDebug_3("End Method: Raid.ParseLine(), returning {" + results[0] + "," + results[1] + "}");
 			return results;
