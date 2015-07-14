@@ -144,7 +144,7 @@ namespace ES_DKP_Utils
 				}
 				catch (Exception ex) 
 				{ 
-					MessageBox.Show("Error creating new log parser.  Log file not changed.","Error");
+					MessageBox.Show("Error creating new log parser.  Log file not changed.", "Error");
 				}
 				_LogFile = value;
 			}
@@ -153,10 +153,7 @@ namespace ES_DKP_Utils
 		private string _DBString;
 		public string DBString
 		{
-			get
-			{
-				return _DBString;
-			}
+			get	{ return _DBString; }
 			set
 			{
 				_DBString = value;
@@ -167,29 +164,15 @@ namespace ES_DKP_Utils
 		private string _OutputDirectory;
 		public string OutputDirectory
 		{
-			get
-			{
-				return _OutputDirectory;
-			}
-			set
-			{
-				_OutputDirectory = value;
-                
-			}
+			get { return _OutputDirectory; }
+			set { _OutputDirectory = value; }
 		}
 
 		private System.Double _DKPTax;
 		public System.Double DKPTax
 		{
-			get
-			{
-				return _DKPTax;
-			}
-			set
-			{
-				_DKPTax = value;
-                
-			}
+			get { return _DKPTax; }
+			set { _DKPTax = value; }
 		}
 
         private System.Double _MinDKP;
@@ -230,29 +213,15 @@ namespace ES_DKP_Utils
 		private string _ItemDKP = "B";
 		public string ItemDKP
 		{
-			get
-			{
-				return _ItemDKP;
-			}
-			set
-			{
-				_ItemDKP = value;
-                
-			}
+			get	{ return _ItemDKP; }
+			set	{ _ItemDKP = value; }
 		}
 
 		private Raid _CurrentRaid;
 		public Raid CurrentRaid 
 		{
-			get 
-			{
-				return _CurrentRaid;
-			}
-
-            private set
-            {
-                _CurrentRaid = value;
-            }
+			get { return _CurrentRaid; }
+            private set { _CurrentRaid = value; }
 		}
 
         private string _StatusMessage;
@@ -306,8 +275,6 @@ namespace ES_DKP_Utils
         private MenuItem mnuImportRaidDump;
         private MenuItem mnuImportLog;
 
-
-
         private System.Windows.Forms.Timer UITimer;
 
 		#region Constructor
@@ -323,6 +290,7 @@ namespace ES_DKP_Utils
 			Directory.SetCurrentDirectory(Directory.GetParent(Application.ExecutablePath).FullName);
 			debugLogger.WriteDebug_2("Set Current Directory to " + Directory.GetParent(Application.ExecutablePath).FullName);
 
+            // TODO: Determine why this is a double nested try/catch to load some INI settings
 			try 
 			{
 				inifile = new IniConfigSource(Directory.GetCurrentDirectory() + "\\settings.ini");
@@ -334,7 +302,9 @@ namespace ES_DKP_Utils
                 TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.6);
                 TierBPct = inifile.Configs["Other"].GetDouble("tierbpct", 0.3);
                 TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.0);
-				debugLogger.WriteDebug_1("Read settings from INI: DBFile=" + DBString + ", LogFile=" + LogFile + ", OutputDirectory=" + OutputDirectory + ", DKPTax=" + DKPTax);
+                GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
+                debugLogger.WriteDebug_1("Read settings from INI: DBFile=" + DBString + ", LogFile=" + LogFile + ", OutputDirectory="
+                    + OutputDirectory + ", DKPTax=" + DKPTax + ", GuildNames=" + GuildNames);
 
 				StatusMessage ="Read settings from INI...";
 				try 
@@ -366,8 +336,10 @@ namespace ES_DKP_Utils
                     TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.6);
                     TierBPct = inifile.Configs["Other"].GetDouble("tierbpct", 0.3);
                     TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.0);
+                    GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
 					inifile.Save();
-					debugLogger.WriteDebug_1("Read settings from INI: dbFile=" + DBString + ", logFile=" + LogFile + ", outDir=" + OutputDirectory + ", tax=" + DKPTax + ", mindkp=" + MinDKP);
+					debugLogger.WriteDebug_1("Read settings from INI: dbFile=" + DBString + ", logFile=" + LogFile
+                        + ", outDir=" + OutputDirectory + ", tax=" + DKPTax + ", mindkp=" + MinDKP + ", GuildNames=" + GuildNames);
 				} 
 				catch (Exception exc) 
 				{ 
@@ -378,7 +350,7 @@ namespace ES_DKP_Utils
 			}	
 			catch (Exception ex) 
 			{
-				debugLogger.WriteDebug_1("Failed ot load settings.ini: " + ex.Message);
+				debugLogger.WriteDebug_1("Failed to load settings.ini: " + ex.Message);
 				MessageBox.Show("Error opening settings.ini","Error");
 				Environment.Exit(1);
 			}
@@ -748,7 +720,7 @@ namespace ES_DKP_Utils
 			if(filedg.ShowDialog() == DialogResult.OK)
 			{
                 debugLogger.WriteDebug_3("Log file dialog returns: " + filedg.FileName);
-				CurrentRaid.ParseAttendance(filedg.FileName,txtZoneNames.Text);
+				CurrentRaid.ParseAttendance(filedg.FileName, txtZoneNames.Text);
 				StatusMessage = "Finished parsing attendance...";
 				filedg.Dispose();
 			}
