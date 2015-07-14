@@ -567,15 +567,19 @@ namespace ES_DKP_Utils
 
 		public string[] ParseLine(string line)
 		{
+            /* Whatever is using this function is expecting a string array to come back with these elments:
+             *   0: Raider's Name
+             *   1: Zone
+             */
             debugLogger.WriteDebug_3("Begin Method: Raid.ParseLine(string) (" + line.ToString() + ")");
 
-			string parsed = line.Trim();
-			parsed = Regex.Replace(parsed,"\\[.*?\\]\\s\\[.*?\\]\\s","");
-			parsed = Regex.Replace(parsed,"\\(.*?\\)\\s<(" + owner.GuildNames + ")>\\sZONE:w\\s","");
-			string[] parsedSplit = parsed.Split(new char[] { ' ' });
+            Regex r = new Regex(@"\[.*\] \[.*\] (?<name>\S+).*<(?<guild>.*)> ZONE: (?<zone>.*)$");
+            Match m = r.Match(line.Trim());
 
-            debugLogger.WriteDebug_3("End Method: Raid.ParseLine(), returning {" + parsedSplit[0] + "," + parsedSplit[1] + "}");
-			return parsedSplit;
+            string[] results = new string[2] {m.Groups["name"].ToString(), m.Groups["zone"].ToString()};
+
+            debugLogger.WriteDebug_3("End Method: Raid.ParseLine(), returning {" + results[0] + "," + results[1] + "}");
+			return results;
 		}
 
 		public void AddRowToLocalTable(object[] o)
