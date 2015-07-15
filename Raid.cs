@@ -431,7 +431,7 @@ namespace ES_DKP_Utils
 			string line;
 			FileStream input;
 			StreamReader sr;
-			Regex regex = new Regex("\\[.*?\\]\\s\\[.*?\\]\\s[a-zA-Z]*?\\s\\(.*?\\)\\s<(" + owner.GuildNames +")>\\sZONE:\\s[a-z]*.*");
+            Regex regex = new Regex(@"\[.*\] \[.*\] (?<name>\S+).*<(?<guild>.*)> ZONE: (?<zone>.*)$");
 			Match m;
 			ArrayList people = new ArrayList();
 		
@@ -458,20 +458,15 @@ namespace ES_DKP_Utils
 					m = regex.Match(line);
                     if (m.Success)
                     {
-                        debugLogger.WriteDebug_3(line + " matches attendance regex, parsing");
-                        string[] parsed = ParseLine(line);
-                        foreach (string zone in zones)
+                        string _guild = m.Groups["guild"].ToString();
+                        string _zone = m.Groups["zone"].ToString();
+                        string _name = m.Groups["name"].ToString();
+
+                        if (owner.GuildNames.Contains(_guild) && zo.Contains(_zone) && !people.Contains(_name))
                         {
-                            if ((zone == parsed[1]) && !people.Contains(parsed[0]))
-                            {
-                                debugLogger.WriteDebug_2(parsed[0] + " is in zone " + parsed[1] + ", adding to people array.");
-                                people.Add(parsed[0]);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        debugLogger.WriteDebug_3(line + " does not match attendance regex");
+                            debugLogger.WriteDebug_2(_name + " <" + _guild + "> is in zone " + _zone + ", adding to people array.");
+                            people.Add(_name);
+                        }        
                     }
 				}
 			} while (line!=null);
@@ -578,9 +573,9 @@ namespace ES_DKP_Utils
             Regex r = new Regex(@"\[.*\] \[.*\] (?<name>\S+).*<(?<guild>.*)> ZONE: (?<zone>.*)$");
             Match m = r.Match(line.Trim());
 
-            string[] results = new string[3] {m.Groups["name"].ToString(), 
-                                              m.Groups["zone"].ToString(),
-                                              m.Groups["guild"].ToString() };
+            string[] results = { m.Groups["name"].ToString(), 
+                                 m.Groups["zone"].ToString(),
+                                 m.Groups["guild"].ToString() };
 
             debugLogger.WriteDebug_3("End Method: Raid.ParseLine(), returning {" + results[0] + "," + results[1] + "}");
 			return results;
