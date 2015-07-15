@@ -228,27 +228,25 @@ namespace ES_DKP_Utils
 
 			if (AttendanceOn)
 			{
-				string[] z = owner.Zones;
-				Regex regex = new Regex("\\[.*?\\]\\s\\[.*?\\]\\s[a-zA-Z]*?\\s\\(.*?\\)\\s<(" + owner.GuildNames + ")>\\sZONE:\\s[a-z]*.*");
-				Match m = regex.Match(s);
+                string zones = owner.Zones;
+                Regex regex = new Regex(@"\[.*\] \[.*\] (?<name>\S+).*<(?<guild>.*)> ZONE: (?<zone>.*)$");
+                Match m = regex.Match(s.Trim());
+
 				if (m.Success)
 				{
-                    debugLogger.WriteDebug_3(s + " matches attendance regex.");
+                    string _guild = m.Groups["guild"].ToString();
+                    string _zone = m.Groups["zone"].ToString();
+                    string _name = m.Groups["name"].ToString();
 
-					string[] parsed = owner.CurrentRaid.ParseLine(s);
-					foreach (string zone in z)
+					if ( zones.Contains(_zone) && owner.GuildNames.Contains(_guild))
 					{
-						if (zone == parsed[1]) 
-						{
-                            debugLogger.WriteDebug_3(parsed[0] + " is in zone " + parsed[1] + " which is in attendance zone array, adding");
-							owner.CurrentRaid.InputPerson(parsed[0]);
-						} 
-					}
+                        debugLogger.WriteDebug_3(_name + " <" + _guild + "> is in " + _zone + " which is in attendance zone array, adding");
+						owner.CurrentRaid.InputPerson(_name);
+					} 
+
                     owner.ParseCount++;
                     return TriVal.WHO;
-				} else {
-                    debugLogger.WriteDebug_3(s + " does not match attendance regex.");
-                }
+				}
 			}
             debugLogger.WriteDebug_3("End Method: Parse()");
             return TriVal.NA;

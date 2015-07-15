@@ -117,11 +117,11 @@ namespace ES_DKP_Utils
         #endregion
 
         #region Properties
-        public string[] Zones 
+        public string Zones 
 		{
 			get 
 			{
-				return this.txtZoneNames.Text.Split(new char[] { ' ' });
+                return this.txtZoneNames.Text;
 			}
 		}
 
