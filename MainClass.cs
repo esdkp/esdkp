@@ -101,11 +101,7 @@ namespace ES_DKP_Utils
 		private System.Windows.Forms.Button btnRecordLoot;
 		private System.Windows.Forms.Button btnSaveRaid;
 		private System.Windows.Forms.TextBox txtZoneNames;
-		private System.Windows.Forms.Label lblZoneNames;
-		private System.Windows.Forms.Button btnImport;
-		private System.Windows.Forms.Button btnParseTells;
-		private System.Windows.Forms.Button btnParseWho;
-		private System.Windows.Forms.Label lbl2Tier;
+        private System.Windows.Forms.Label lblZoneNames;
 		private System.Windows.Forms.CheckBox chkDouble;
 		private System.Windows.Forms.Button btnAdd;
 		private System.Windows.Forms.Button btnRemove;
@@ -274,6 +270,10 @@ namespace ES_DKP_Utils
         private MenuItem menuItem1;
         private MenuItem mnuImportRaidDump;
         private MenuItem mnuImportLog;
+        private GroupBox grpWatchFor;
+        private CheckBox chkTells;
+        private CheckBox chkWho;
+        private CheckBox chkLoot;
 
         private System.Windows.Forms.Timer UITimer;
 
@@ -600,20 +600,25 @@ namespace ES_DKP_Utils
 			txtRaidName.Enabled = true;
 			dtpRaidDate.Enabled = true;
 			txtZoneNames.Enabled = true;
-			btnImport.Enabled = true;
-			btnParseWho.Enabled = true;
-			btnParseTells.Enabled = true;
+            grpWatchFor.Enabled = true;
 			grpItemTier.Enabled = true;
 			listOfNames.Enabled = true;
 			listOfTiers.Enabled = true;
 			listOfDKP.Enabled = true;
             listOfAttd.Enabled = true;
             rdoB.Checked = true;
+
+            chkWho.Checked = false;
+            chkTells.Checked = false;
+            chkLoot.Checked = false;
+
+            /*
 			parser.TellsOn = false;
 			parser.AttendanceOn = false;
+            parser.LootOn = false;
+            */
 			parser.LoadNamesTiers();
-			btnParseWho.FlatStyle = FlatStyle.Standard;
-			btnParseTells.FlatStyle = FlatStyle.Standard;
+
 			debugLogger.WriteDebug_1("New Raid Created.  Name: " + CurrentRaid.RaidName + " Date: " + CurrentRaid.RaidDate.ToString("dd MMM yyyy"));
 
 			debugLogger.WriteDebug_3("End Method: frmMain.mnuNewRaid_Click()");
@@ -649,20 +654,23 @@ namespace ES_DKP_Utils
                 txtRaidName.Enabled = false;
 				dtpRaidDate.Enabled = false;
 				txtZoneNames.Enabled = true;
-				btnImport.Enabled = true;
-				btnParseWho.Enabled = true;
-				btnParseTells.Enabled = true;
 				grpItemTier.Enabled = true;
+                grpWatchFor.Enabled = true;
 				listOfNames.Enabled = true;
 				listOfTiers.Enabled = true;
 				listOfDKP.Enabled = true;
                 listOfAttd.Enabled = true;
 
+                chkWho.Checked = false;
+                chkTells.Checked = false;
+                chkLoot.Checked = false;
+
+                /*
                 parser.TellsOn = false;
                 parser.AttendanceOn = false;
                 parser.LoadNamesTiers();
-                btnParseWho.FlatStyle = FlatStyle.Standard;
-                btnParseTells.FlatStyle = FlatStyle.Standard;
+                */
+
                 rdoB.Checked = true;
 
 				raidselect.Dispose();
@@ -851,36 +859,6 @@ namespace ES_DKP_Utils
             debugLogger.WriteDebug_3("End Method: mnuExit_Click()");
 		}
 
-		private void btnParseWho_Click(object sender, System.EventArgs e)
-		{
-            debugLogger.WriteDebug_3("Begin Method: btnParseWho_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
-
-			if (!parser.AttendanceOn) 
-			{ 
-				btnParseWho.FlatStyle = FlatStyle.Flat;
-			} 
-			else btnParseWho.FlatStyle = FlatStyle.Standard;
-
-			parser.AttendanceOn = !parser.AttendanceOn;
-
-            debugLogger.WriteDebug_3("End Method: btnParseWho_Click()");
-		}
-
-		private void btnParseTells_Click(object sender, System.EventArgs e)
-		{
-            debugLogger.WriteDebug_3("Begin Method: btnParseTells_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
-
-			if (!parser.TellsOn) 
-			{ 
-				btnParseTells.FlatStyle = FlatStyle.Flat;
-			} 
-			else btnParseTells.FlatStyle = FlatStyle.Standard;
-
-			parser.TellsOn = !parser.TellsOn;
-
-            debugLogger.WriteDebug_3("End Method: btnParseTells_Click()");		
-		}
-
 		private void rbA_CheckedChanged(object sender, System.EventArgs e)
 		{
             debugLogger.WriteDebug_3("Begin Method: rbA_CheckChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
@@ -1002,20 +980,20 @@ namespace ES_DKP_Utils
             this.sbpLineCount = new System.Windows.Forms.StatusBarPanel();
             this.sbpParseCount = new System.Windows.Forms.StatusBarPanel();
             this.panel = new System.Windows.Forms.Panel();
+            this.grpWatchFor = new System.Windows.Forms.GroupBox();
+            this.chkLoot = new System.Windows.Forms.CheckBox();
+            this.chkWho = new System.Windows.Forms.CheckBox();
+            this.chkTells = new System.Windows.Forms.CheckBox();
             this.lblAttd = new System.Windows.Forms.Label();
             this.listOfAttd = new System.Windows.Forms.ListBox();
             this.btnClear = new System.Windows.Forms.Button();
             this.dtpRaidDate = new System.Windows.Forms.DateTimePicker();
             this.btnRemove = new System.Windows.Forms.Button();
             this.btnAdd = new System.Windows.Forms.Button();
-            this.lbl2Tier = new System.Windows.Forms.Label();
             this.chkDouble = new System.Windows.Forms.CheckBox();
-            this.btnImport = new System.Windows.Forms.Button();
             this.lblZoneNames = new System.Windows.Forms.Label();
             this.txtZoneNames = new System.Windows.Forms.TextBox();
-            this.btnParseTells = new System.Windows.Forms.Button();
             this.btnSaveRaid = new System.Windows.Forms.Button();
-            this.btnParseWho = new System.Windows.Forms.Button();
             this.btnRecordLoot = new System.Windows.Forms.Button();
             this.grpItemTier = new System.Windows.Forms.GroupBox();
             this.rdoATTD = new System.Windows.Forms.RadioButton();
@@ -1039,6 +1017,7 @@ namespace ES_DKP_Utils
             ((System.ComponentModel.ISupportInitialize)(this.sbpLineCount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sbpParseCount)).BeginInit();
             this.panel.SuspendLayout();
+            this.grpWatchFor.SuspendLayout();
             this.grpItemTier.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -1236,7 +1215,7 @@ namespace ES_DKP_Utils
             // 
             // stbStatusBar
             // 
-            this.stbStatusBar.Location = new System.Drawing.Point(0, 277);
+            this.stbStatusBar.Location = new System.Drawing.Point(0, 280);
             this.stbStatusBar.Name = "stbStatusBar";
             this.stbStatusBar.Panels.AddRange(new System.Windows.Forms.StatusBarPanel[] {
             this.sbpMessage,
@@ -1271,28 +1250,25 @@ namespace ES_DKP_Utils
             // 
             // panel
             // 
-            this.panel.Controls.Add(this.lblAttd);
             this.panel.Controls.Add(this.listOfAttd);
+            this.panel.Controls.Add(this.listOfDKP);
+            this.panel.Controls.Add(this.listOfTiers);
+            this.panel.Controls.Add(this.listOfNames);
+            this.panel.Controls.Add(this.txtZoneNames);
+            this.panel.Controls.Add(this.grpWatchFor);
+            this.panel.Controls.Add(this.lblAttd);
             this.panel.Controls.Add(this.btnClear);
             this.panel.Controls.Add(this.dtpRaidDate);
             this.panel.Controls.Add(this.btnRemove);
             this.panel.Controls.Add(this.btnAdd);
-            this.panel.Controls.Add(this.lbl2Tier);
             this.panel.Controls.Add(this.chkDouble);
-            this.panel.Controls.Add(this.btnImport);
             this.panel.Controls.Add(this.lblZoneNames);
-            this.panel.Controls.Add(this.txtZoneNames);
-            this.panel.Controls.Add(this.btnParseTells);
             this.panel.Controls.Add(this.btnSaveRaid);
-            this.panel.Controls.Add(this.btnParseWho);
             this.panel.Controls.Add(this.btnRecordLoot);
             this.panel.Controls.Add(this.grpItemTier);
             this.panel.Controls.Add(this.dkpLabel);
             this.panel.Controls.Add(this.lblTier);
             this.panel.Controls.Add(this.lblName);
-            this.panel.Controls.Add(this.listOfDKP);
-            this.panel.Controls.Add(this.listOfTiers);
-            this.panel.Controls.Add(this.listOfNames);
             this.panel.Controls.Add(this.btnLoot);
             this.panel.Controls.Add(this.btnAttendees);
             this.panel.Controls.Add(this.txtRaidName);
@@ -1303,6 +1279,51 @@ namespace ES_DKP_Utils
             this.panel.Name = "panel";
             this.panel.Size = new System.Drawing.Size(556, 265);
             this.panel.TabIndex = 1;
+            // 
+            // grpWatchFor
+            // 
+            this.grpWatchFor.Controls.Add(this.chkLoot);
+            this.grpWatchFor.Controls.Add(this.chkWho);
+            this.grpWatchFor.Controls.Add(this.chkTells);
+            this.grpWatchFor.Location = new System.Drawing.Point(148, 62);
+            this.grpWatchFor.Name = "grpWatchFor";
+            this.grpWatchFor.Size = new System.Drawing.Size(118, 94);
+            this.grpWatchFor.TabIndex = 36;
+            this.grpWatchFor.TabStop = false;
+            this.grpWatchFor.Text = "Watch For...";
+            // 
+            // chkLoot
+            // 
+            this.chkLoot.AutoSize = true;
+            this.chkLoot.Location = new System.Drawing.Point(7, 66);
+            this.chkLoot.Name = "chkLoot";
+            this.chkLoot.Size = new System.Drawing.Size(47, 17);
+            this.chkLoot.TabIndex = 2;
+            this.chkLoot.Text = "Loot";
+            this.chkLoot.UseVisualStyleBackColor = true;
+            this.chkLoot.CheckedChanged += new System.EventHandler(this.chkLoot_CheckedChanged);
+            // 
+            // chkWho
+            // 
+            this.chkWho.AutoSize = true;
+            this.chkWho.Location = new System.Drawing.Point(7, 43);
+            this.chkWho.Name = "chkWho";
+            this.chkWho.Size = new System.Drawing.Size(51, 17);
+            this.chkWho.TabIndex = 1;
+            this.chkWho.Text = "/who";
+            this.chkWho.UseVisualStyleBackColor = true;
+            this.chkWho.CheckedChanged += new System.EventHandler(this.chkWho_CheckedChanged);
+            // 
+            // chkTells
+            // 
+            this.chkTells.AutoSize = true;
+            this.chkTells.Location = new System.Drawing.Point(7, 20);
+            this.chkTells.Name = "chkTells";
+            this.chkTells.Size = new System.Drawing.Size(48, 17);
+            this.chkTells.TabIndex = 0;
+            this.chkTells.Text = "Tells";
+            this.chkTells.UseVisualStyleBackColor = true;
+            this.chkTells.CheckedChanged += new System.EventHandler(this.chkTells_CheckedChanged);
             // 
             // lblAttd
             // 
@@ -1322,17 +1343,17 @@ namespace ES_DKP_Utils
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(272, 208);
+            this.btnClear.Location = new System.Drawing.Point(482, 224);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(24, 24);
+            this.btnClear.Size = new System.Drawing.Size(69, 24);
             this.btnClear.TabIndex = 33;
-            this.btnClear.Text = "X";
+            this.btnClear.Text = "Clear Tells";
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
             // 
             // dtpRaidDate
             // 
             this.dtpRaidDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpRaidDate.Location = new System.Drawing.Point(88, 8);
+            this.dtpRaidDate.Location = new System.Drawing.Point(75, 12);
             this.dtpRaidDate.Name = "dtpRaidDate";
             this.dtpRaidDate.Size = new System.Drawing.Size(128, 20);
             this.dtpRaidDate.TabIndex = 1;
@@ -1341,7 +1362,7 @@ namespace ES_DKP_Utils
             // 
             // btnRemove
             // 
-            this.btnRemove.Location = new System.Drawing.Point(8, 120);
+            this.btnRemove.Location = new System.Drawing.Point(8, 100);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(64, 32);
             this.btnRemove.TabIndex = 6;
@@ -1350,83 +1371,50 @@ namespace ES_DKP_Utils
             // 
             // btnAdd
             // 
-            this.btnAdd.Location = new System.Drawing.Point(8, 80);
+            this.btnAdd.Location = new System.Drawing.Point(8, 62);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(64, 32);
             this.btnAdd.TabIndex = 3;
             this.btnAdd.Text = "Add Person";
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
             // 
-            // lbl2Tier
-            // 
-            this.lbl2Tier.Location = new System.Drawing.Point(144, 214);
-            this.lbl2Tier.Name = "lbl2Tier";
-            this.lbl2Tier.Size = new System.Drawing.Size(88, 16);
-            this.lbl2Tier.TabIndex = 32;
-            this.lbl2Tier.Text = "Double Tier";
-            // 
             // chkDouble
             // 
-            this.chkDouble.Location = new System.Drawing.Point(128, 214);
+            this.chkDouble.Location = new System.Drawing.Point(155, 162);
             this.chkDouble.Name = "chkDouble";
-            this.chkDouble.Size = new System.Drawing.Size(16, 16);
+            this.chkDouble.Size = new System.Drawing.Size(88, 16);
             this.chkDouble.TabIndex = 12;
+            this.chkDouble.Text = "Double Tier";
             this.chkDouble.CheckedChanged += new System.EventHandler(this.chkDouble_CheckedChanged);
-            // 
-            // btnImport
-            // 
-            this.btnImport.Location = new System.Drawing.Point(8, 168);
-            this.btnImport.Name = "btnImport";
-            this.btnImport.Size = new System.Drawing.Size(64, 32);
-            this.btnImport.TabIndex = 9;
-            this.btnImport.Text = "Import Data";
-            this.btnImport.Click += new System.EventHandler(this.btnImport_Click);
             // 
             // lblZoneNames
             // 
-            this.lblZoneNames.Location = new System.Drawing.Point(0, 240);
+            this.lblZoneNames.Location = new System.Drawing.Point(5, 211);
             this.lblZoneNames.Name = "lblZoneNames";
-            this.lblZoneNames.Size = new System.Drawing.Size(136, 24);
+            this.lblZoneNames.Size = new System.Drawing.Size(146, 24);
             this.lblZoneNames.TabIndex = 28;
             this.lblZoneNames.Text = "Raid Zone Shortname(s):";
+            this.lblZoneNames.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // txtZoneNames
             // 
-            this.txtZoneNames.Location = new System.Drawing.Point(136, 240);
+            this.txtZoneNames.Location = new System.Drawing.Point(8, 236);
             this.txtZoneNames.Name = "txtZoneNames";
-            this.txtZoneNames.Size = new System.Drawing.Size(160, 20);
+            this.txtZoneNames.Size = new System.Drawing.Size(258, 20);
             this.txtZoneNames.TabIndex = 13;
-            // 
-            // btnParseTells
-            // 
-            this.btnParseTells.Location = new System.Drawing.Point(168, 168);
-            this.btnParseTells.Name = "btnParseTells";
-            this.btnParseTells.Size = new System.Drawing.Size(64, 32);
-            this.btnParseTells.TabIndex = 11;
-            this.btnParseTells.Text = "Watch For Tells";
-            this.btnParseTells.Click += new System.EventHandler(this.btnParseTells_Click);
             // 
             // btnSaveRaid
             // 
-            this.btnSaveRaid.Location = new System.Drawing.Point(88, 168);
+            this.btnSaveRaid.Location = new System.Drawing.Point(78, 176);
             this.btnSaveRaid.Name = "btnSaveRaid";
             this.btnSaveRaid.Size = new System.Drawing.Size(64, 32);
             this.btnSaveRaid.TabIndex = 10;
             this.btnSaveRaid.Text = "Save Raid";
             this.btnSaveRaid.Click += new System.EventHandler(this.btnSaveRaid_Click);
             // 
-            // btnParseWho
-            // 
-            this.btnParseWho.Location = new System.Drawing.Point(168, 120);
-            this.btnParseWho.Name = "btnParseWho";
-            this.btnParseWho.Size = new System.Drawing.Size(64, 32);
-            this.btnParseWho.TabIndex = 8;
-            this.btnParseWho.Text = "Watch for /who";
-            this.btnParseWho.Click += new System.EventHandler(this.btnParseWho_Click);
-            // 
             // btnRecordLoot
             // 
-            this.btnRecordLoot.Location = new System.Drawing.Point(88, 120);
+            this.btnRecordLoot.Location = new System.Drawing.Point(78, 62);
             this.btnRecordLoot.Name = "btnRecordLoot";
             this.btnRecordLoot.Size = new System.Drawing.Size(64, 32);
             this.btnRecordLoot.TabIndex = 7;
@@ -1439,7 +1427,7 @@ namespace ES_DKP_Utils
             this.grpItemTier.Controls.Add(this.rdoA);
             this.grpItemTier.Controls.Add(this.rdoB);
             this.grpItemTier.Controls.Add(this.rdoC);
-            this.grpItemTier.Location = new System.Drawing.Point(327, 212);
+            this.grpItemTier.Location = new System.Drawing.Point(272, 208);
             this.grpItemTier.Name = "grpItemTier";
             this.grpItemTier.Size = new System.Drawing.Size(162, 48);
             this.grpItemTier.TabIndex = 22;
@@ -1540,7 +1528,7 @@ namespace ES_DKP_Utils
             // 
             // btnLoot
             // 
-            this.btnLoot.Location = new System.Drawing.Point(168, 80);
+            this.btnLoot.Location = new System.Drawing.Point(8, 176);
             this.btnLoot.Name = "btnLoot";
             this.btnLoot.Size = new System.Drawing.Size(64, 32);
             this.btnLoot.TabIndex = 5;
@@ -1549,7 +1537,7 @@ namespace ES_DKP_Utils
             // 
             // btnAttendees
             // 
-            this.btnAttendees.Location = new System.Drawing.Point(88, 80);
+            this.btnAttendees.Location = new System.Drawing.Point(8, 138);
             this.btnAttendees.Name = "btnAttendees";
             this.btnAttendees.Size = new System.Drawing.Size(64, 32);
             this.btnAttendees.TabIndex = 4;
@@ -1558,31 +1546,33 @@ namespace ES_DKP_Utils
             // 
             // txtRaidName
             // 
-            this.txtRaidName.Location = new System.Drawing.Point(88, 32);
+            this.txtRaidName.Location = new System.Drawing.Point(75, 36);
             this.txtRaidName.Name = "txtRaidName";
-            this.txtRaidName.Size = new System.Drawing.Size(120, 20);
+            this.txtRaidName.Size = new System.Drawing.Size(191, 20);
             this.txtRaidName.TabIndex = 2;
             this.txtRaidName.Leave += new System.EventHandler(this.txtRaidName_Leave);
             // 
             // lblRaidDate
             // 
-            this.lblRaidDate.Location = new System.Drawing.Point(8, 8);
+            this.lblRaidDate.Location = new System.Drawing.Point(5, 16);
             this.lblRaidDate.Name = "lblRaidDate";
             this.lblRaidDate.Size = new System.Drawing.Size(64, 16);
             this.lblRaidDate.TabIndex = 1;
             this.lblRaidDate.Text = "Raid Date:";
+            this.lblRaidDate.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lblRaidName
             // 
-            this.lblRaidName.Location = new System.Drawing.Point(8, 32);
+            this.lblRaidName.Location = new System.Drawing.Point(5, 37);
             this.lblRaidName.Name = "lblRaidName";
             this.lblRaidName.Size = new System.Drawing.Size(64, 16);
             this.lblRaidName.TabIndex = 0;
             this.lblRaidName.Text = "Raid Name:";
+            this.lblRaidName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // pgbProgress
             // 
-            this.pgbProgress.Location = new System.Drawing.Point(279, 279);
+            this.pgbProgress.Location = new System.Drawing.Point(279, 282);
             this.pgbProgress.Name = "pgbProgress";
             this.pgbProgress.Size = new System.Drawing.Size(103, 22);
             this.pgbProgress.Step = 1;
@@ -1592,7 +1582,7 @@ namespace ES_DKP_Utils
             // frmMain
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(567, 301);
+            this.ClientSize = new System.Drawing.Size(567, 304);
             this.Controls.Add(this.pgbProgress);
             this.Controls.Add(this.panel);
             this.Controls.Add(this.stbStatusBar);
@@ -1606,6 +1596,8 @@ namespace ES_DKP_Utils
             ((System.ComponentModel.ISupportInitialize)(this.sbpParseCount)).EndInit();
             this.panel.ResumeLayout(false);
             this.panel.PerformLayout();
+            this.grpWatchFor.ResumeLayout(false);
+            this.grpWatchFor.PerformLayout();
             this.grpItemTier.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -1653,6 +1645,21 @@ namespace ES_DKP_Utils
             }
 
             debugLogger.WriteDebug_3("End Method: mnuImportRaidDump_Click()");
+        }
+
+        private void chkTells_CheckedChanged(object sender, EventArgs e)
+        {
+            parser.TellsOn = chkTells.Checked;
+        }
+
+        private void chkWho_CheckedChanged(object sender, EventArgs e)
+        {
+            parser.AttendanceOn = chkWho.Checked;
+        }
+
+        private void chkLoot_CheckedChanged(object sender, EventArgs e)
+        {
+            parser.LootOn = chkLoot.Checked;
         }
 
 	}
