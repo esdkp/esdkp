@@ -431,7 +431,7 @@ namespace ES_DKP_Utils
 			string line;
 			FileStream input;
 			StreamReader sr;
-			Regex regex = new Regex("\\[.*?\\]\\s\\[.*?\\]\\s[a-zA-Z]*?\\s\\(.*?\\)\\s<Eternal Sovereign>\\sZONE:\\s[a-z]*.*");
+            Regex regex = new Regex(@"\[.*\] \[.*\] (?<name>\S+).*<(?<guild>.*)> ZONE: (?<zone>.*)$");
 			Match m;
 			ArrayList people = new ArrayList();
 		
@@ -458,20 +458,15 @@ namespace ES_DKP_Utils
 					m = regex.Match(line);
                     if (m.Success)
                     {
-                        debugLogger.WriteDebug_3(line + " matches attendance regex, parsing");
-                        string[] parsed = ParseLine(line);
-                        foreach (string zone in zones)
+                        string _guild = m.Groups["guild"].ToString();
+                        string _zone = m.Groups["zone"].ToString();
+                        string _name = m.Groups["name"].ToString();
+
+                        if (owner.GuildNames.Contains(_guild) && zo.Contains(_zone) && !people.Contains(_name))
                         {
-                            if ((zone == parsed[1]) && !people.Contains(parsed[0]))
-                            {
-                                debugLogger.WriteDebug_2(parsed[0] + " is in zone " + parsed[1] + ", adding to people array.");
-                                people.Add(parsed[0]);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        debugLogger.WriteDebug_3(line + " does not match attendance regex");
+                            debugLogger.WriteDebug_2(_name + " <" + _guild + "> is in zone " + _zone + ", adding to people array.");
+                            people.Add(_name);
+                        }        
                     }
 				}
 			} while (line!=null);
@@ -567,15 +562,23 @@ namespace ES_DKP_Utils
 
 		public string[] ParseLine(string line)
 		{
+            /* Whatever is using this function is expecting a string array to come back with these elements:
+             *   0: Raider's Name
+             *   1: Zone
+             *   
+             * I've added guild as paramater [2], in case we want to use it in guild name matching.
+             */
             debugLogger.WriteDebug_3("Begin Method: Raid.ParseLine(string) (" + line.ToString() + ")");
 
-			string parsed = line.Trim();
-			parsed = Regex.Replace(parsed,"\\[.*?\\]\\s\\[.*?\\]\\s","");
-			parsed = Regex.Replace(parsed,"\\(.*?\\)\\s<Eternal Sovereign>\\sZONE:\\s","");
-			string[] parsedSplit = parsed.Split(new char[] { ' ' });
+            Regex r = new Regex(@"\[.*\] \[.*\] (?<name>\S+).*<(?<guild>.*)> ZONE: (?<zone>.*)$");
+            Match m = r.Match(line.Trim());
 
-            debugLogger.WriteDebug_3("End Method: Raid.ParseLine(), returning {" + parsedSplit[0] + "," + parsedSplit[1] + "}");
-			return parsedSplit;
+            string[] results = { m.Groups["name"].ToString(), 
+                                 m.Groups["zone"].ToString(),
+                                 m.Groups["guild"].ToString() };
+
+            debugLogger.WriteDebug_3("End Method: Raid.ParseLine(), returning {" + results[0] + "," + results[1] + "}");
+			return results;
 		}
 
 		public void AddRowToLocalTable(object[] o)

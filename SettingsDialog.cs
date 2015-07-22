@@ -22,8 +22,8 @@ namespace ES_DKP_Utils
 		private System.Windows.Forms.TextBox txtOutputDirectory;
 		private System.Windows.Forms.TextBox txtTax;
 		private System.Windows.Forms.Label lblTax;
-		private System.Windows.Forms.Label lblPct;
-		private System.ComponentModel.Container components = null;
+        private System.Windows.Forms.Label lblPct;
+        private IContainer components;
         private System.Windows.Forms.Label lblReportDir;
         private Label lblDatabase;
         private Button btnChangeLocalDBFile;
@@ -41,6 +41,9 @@ namespace ES_DKP_Utils
         private Label lblTierBPct;
         private TextBox txtTierCPct;
         private Label lblTierCPct;
+        private TextBox txtGuildNames;
+        private Label lblGuildNames;
+        private ToolTip toolTipGuildNames;
         private DebugLogger debugLogger;
 		#endregion
 
@@ -65,7 +68,7 @@ namespace ES_DKP_Utils
             txtTierAPct.Text = iniFile.Configs["Other"].GetDouble("tierapct", 0.60) + "";
             txtTierBPct.Text = iniFile.Configs["Other"].GetDouble("tierbpct", 0.40) + "";
             txtTierCPct.Text = iniFile.Configs["Other"].GetDouble("tiercpct", 0.30) + "";
-
+            txtGuildNames.Text = iniFile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
             debugLogger.WriteDebug_3("End Method: frmSettings.frmSettings()");
 		}
 		#endregion
@@ -137,13 +140,14 @@ namespace ES_DKP_Utils
 			owner.DBString = txtLocalDBFile.Text;
 			owner.LogFile = txtLogFile.Text;
 
-			iniFile.Configs["Files"].Set("logfile",txtLogFile.Text);
-			iniFile.Configs["Files"].Set("dbfile",txtLocalDBFile.Text);
-			iniFile.Configs["Files"].Set("outdir",txtOutputDirectory.Text);
+			iniFile.Configs["Files"].Set("logfile", txtLogFile.Text);
+			iniFile.Configs["Files"].Set("dbfile", txtLocalDBFile.Text);
+			iniFile.Configs["Files"].Set("outdir", txtOutputDirectory.Text);
             iniFile.Configs["Other"].Set("mindkp", Double.Parse(txtMinDKP.Text));
             iniFile.Configs["Other"].Set("tierapct", Double.Parse(txtTierAPct.Text));
             iniFile.Configs["Other"].Set("tierbpct", Double.Parse(txtTierBPct.Text));
             iniFile.Configs["Other"].Set("tiercpct", Double.Parse(txtTierCPct.Text));
+            iniFile.Configs["Other"].Set("GuildNames", txtGuildNames.Text);
 
             try { 
 				double d = Double.Parse(txtTax.Text);	
@@ -177,6 +181,7 @@ namespace ES_DKP_Utils
         #region Windows Form Designer generated code
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsDialog));
             this.txtLogFile = new System.Windows.Forms.TextBox();
             this.btnChangeLogFile = new System.Windows.Forms.Button();
@@ -200,6 +205,9 @@ namespace ES_DKP_Utils
             this.lblTierBPct = new System.Windows.Forms.Label();
             this.txtTierCPct = new System.Windows.Forms.TextBox();
             this.lblTierCPct = new System.Windows.Forms.Label();
+            this.txtGuildNames = new System.Windows.Forms.TextBox();
+            this.lblGuildNames = new System.Windows.Forms.Label();
+            this.toolTipGuildNames = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // txtLogFile
@@ -230,7 +238,7 @@ namespace ES_DKP_Utils
             // btnOK
             // 
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOK.Location = new System.Drawing.Point(94, 233);
+            this.btnOK.Location = new System.Drawing.Point(94, 291);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(72, 32);
             this.btnOK.TabIndex = 6;
@@ -240,7 +248,7 @@ namespace ES_DKP_Utils
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(175, 233);
+            this.btnCancel.Location = new System.Drawing.Point(175, 291);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(72, 32);
             this.btnCancel.TabIndex = 7;
@@ -389,10 +397,36 @@ namespace ES_DKP_Utils
             this.lblTierCPct.Text = "Tier C Pct:";
             this.lblTierCPct.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // txtGuildNames
+            // 
+            this.txtGuildNames.Location = new System.Drawing.Point(106, 215);
+            this.txtGuildNames.Name = "txtGuildNames";
+            this.txtGuildNames.Size = new System.Drawing.Size(192, 20);
+            this.txtGuildNames.TabIndex = 46;
+            // 
+            // lblGuildNames
+            // 
+            this.lblGuildNames.AutoSize = true;
+            this.lblGuildNames.Location = new System.Drawing.Point(30, 218);
+            this.lblGuildNames.Name = "lblGuildNames";
+            this.lblGuildNames.Size = new System.Drawing.Size(70, 13);
+            this.lblGuildNames.TabIndex = 47;
+            this.lblGuildNames.Text = "Guild Names:";
+            this.lblGuildNames.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolTipGuildNames.SetToolTip(this.lblGuildNames, "Separate Guild Names with a Pipe\r\n\r\nFor example:\r\nEternal Sovereign|Crusaders Val" +
+        "ourous");
+            // 
+            // toolTipGuildNames
+            // 
+            this.toolTipGuildNames.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.toolTipGuildNames.ToolTipTitle = "Multiple Guild Names";
+            // 
             // SettingsDialog
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(337, 277);
+            this.ClientSize = new System.Drawing.Size(337, 335);
+            this.Controls.Add(this.lblGuildNames);
+            this.Controls.Add(this.txtGuildNames);
             this.Controls.Add(this.txtTierCPct);
             this.Controls.Add(this.lblTierCPct);
             this.Controls.Add(this.txtTierBPct);

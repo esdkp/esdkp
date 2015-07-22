@@ -9,12 +9,9 @@ using System.Data.OleDb;
 
 namespace ES_DKP_Utils
 {
-
-   
-
 	public class LogParser
     {
-        public enum TriVal { TELL, WHO, NA }
+        public enum LogLineType { TELL, WHO, LOOT, NA }
 
         #region Declarations
         private FileStream logStream;
@@ -29,58 +26,39 @@ namespace ES_DKP_Utils
         private ArrayList _Tells;
 		public ArrayList Tells
 		{
-			get
-			{
-				return _Tells;
-			}
-			set
-			{
-				_Tells = value;
-                
-			}
+			get	{ return _Tells; }
+			set	{ _Tells = value; }
 		}
 
 		private ArrayList _TellsDKP;
 		public ArrayList TellsDKP
 		{
-			get
-			{
-				return _TellsDKP;
-			}
-			set
-			{
-				_TellsDKP = value;
-                
-			}
+			get { return _TellsDKP;	}
+			set	{ _TellsDKP = value; }
 		}
 
 		private bool _TellsOn;
 		public bool TellsOn
 		{
-			get
-			{
-				return _TellsOn;
-			}
-			set
-			{
-				_TellsOn = value;
-                
-			}
+			get	{ return _TellsOn; }
+			set	{
+                _TellsOn = value;
+            }
 		}
 
 		private bool _AttendanceOn;
 		public bool AttendanceOn
 		{
-			get
-			{
-				return _AttendanceOn;
-			}
-			set
-			{
-				_AttendanceOn = value;
-                
-			}
+			get { return _AttendanceOn; }
+            set { _AttendanceOn = value; }
 		}
+
+        private bool _LootOn;
+        public bool LootOn
+        {
+            get { return _LootOn; }
+            set { _LootOn = value; }
+        }
 
 		private frmMain owner;
         private DebugLogger debugLogger;
@@ -188,22 +166,22 @@ namespace ES_DKP_Utils
             debugLogger.WriteDebug_3("End Method: OnChanged()");
 		}
 
-		public TriVal Parse(string s)
+		public LogLineType Parse(string s)
 		{
             debugLogger.WriteDebug_3("Begin Method: Parse(string) (" + s.ToString() + ")");
 
-			if (TellsOn) 
+			if (TellsOn)
 			{
-				string name;
-				Regex r = new Regex("\\[.*?\\]\\s[a-zA-Z]*?\\s(tells|told)\\syou,\\s'.*");
+                Regex r = new Regex(@"\[.*\] (?<name>\S+) (tells|told) you, '(?<message>.*)'");
 				Match m = r.Match(s);
+
 				if (m.Success) 
 				{
                     debugLogger.WriteDebug_3(s + " matches tell regex.");
 
                     owner.ParseCount++;
-					name = Regex.Replace(s,"\\[.*?\\]\\s","");
-					name = Regex.Replace(name,"\\s(tells|told)\\syou,\\s'.*","");
+
+                    string name = m.Groups["name"].ToString();
 					if (!Tells.Contains(name)) 
 					{
                         debugLogger.WriteDebug_3(name + " is not in tell array already.");
@@ -221,37 +199,35 @@ namespace ES_DKP_Utils
 						TellsDKP.Sort();
                         owner.RefreshTells = true;					
 					}
-					return TriVal.TELL;
+					return LogLineType.TELL;
 				}
                 debugLogger.WriteDebug_3(s + " does not match tell regex.");
 			}
 
 			if (AttendanceOn)
 			{
-				string[] z = owner.Zones;
-				Regex regex = new Regex("\\[.*?\\]\\s\\[.*?\\]\\s[a-zA-Z]*?\\s\\(.*?\\)\\s<Eternal Sovereign>\\sZONE:\\s[a-z]*.*");
-				Match m = regex.Match(s);
+                string zones = owner.Zones;
+                Regex r = new Regex(@"\[.*\] \[.*\] (?<name>\S+).*<(?<guild>.*)> ZONE: (?<zone>.*)$");
+                Match m = r.Match(s.Trim());
+
 				if (m.Success)
 				{
-                    debugLogger.WriteDebug_3(s + " matches attendance regex.");
+                    string _guild = m.Groups["guild"].ToString();
+                    string _zone = m.Groups["zone"].ToString();
+                    string _name = m.Groups["name"].ToString();
 
-					string[] parsed = owner.CurrentRaid.ParseLine(s);
-					foreach (string zone in z)
+					if ( zones.Contains(_zone) && owner.GuildNames.Contains(_guild))
 					{
-						if (zone == parsed[1]) 
-						{
-                            debugLogger.WriteDebug_3(parsed[0] + " is in zone " + parsed[1] + " which is in attendance zone array, adding");
-							owner.CurrentRaid.InputPerson(parsed[0]);
-						} 
-					}
+                        debugLogger.WriteDebug_3(_name + " <" + _guild + "> is in " + _zone + " which is in attendance zone array, adding");
+						owner.CurrentRaid.InputPerson(_name);
+					} 
+
                     owner.ParseCount++;
-                    return TriVal.WHO;
-				} else {
-                    debugLogger.WriteDebug_3(s + " does not match attendance regex.");
-                }
+                    return LogLineType.WHO;
+				}
 			}
             debugLogger.WriteDebug_3("End Method: Parse()");
-            return TriVal.NA;
+            return LogLineType.NA;
         }
         #endregion
 
@@ -311,13 +287,13 @@ namespace ES_DKP_Utils
                 {
                     switch (Parse(line))
                     {
-                        case TriVal.TELL:
+                        case LogLineType.TELL:
                             tells++;
                             break;
-                        case TriVal.WHO:
+                        case LogLineType.WHO:
                             whos++;
                             break;
-                        case TriVal.NA:
+                        case LogLineType.NA:
                             break;
                     }
                     lines++;
