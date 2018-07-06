@@ -44,6 +44,9 @@ namespace ES_DKP_Utils
         private TextBox txtGuildNames;
         private Label lblGuildNames;
         private ToolTip toolTipGuildNames;
+        private Label lblBackupDirectory;
+        private TextBox txtBackupDirectory;
+        private Button btnChangeBackupDirectory;
         private DebugLogger debugLogger;
 		#endregion
 
@@ -63,6 +66,7 @@ namespace ES_DKP_Utils
 			txtLogFile.Text = iniFile.Configs["Files"].GetString("logfile","");
 			txtLocalDBFile.Text = iniFile.Configs["Files"].GetString("dbfile","");
 			txtOutputDirectory.Text = iniFile.Configs["Files"].GetString("outdir","");
+            //txtBackupDirectory.Text = iniFile.Configs["Files"].GetString("backup_directory", "\\backups");
 			txtTax.Text = iniFile.Configs["Other"].GetDouble("tax",0)*100 + "";
             txtMinDKP.Text = iniFile.Configs["Other"].GetDouble("mindkp", 0) + "";
             txtTierAPct.Text = iniFile.Configs["Other"].GetDouble("tierapct", 0.60) + "";
@@ -133,7 +137,27 @@ namespace ES_DKP_Utils
 
 		}
 
-		private void btnOK_Click(object sender, System.EventArgs e)
+        private void btnChangeBackupDirectory_Click(object sender, System.EventArgs e)
+        {
+            debugLogger.WriteDebug_3("Begin Method: btnChangeBackupDirectory_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+
+            dlgFolderDialog = new FolderBrowserDialog();
+            dlgFolderDialog.ShowNewFolderButton = true;
+            if ((txtBackupDirectory.Text != null && txtBackupDirectory.Text.Length != 0)) dlgFolderDialog.SelectedPath = txtBackupDirectory.Text;
+
+            if (dlgFolderDialog.ShowDialog() == DialogResult.OK)
+            {
+                debugLogger.WriteDebug_2("Select Backup Directory Dialog returns " + dlgFolderDialog.SelectedPath);
+
+                txtBackupDirectory.Text = dlgFolderDialog.SelectedPath;
+                dlgFolderDialog.Dispose();
+            }
+
+            debugLogger.WriteDebug_3("End Method: changeOutput_Click()");
+
+        }
+
+        private void btnOK_Click(object sender, System.EventArgs e)
 		{
             debugLogger.WriteDebug_3("Begin Method: settingsOK_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
@@ -143,6 +167,7 @@ namespace ES_DKP_Utils
 			iniFile.Configs["Files"].Set("logfile", txtLogFile.Text);
 			iniFile.Configs["Files"].Set("dbfile", txtLocalDBFile.Text);
 			iniFile.Configs["Files"].Set("outdir", txtOutputDirectory.Text);
+            iniFile.Configs["Files"].Set("backupdir", txtBackupDirectory.Text);
             iniFile.Configs["Other"].Set("mindkp", Double.Parse(txtMinDKP.Text));
             iniFile.Configs["Other"].Set("tierapct", Double.Parse(txtTierAPct.Text));
             iniFile.Configs["Other"].Set("tierbpct", Double.Parse(txtTierBPct.Text));
@@ -208,6 +233,9 @@ namespace ES_DKP_Utils
             this.txtGuildNames = new System.Windows.Forms.TextBox();
             this.lblGuildNames = new System.Windows.Forms.Label();
             this.toolTipGuildNames = new System.Windows.Forms.ToolTip(this.components);
+            this.lblBackupDirectory = new System.Windows.Forms.Label();
+            this.txtBackupDirectory = new System.Windows.Forms.TextBox();
+            this.btnChangeBackupDirectory = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // txtLogFile
@@ -281,14 +309,14 @@ namespace ES_DKP_Utils
             // 
             // txtTax
             // 
-            this.txtTax.Location = new System.Drawing.Point(106, 86);
+            this.txtTax.Location = new System.Drawing.Point(106, 125);
             this.txtTax.Name = "txtTax";
             this.txtTax.Size = new System.Drawing.Size(60, 20);
             this.txtTax.TabIndex = 4;
             // 
             // lblTax
             // 
-            this.lblTax.Location = new System.Drawing.Point(44, 89);
+            this.lblTax.Location = new System.Drawing.Point(44, 128);
             this.lblTax.Name = "lblTax";
             this.lblTax.Size = new System.Drawing.Size(56, 12);
             this.lblTax.TabIndex = 34;
@@ -297,7 +325,7 @@ namespace ES_DKP_Utils
             // 
             // lblPct
             // 
-            this.lblPct.Location = new System.Drawing.Point(172, 87);
+            this.lblPct.Location = new System.Drawing.Point(172, 126);
             this.lblPct.Name = "lblPct";
             this.lblPct.Size = new System.Drawing.Size(15, 17);
             this.lblPct.TabIndex = 35;
@@ -331,7 +359,7 @@ namespace ES_DKP_Utils
             // lblMinDKP
             // 
             this.lblMinDKP.AutoSize = true;
-            this.lblMinDKP.Location = new System.Drawing.Point(27, 115);
+            this.lblMinDKP.Location = new System.Drawing.Point(27, 154);
             this.lblMinDKP.Name = "lblMinDKP";
             this.lblMinDKP.Size = new System.Drawing.Size(73, 13);
             this.lblMinDKP.TabIndex = 39;
@@ -340,7 +368,7 @@ namespace ES_DKP_Utils
             // 
             // txtMinDKP
             // 
-            this.txtMinDKP.Location = new System.Drawing.Point(106, 112);
+            this.txtMinDKP.Location = new System.Drawing.Point(106, 151);
             this.txtMinDKP.Name = "txtMinDKP";
             this.txtMinDKP.Size = new System.Drawing.Size(60, 20);
             this.txtMinDKP.TabIndex = 5;
@@ -348,7 +376,7 @@ namespace ES_DKP_Utils
             // lblTierAPct
             // 
             this.lblTierAPct.AutoSize = true;
-            this.lblTierAPct.Location = new System.Drawing.Point(43, 142);
+            this.lblTierAPct.Location = new System.Drawing.Point(43, 181);
             this.lblTierAPct.Name = "lblTierAPct";
             this.lblTierAPct.Size = new System.Drawing.Size(57, 13);
             this.lblTierAPct.TabIndex = 40;
@@ -357,14 +385,14 @@ namespace ES_DKP_Utils
             // 
             // txtTierAPct
             // 
-            this.txtTierAPct.Location = new System.Drawing.Point(106, 139);
+            this.txtTierAPct.Location = new System.Drawing.Point(106, 178);
             this.txtTierAPct.Name = "txtTierAPct";
             this.txtTierAPct.Size = new System.Drawing.Size(60, 20);
             this.txtTierAPct.TabIndex = 41;
             // 
             // txtTierBPct
             // 
-            this.txtTierBPct.Location = new System.Drawing.Point(106, 162);
+            this.txtTierBPct.Location = new System.Drawing.Point(106, 201);
             this.txtTierBPct.Name = "txtTierBPct";
             this.txtTierBPct.Size = new System.Drawing.Size(60, 20);
             this.txtTierBPct.TabIndex = 43;
@@ -372,17 +400,16 @@ namespace ES_DKP_Utils
             // lblTierBPct
             // 
             this.lblTierBPct.AutoSize = true;
-            this.lblTierBPct.Location = new System.Drawing.Point(43, 165);
+            this.lblTierBPct.Location = new System.Drawing.Point(43, 204);
             this.lblTierBPct.Name = "lblTierBPct";
             this.lblTierBPct.Size = new System.Drawing.Size(57, 13);
             this.lblTierBPct.TabIndex = 42;
             this.lblTierBPct.Text = "Tier B Pct:";
             this.lblTierBPct.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.lblTierBPct.Click += new System.EventHandler(this.label1_Click);
             // 
             // txtTierCPct
             // 
-            this.txtTierCPct.Location = new System.Drawing.Point(106, 188);
+            this.txtTierCPct.Location = new System.Drawing.Point(106, 227);
             this.txtTierCPct.Name = "txtTierCPct";
             this.txtTierCPct.Size = new System.Drawing.Size(60, 20);
             this.txtTierCPct.TabIndex = 45;
@@ -390,7 +417,7 @@ namespace ES_DKP_Utils
             // lblTierCPct
             // 
             this.lblTierCPct.AutoSize = true;
-            this.lblTierCPct.Location = new System.Drawing.Point(43, 191);
+            this.lblTierCPct.Location = new System.Drawing.Point(43, 230);
             this.lblTierCPct.Name = "lblTierCPct";
             this.lblTierCPct.Size = new System.Drawing.Size(57, 13);
             this.lblTierCPct.TabIndex = 44;
@@ -399,7 +426,7 @@ namespace ES_DKP_Utils
             // 
             // txtGuildNames
             // 
-            this.txtGuildNames.Location = new System.Drawing.Point(106, 215);
+            this.txtGuildNames.Location = new System.Drawing.Point(106, 254);
             this.txtGuildNames.Name = "txtGuildNames";
             this.txtGuildNames.Size = new System.Drawing.Size(192, 20);
             this.txtGuildNames.TabIndex = 46;
@@ -407,7 +434,7 @@ namespace ES_DKP_Utils
             // lblGuildNames
             // 
             this.lblGuildNames.AutoSize = true;
-            this.lblGuildNames.Location = new System.Drawing.Point(30, 218);
+            this.lblGuildNames.Location = new System.Drawing.Point(30, 257);
             this.lblGuildNames.Name = "lblGuildNames";
             this.lblGuildNames.Size = new System.Drawing.Size(70, 13);
             this.lblGuildNames.TabIndex = 47;
@@ -421,10 +448,39 @@ namespace ES_DKP_Utils
             this.toolTipGuildNames.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
             this.toolTipGuildNames.ToolTipTitle = "Multiple Guild Names";
             // 
+            // lblBackupDirectory
+            // 
+            this.lblBackupDirectory.Location = new System.Drawing.Point(-7, 84);
+            this.lblBackupDirectory.Name = "lblBackupDirectory";
+            this.lblBackupDirectory.Size = new System.Drawing.Size(107, 22);
+            this.lblBackupDirectory.TabIndex = 48;
+            this.lblBackupDirectory.Text = "Backup Directory:";
+            this.lblBackupDirectory.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // txtBackupDirectory
+            // 
+            this.txtBackupDirectory.Location = new System.Drawing.Point(106, 86);
+            this.txtBackupDirectory.Name = "txtBackupDirectory";
+            this.txtBackupDirectory.Size = new System.Drawing.Size(192, 20);
+            this.txtBackupDirectory.TabIndex = 49;
+            // 
+            // btnChangeBackupDirectory
+            // 
+            this.btnChangeBackupDirectory.Image = ((System.Drawing.Image)(resources.GetObject("btnChangeBackupDirectory.Image")));
+            this.btnChangeBackupDirectory.Location = new System.Drawing.Point(304, 86);
+            this.btnChangeBackupDirectory.Name = "btnChangeBackupDirectory";
+            this.btnChangeBackupDirectory.Size = new System.Drawing.Size(24, 20);
+            this.btnChangeBackupDirectory.TabIndex = 50;
+            this.btnChangeBackupDirectory.Click += new System.EventHandler(this.btnChangeBackupDirectory_Click);
+
+            // 
             // SettingsDialog
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(337, 335);
+            this.Controls.Add(this.btnChangeBackupDirectory);
+            this.Controls.Add(this.txtBackupDirectory);
+            this.Controls.Add(this.lblBackupDirectory);
             this.Controls.Add(this.lblGuildNames);
             this.Controls.Add(this.txtGuildNames);
             this.Controls.Add(this.txtTierCPct);
@@ -455,7 +511,6 @@ namespace ES_DKP_Utils
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Settings";
             this.TopMost = true;
-            this.Load += new System.EventHandler(this.SettingsDialog_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -472,16 +527,5 @@ namespace ES_DKP_Utils
             base.Dispose(disposing);
         }
         #endregion
-
-        private void SettingsDialog_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-	}
+    }
 }
