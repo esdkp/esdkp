@@ -37,6 +37,7 @@ using System.Windows.Forms;
 using System.Data;
 using System.Data.OleDb;
 using System.IO;
+using System.IO.Compression;
 using System.Text.RegularExpressions;
 using Nini.Config;
 
@@ -164,7 +165,14 @@ namespace ES_DKP_Utils
 			set { _OutputDirectory = value; }
 		}
 
-		private System.Double _DKPTax;
+        private string _BackupDirectory;
+        public string BackupDirectory
+        {
+            get { return _BackupDirectory; }
+            set { _BackupDirectory = value; }
+        }
+
+        private System.Double _DKPTax;
 		public System.Double DKPTax
 		{
 			get { return _DKPTax; }
@@ -261,6 +269,13 @@ namespace ES_DKP_Utils
             get { return _PBVal; }
             set { _PBVal = value; }
         }
+
+        private bool _AutomaticBackups;
+        public bool AutomaticBackups
+        {
+            get { return _AutomaticBackups; }
+            set { _AutomaticBackups = value; }
+        }
         #endregion
 
         private IConfigSource inifile;
@@ -297,12 +312,14 @@ namespace ES_DKP_Utils
 				DBString = inifile.Configs["Files"].GetString("dbfile","");
 				LogFile = inifile.Configs["Files"].GetString("logfile","");
 				OutputDirectory = inifile.Configs["Files"].GetString("outdir","");
+                BackupDirectory = inifile.Configs["Files"].GetString("backupdir", Directory.GetCurrentDirectory() + "\\backups");
 				DKPTax = inifile.Configs["Other"].GetDouble("tax",0.0);
                 MinDKP = inifile.Configs["Other"].GetDouble("mindkp", 0);
                 TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.6);
                 TierBPct = inifile.Configs["Other"].GetDouble("tierbpct", 0.3);
                 TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.0);
                 GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
+                AutomaticBackups = inifile.Configs["Other"].GetBoolean("AutomaticBackups", true);
                 debugLogger.WriteDebug_1("Read settings from INI: DBFile=" + DBString + ", LogFile=" + LogFile + ", OutputDirectory="
                     + OutputDirectory + ", DKPTax=" + DKPTax + ", GuildNames=" + GuildNames);
 
@@ -331,12 +348,14 @@ namespace ES_DKP_Utils
 					LogFile = inifile.Configs["Files"].GetString("logfile","");
 					DBString = inifile.Configs["Files"].GetString("dbfile","");
 					OutputDirectory = inifile.Configs["Files"].GetString("outdir","");
-					DKPTax = inifile.Configs["Other"].GetDouble("tax",0.0);
+                    BackupDirectory = inifile.Configs["Files"].GetString("backupdir", "");
+                    DKPTax = inifile.Configs["Other"].GetDouble("tax",0.0);
                     MinDKP = inifile.Configs["Other"].GetDouble("mindkp", 0);
                     TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.6);
                     TierBPct = inifile.Configs["Other"].GetDouble("tierbpct", 0.3);
                     TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.0);
                     GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
+                    AutomaticBackups = inifile.Configs["Other"].GetBoolean("AutomaticBackups", true);
 					inifile.Save();
 					debugLogger.WriteDebug_1("Read settings from INI: dbFile=" + DBString + ", logFile=" + LogFile
                         + ", outDir=" + OutputDirectory + ", tax=" + DKPTax + ", mindkp=" + MinDKP + ", GuildNames=" + GuildNames);
@@ -354,6 +373,13 @@ namespace ES_DKP_Utils
 				MessageBox.Show("Error opening settings.ini","Error");
 				Environment.Exit(1);
 			}
+
+            if (Directory.Exists(BackupDirectory))
+            {
+                // TODO: add updating dkp database with newest version in backup directory
+                //MessageBox.Show("Backup Directory Exists.  PLEASE IMPLEMENT ME!", "Not Implemented!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
             UITimer = new Timer();
             UITimer.Interval = 100;
             UITimer.Tick += new EventHandler(UITimer_Tick);
@@ -980,19 +1006,22 @@ namespace ES_DKP_Utils
             this.sbpLineCount = new System.Windows.Forms.StatusBarPanel();
             this.sbpParseCount = new System.Windows.Forms.StatusBarPanel();
             this.panel = new System.Windows.Forms.Panel();
+            this.listOfAttd = new System.Windows.Forms.ListBox();
+            this.listOfDKP = new System.Windows.Forms.ListBox();
+            this.listOfTiers = new System.Windows.Forms.ListBox();
+            this.listOfNames = new System.Windows.Forms.ListBox();
+            this.txtZoneNames = new System.Windows.Forms.TextBox();
             this.grpWatchFor = new System.Windows.Forms.GroupBox();
             this.chkLoot = new System.Windows.Forms.CheckBox();
             this.chkWho = new System.Windows.Forms.CheckBox();
             this.chkTells = new System.Windows.Forms.CheckBox();
             this.lblAttd = new System.Windows.Forms.Label();
-            this.listOfAttd = new System.Windows.Forms.ListBox();
             this.btnClear = new System.Windows.Forms.Button();
             this.dtpRaidDate = new System.Windows.Forms.DateTimePicker();
             this.btnRemove = new System.Windows.Forms.Button();
             this.btnAdd = new System.Windows.Forms.Button();
             this.chkDouble = new System.Windows.Forms.CheckBox();
             this.lblZoneNames = new System.Windows.Forms.Label();
-            this.txtZoneNames = new System.Windows.Forms.TextBox();
             this.btnSaveRaid = new System.Windows.Forms.Button();
             this.btnRecordLoot = new System.Windows.Forms.Button();
             this.grpItemTier = new System.Windows.Forms.GroupBox();
@@ -1003,9 +1032,6 @@ namespace ES_DKP_Utils
             this.dkpLabel = new System.Windows.Forms.Label();
             this.lblTier = new System.Windows.Forms.Label();
             this.lblName = new System.Windows.Forms.Label();
-            this.listOfDKP = new System.Windows.Forms.ListBox();
-            this.listOfTiers = new System.Windows.Forms.ListBox();
-            this.listOfNames = new System.Windows.Forms.ListBox();
             this.btnLoot = new System.Windows.Forms.Button();
             this.btnAttendees = new System.Windows.Forms.Button();
             this.txtRaidName = new System.Windows.Forms.TextBox();
@@ -1280,6 +1306,45 @@ namespace ES_DKP_Utils
             this.panel.Size = new System.Drawing.Size(556, 265);
             this.panel.TabIndex = 1;
             // 
+            // listOfAttd
+            // 
+            this.listOfAttd.Location = new System.Drawing.Point(514, 16);
+            this.listOfAttd.Name = "listOfAttd";
+            this.listOfAttd.Size = new System.Drawing.Size(37, 186);
+            this.listOfAttd.TabIndex = 34;
+            this.listOfAttd.TabStop = false;
+            // 
+            // listOfDKP
+            // 
+            this.listOfDKP.Location = new System.Drawing.Point(436, 16);
+            this.listOfDKP.Name = "listOfDKP";
+            this.listOfDKP.Size = new System.Drawing.Size(72, 186);
+            this.listOfDKP.TabIndex = 14;
+            this.listOfDKP.TabStop = false;
+            // 
+            // listOfTiers
+            // 
+            this.listOfTiers.Location = new System.Drawing.Point(406, 16);
+            this.listOfTiers.Name = "listOfTiers";
+            this.listOfTiers.Size = new System.Drawing.Size(24, 186);
+            this.listOfTiers.TabIndex = 13;
+            this.listOfTiers.TabStop = false;
+            // 
+            // listOfNames
+            // 
+            this.listOfNames.Location = new System.Drawing.Point(272, 16);
+            this.listOfNames.Name = "listOfNames";
+            this.listOfNames.Size = new System.Drawing.Size(128, 186);
+            this.listOfNames.TabIndex = 12;
+            this.listOfNames.TabStop = false;
+            // 
+            // txtZoneNames
+            // 
+            this.txtZoneNames.Location = new System.Drawing.Point(8, 236);
+            this.txtZoneNames.Name = "txtZoneNames";
+            this.txtZoneNames.Size = new System.Drawing.Size(258, 20);
+            this.txtZoneNames.TabIndex = 13;
+            // 
             // grpWatchFor
             // 
             this.grpWatchFor.Controls.Add(this.chkLoot);
@@ -1332,14 +1397,6 @@ namespace ES_DKP_Utils
             this.lblAttd.Size = new System.Drawing.Size(32, 16);
             this.lblAttd.TabIndex = 35;
             this.lblAttd.Text = "Attd:";
-            // 
-            // listOfAttd
-            // 
-            this.listOfAttd.Location = new System.Drawing.Point(514, 16);
-            this.listOfAttd.Name = "listOfAttd";
-            this.listOfAttd.Size = new System.Drawing.Size(37, 186);
-            this.listOfAttd.TabIndex = 34;
-            this.listOfAttd.TabStop = false;
             // 
             // btnClear
             // 
@@ -1395,13 +1452,6 @@ namespace ES_DKP_Utils
             this.lblZoneNames.TabIndex = 28;
             this.lblZoneNames.Text = "Raid Zone Shortname(s):";
             this.lblZoneNames.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // txtZoneNames
-            // 
-            this.txtZoneNames.Location = new System.Drawing.Point(8, 236);
-            this.txtZoneNames.Name = "txtZoneNames";
-            this.txtZoneNames.Size = new System.Drawing.Size(258, 20);
-            this.txtZoneNames.TabIndex = 13;
             // 
             // btnSaveRaid
             // 
@@ -1502,30 +1552,6 @@ namespace ES_DKP_Utils
             this.lblName.TabIndex = 15;
             this.lblName.Text = "Name:";
             // 
-            // listOfDKP
-            // 
-            this.listOfDKP.Location = new System.Drawing.Point(436, 16);
-            this.listOfDKP.Name = "listOfDKP";
-            this.listOfDKP.Size = new System.Drawing.Size(72, 186);
-            this.listOfDKP.TabIndex = 14;
-            this.listOfDKP.TabStop = false;
-            // 
-            // listOfTiers
-            // 
-            this.listOfTiers.Location = new System.Drawing.Point(406, 16);
-            this.listOfTiers.Name = "listOfTiers";
-            this.listOfTiers.Size = new System.Drawing.Size(24, 186);
-            this.listOfTiers.TabIndex = 13;
-            this.listOfTiers.TabStop = false;
-            // 
-            // listOfNames
-            // 
-            this.listOfNames.Location = new System.Drawing.Point(272, 16);
-            this.listOfNames.Name = "listOfNames";
-            this.listOfNames.Size = new System.Drawing.Size(128, 186);
-            this.listOfNames.TabIndex = 12;
-            this.listOfNames.TabStop = false;
-            // 
             // btnLoot
             // 
             this.btnLoot.Location = new System.Drawing.Point(8, 176);
@@ -1590,6 +1616,7 @@ namespace ES_DKP_Utils
             this.Menu = this.mmuMain;
             this.Name = "frmMain";
             this.Text = "DKP Utilities <Eternal Sovereign>";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.sbpMessage)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sbpProgressBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sbpLineCount)).EndInit();
@@ -1662,5 +1689,28 @@ namespace ES_DKP_Utils
             parser.LootOn = chkLoot.Checked;
         }
 
-	}
+        private void frmMain_FormClosing(object sender, EventArgs e)
+        {
+            if (AutomaticBackups)
+            {
+                DateTime time = DateTime.UtcNow;
+                Directory.CreateDirectory(BackupDirectory);
+                string zipFileName = "DKP-" + time.ToString("yyyyMMdd-HHmmss") + ".zip";
+                string zipFilePath = Path.Combine(BackupDirectory, zipFileName);
+
+                string tempDirectory = Path.Combine(BackupDirectory, "temp");
+                if (Directory.Exists(tempDirectory))
+                {
+                    Directory.Delete(tempDirectory, true);
+                }
+                Directory.CreateDirectory(tempDirectory);
+                FileInfo dbFileInfo = new FileInfo(DBString);
+                File.Copy(DBString, Path.Combine(tempDirectory, dbFileInfo.Name));
+                ZipFile.CreateFromDirectory(tempDirectory, zipFilePath, CompressionLevel.Optimal, false);
+                Directory.Delete(tempDirectory, true);
+
+                MessageBox.Show("Backed up database to " + zipFilePath, "Automatic DB Backup", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+    }
 }
