@@ -394,7 +394,21 @@ namespace ES_DKP_Utils
 #region Methods
 		[STAThread]
 		static void Main() 
-	{
+	    {
+            Application.ThreadException += (s, e) =>
+            {
+                log.Error("Unhandled ThreadException: " + e.Exception);
+                log.Error(e.Exception.StackTrace);
+            };
+
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            {
+                Exception ex = (Exception)e.ExceptionObject;
+                log.Error("Unhandled Exception: " + ex.Message);
+                log.Error(ex.StackTrace);
+            };
+
 			Application.Run(new frmMain());
 		}
 
