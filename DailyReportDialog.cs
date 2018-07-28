@@ -12,32 +12,29 @@ namespace ES_DKP_Utils
 		private System.Windows.Forms.MonthCalendar monthCalendar;
 		private System.Windows.Forms.Button btnMakeReport;
 		private System.ComponentModel.Container components = null;
-        private DebugLogger debugLogger;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 		public DailyReportDialog()
 		{
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("frmDailyReport.log");
-#endif
-            debugLogger.WriteDebug_3("Enter Method: frmDailyReport.frmDailyReport()");
+            log.Debug("Enter Method: frmDailyReport.frmDailyReport()");
 
 			InitializeComponent();
 
-            debugLogger.WriteDebug_3("End Method: frmDailyReport.frmDailyReport()");
+            log.Debug("End Method: frmDailyReport.frmDailyReport()");
 		}
 
 		public DateTime GetDate()
 		{
-            debugLogger.WriteDebug_3("Enter Method: frmDailyReport.GetDate()");
+            log.Debug("Enter Method: frmDailyReport.GetDate()");
 
             if (this.ShowDialog() == DialogResult.OK)
             {
-                debugLogger.WriteDebug_3("End Method: frmDailyReport.GetDate(), returning" + monthCalendar.SelectionStart.ToShortDateString());
+                log.Debug("End Method: frmDailyReport.GetDate(), returning" + monthCalendar.SelectionStart.ToShortDateString());
                 return monthCalendar.SelectionStart;
             }
 			this.Dispose();
 
-            debugLogger.WriteDebug_3("End Method: frmDailyReport.GetDate(), returning" + DateTime.MaxValue.ToShortDateString());
+            log.Debug("End Method: frmDailyReport.GetDate(), returning" + DateTime.MaxValue.ToShortDateString());
 			return DateTime.MaxValue;
 		}
 

@@ -29,7 +29,7 @@ namespace ES_DKP_Utils
 		private bool changed;
 		private bool local;
 		private frmMain owner;
-        private DebugLogger debugLogger;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public delegate void UpdateDel(DataTable dt);
         private UpdateDel update = null;
         #endregion        
@@ -37,10 +37,7 @@ namespace ES_DKP_Utils
         #region Constructors
         public TableViewer(frmMain owner, DataTable dt)
 		{
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("frmTable.log");
-#endif
-            debugLogger.WriteDebug_3("Begin Method: frmTable.frmTable(frmMain,DataTable) (" + owner.ToString() + "," + dt.ToString() + ")");
+            log.Debug("Begin Method: frmTable.frmTable(frmMain,DataTable) (" + owner.ToString() + "," + dt.ToString() + ")");
 
 			this.owner = owner;
 			local=true;
@@ -51,15 +48,12 @@ namespace ES_DKP_Utils
 			this.dbTable.RowChanged += new DataRowChangeEventHandler(dbTable_Changed);
 			this.dbTable.RowDeleted += new DataRowChangeEventHandler(dbTable_Changed);
 
-            debugLogger.WriteDebug_3("End Method: frmTable.frmTable()");
+            log.Debug("End Method: frmTable.frmTable()");
 		}
 
 		public TableViewer(frmMain owner, DataTable dt, UpdateDel u)
 		{
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("frmTable.log");
-#endif
-            debugLogger.WriteDebug_3("Begin Method: frmTable.frmTable(frmMain,DataTable,UpdateDel) (" + owner.ToString() + "," 
+            log.Debug("Begin Method: frmTable.frmTable(frmMain,DataTable,UpdateDel) (" + owner.ToString() + "," 
                 + dt.ToString() + "," + u.ToString() + ")");
 
 			this.owner = owner;
@@ -72,15 +66,12 @@ namespace ES_DKP_Utils
 			this.dbTable.RowChanged += new DataRowChangeEventHandler(dbTable_Changed);
 			this.dbTable.RowDeleted += new DataRowChangeEventHandler(dbTable_Changed);
 
-            debugLogger.WriteDebug_3("End Method: frmTable.frmTable()");
+            log.Debug("End Method: frmTable.frmTable()");
 		}
 
         public TableViewer(frmMain owner, int queryType, string query, bool readOnly)
         {
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("frmTable.log");
-#endif
-            debugLogger.WriteDebug_3("Begin Method: frmTable.frmTable(frmMain,int,string,bool) (" + owner.ToString() +
+            log.Debug("Begin Method: frmTable.frmTable(frmMain,int,string,bool) (" + owner.ToString() +
                 "," + queryType.ToString() + "," + query.ToString() + "," + readOnly.ToString() + ")");
 
             this.owner = owner;
@@ -88,7 +79,7 @@ namespace ES_DKP_Utils
 
             if (queryType == TableViewer.DKPSELECT)
             {
-                debugLogger.WriteDebug_2("SELECT query initiated: " + query);
+                log.Debug("SELECT query initiated: " + query);
 
                 InitializeComponent();
                 changed = false;
@@ -99,7 +90,7 @@ namespace ES_DKP_Utils
                 try { dbConnect = new OleDbConnection(connectionStr); }
                 catch (Exception ex)
                 {
-                    debugLogger.WriteDebug_1("Failed to create data connection: " + ex.Message);
+                    log.Error("Failed to create data connection: " + ex.Message);
                     MessageBox.Show("Could not create data connection. \n(" + ex.Message + ")", "Error");
                 }
 
@@ -116,21 +107,21 @@ namespace ES_DKP_Utils
                 }
                 catch (Exception ex)
                 {
-                    debugLogger.WriteDebug_1("Failed to retrieve SELECT query: " + ex.Message);
+                    log.Error("Failed to retrieve SELECT query: " + ex.Message);
                     MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")", "Error");
                 }
                 finally { dbConnect.Close(); }
             }
             else if (queryType == TableViewer.DKPUPDATE)
             {
-                debugLogger.WriteDebug_2("UPDATE query initiated: " + query);
+                log.Debug("UPDATE query initiated: " + query);
 
                 string connectionStr;
                 connectionStr = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + owner.DBString;
                 try { dbConnect = new OleDbConnection(connectionStr); }
                 catch (Exception ex)
                 {
-                    debugLogger.WriteDebug_1("Failed to create data connection: " + ex.Message);
+                    log.Error("Failed to create data connection: " + ex.Message);
                     MessageBox.Show("Could not create data connection. \n(" + ex.Message + ")", "Error");
                 }
                 try
@@ -138,13 +129,13 @@ namespace ES_DKP_Utils
                     OleDbCommand updateCommand = new OleDbCommand(query, dbConnect);
                     dbConnect.Open();
                     int changes = updateCommand.ExecuteNonQuery();
-                    debugLogger.WriteDebug_1("UPDATE query changed " + changes + " rows.");
+                    log.Debug("UPDATE query changed " + changes + " rows.");
                     MessageBox.Show("Updated " + changes + " rows.");
 
                 }
                 catch (Exception ex)
                 {
-                    debugLogger.WriteDebug_1("Failed to perform UPDATE query: " + ex.Message);
+                    log.Error("Failed to perform UPDATE query: " + ex.Message);
                     MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")", "Error");
                 }
                 finally { dbConnect.Close(); }
@@ -157,16 +148,16 @@ namespace ES_DKP_Utils
         #region Events
         private void dbTable_Changed(object sender, System.Data.DataRowChangeEventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: dbTable_Changed(object,DataRowChangeEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: dbTable_Changed(object,DataRowChangeEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			changed = true;
 
-            debugLogger.WriteDebug_3("End Method: dbTable_Changed()");
+            log.Debug("End Method: dbTable_Changed()");
 		}
 
 		private void frmTable_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: frmTable_Closing(object,CancelEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: frmTable_Closing(object,CancelEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			if (changed && !dataGrid.ReadOnly && !local) 
 			{
@@ -178,7 +169,7 @@ namespace ES_DKP_Utils
 					}
 					catch (Exception ex)
 					{
-                        debugLogger.WriteDebug_1("Could not update table: " + ex.Message);
+                        log.Error("Could not update table: " + ex.Message);
 
 						if (MessageBox.Show("Could not save changes.\n\nError: " + ex.Message + "\n\nExit Anyway?","Error",MessageBoxButtons.YesNo) == DialogResult.No) 
 						{
@@ -194,17 +185,17 @@ namespace ES_DKP_Utils
 					update(dbTable);
 				}
 			}
-            debugLogger.WriteDebug_3("End Method: frmTable_Closing()");
+            log.Debug("End Method: frmTable_Closing()");
 		}
 
 		private void frmTable_SizeChanged(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: frmTable_SizeChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: frmTable_SizeChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			dataGrid.Width = this.Size.Width - 6;
 			dataGrid.Height = this.Size.Height - 25;
 
-            debugLogger.WriteDebug_3("Begin Method: frmTable_SizeChanged()");
+            log.Debug("End Method: frmTable_SizeChanged()");
         }
         #endregion
 

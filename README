@@ -2,8 +2,4 @@ The ESDKP Project is a custom EverQuest log parser for the Eternal Sovereign gui
 
 Currently maintained by Alsmack of Eternal Sovereign.
 
-Change Log:
-
-2011-05-31
-
-Added configurable Tier percentages so that they were not hard coded.
+Please see the Github Wiki in this repository for further info.  Eventually we might even put usage notes there.

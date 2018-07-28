@@ -26,16 +26,13 @@ namespace ES_DKP_Utils
 		#region Other Declarations
 		private string name;
 		private frmMain owner;
-        private DebugLogger debugLogger;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 		#endregion
 
 		#region Constructor
 		public AppAltDialog(frmMain owner, string name, DataTable dt)
-		{
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("frmAppAlt.log");
-#endif            
-            debugLogger.WriteDebug_3("Begin Method: frmAppAlt.frmAppAlt(frmMain,string,DataTable) (" + owner.ToString() +
+		{         
+            log.Debug("Begin Method: frmAppAlt.frmAppAlt(frmMain,string,DataTable) (" + owner.ToString() +
                 "," + name.ToString() + "," + dt.ToString() + ")");
 
 			InitializeComponent();
@@ -49,30 +46,30 @@ namespace ES_DKP_Utils
 													  "MAG", "MNK", "NEC", "PAL", "RNG", "ROG",
 													  "SHD", "SHM", "WAR", "WIZ" });
 
-            debugLogger.WriteDebug_3("End Method: frmAppAlt.frmAppAlt()");
+            log.Debug("End Method: frmAppAlt.frmAppAlt()");
 		}
 		#endregion
 
 		#region Methods
 		public string GetName()
 		{
-            debugLogger.WriteDebug_3("Begin Method: frmAppAlt.GetName()");
+            log.Debug("Begin Method: frmAppAlt.GetName()");
 
 			this.ShowDialog();
 			if (this.DialogResult == DialogResult.Yes) 
 			{
 				owner.CurrentRaid.AddNameClass(name,cboClass.Text);
-                debugLogger.WriteDebug_3("End Method: frmAppAlt.GetName(), returning " + name);
+                log.Debug("End Method: frmAppAlt.GetName(), returning " + name);
 				return name;
 			}
             else if (this.DialogResult == DialogResult.Ignore)
             {
-                debugLogger.WriteDebug_3("End Method: frmAppAlt.GetName(), returning ");
+                log.Debug("End Method: frmAppAlt.GetName(), returning ");
                 return "";
             }
             else if (this.DialogResult == DialogResult.Retry)
             {
-                debugLogger.WriteDebug_3("End Method: frmAppAlt.GetName(), returning " + cboPeople.Text);
+                log.Debug("End Method: frmAppAlt.GetName(), returning " + cboPeople.Text);
                 return cboPeople.Text;
             }
 			return "";
@@ -82,7 +79,7 @@ namespace ES_DKP_Utils
 		#region Events
 		private void rdoMain_CheckedChanged(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: rdoMain_CheckedChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: rdoMain_CheckedChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			if (rdoMain.Checked) btnOK.DialogResult = DialogResult.Yes;
 			if ((cboClass.Text != null && cboClass.Text.Length == 0)) btnOK.Enabled = false;
@@ -90,45 +87,45 @@ namespace ES_DKP_Utils
 
 		private void rdoApp_CheckedChanged(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: rdoApp_CheckedChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: rdoApp_CheckedChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			if (rdoApp.Checked) btnOK.DialogResult = DialogResult.Ignore;
 
-            debugLogger.WriteDebug_3("End Method: rdoApp_CheckedChanged()");
+            log.Debug("End Method: rdoApp_CheckedChanged()");
 		}
 
 		private void rdoAlt_CheckedChanged(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: rdoAlt_CheckedChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: rdoAlt_CheckedChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			if (rdoAlt.Checked) btnOK.DialogResult = DialogResult.Retry;
 
-            debugLogger.WriteDebug_3("End Method: rdoAlt_CheckedChanged()");
+            log.Debug("End Method: rdoAlt_CheckedChanged()");
 		}
 		private void cboClass_Leave(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: cboClass_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: cboClass_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			cboClass.SelectedIndex = cboClass.FindString(cboClass.Text);
 
-            debugLogger.WriteDebug_3("End Method: cboClass_Leave()");
+            log.Debug("End Method: cboClass_Leave()");
 		}
 		private void frmAppAlt_KeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: frmAppAlt_KeyPress(object,KeyPressEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: frmAppAlt_KeyPress(object,KeyPressEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			if (e.KeyChar == 13) btnOK.PerformClick();
 
-            debugLogger.WriteDebug_3("End Method: frmAppAlt_KeyPress()");
+            log.Debug("End Method: frmAppAlt_KeyPress()");
 		}
 		
 		private void cboClass_SelectedIndexChanged(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: cboClass_SelectedIndexChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: cboClass_SelectedIndexChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			if ((cboClass.Text != null && cboClass.Text.Length != 0) && cboClass.SelectedIndex != -1) btnOK.Enabled = true;
 
-            debugLogger.WriteDebug_3("End Method: cboClass_SelectedIndexChanged()");
+            log.Debug("End Method: cboClass_SelectedIndexChanged()");
 		}
 		#endregion
 

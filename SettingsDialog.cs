@@ -47,16 +47,13 @@ namespace ES_DKP_Utils
         private Label lblBackupDirectory;
         private TextBox txtBackupDirectory;
         private Button btnChangeBackupDirectory;
-        private DebugLogger debugLogger;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 		#endregion
 
 		#region Constructor
 		public SettingsDialog(frmMain owner)
 		{
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("frmSettings.txt");
-#endif
-            debugLogger.WriteDebug_3("Begin Method: frmSettings.frmSettings(frmMain) (" + owner.ToString() + ")");
+            log.Debug("Begin Method: frmSettings.frmSettings(frmMain) (" + owner.ToString() + ")");
 
 			this.owner = owner;
 			InitializeComponent();
@@ -73,14 +70,14 @@ namespace ES_DKP_Utils
             txtTierBPct.Text = iniFile.Configs["Other"].GetDouble("tierbpct", 0.40) + "";
             txtTierCPct.Text = iniFile.Configs["Other"].GetDouble("tiercpct", 0.30) + "";
             txtGuildNames.Text = iniFile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
-            debugLogger.WriteDebug_3("End Method: frmSettings.frmSettings()");
+            log.Debug("End Method: frmSettings.frmSettings()");
 		}
 		#endregion
 
 		#region Events
 		private void btnChangeLogFile_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: changeFile_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: changeFile_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			dlgFileDialog = new OpenFileDialog();
 			dlgFileDialog.InitialDirectory = "C:\\";
@@ -88,18 +85,18 @@ namespace ES_DKP_Utils
 			dlgFileDialog.FilterIndex = 1;
 			if(dlgFileDialog.ShowDialog() == DialogResult.OK)
 			{
-                debugLogger.WriteDebug_2("Select Log Dialog returns " + dlgFileDialog.FileName);
+                log.Debug("Select Log Dialog returns " + dlgFileDialog.FileName);
 
 				txtLogFile.Text = dlgFileDialog.FileName;
 				dlgFileDialog.Dispose();
 			}
 
-            debugLogger.WriteDebug_3("End Method: changeFile_Click()");
+            log.Debug("End Method: changeFile_Click()");
 		}
 
 		private void btnChangeLocalDBFile_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: changeDatabase_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: changeDatabase_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			dlgFileDialog = new OpenFileDialog();
 			dlgFileDialog.InitialDirectory = "C:\\";
@@ -108,18 +105,18 @@ namespace ES_DKP_Utils
 
 			if(dlgFileDialog.ShowDialog() == DialogResult.OK)
 			{
-                debugLogger.WriteDebug_2("Select DB Dialog returns " + dlgFileDialog.FileName);
+                log.Debug("Select DB Dialog returns " + dlgFileDialog.FileName);
 
 				txtLocalDBFile.Text = dlgFileDialog.FileName;
 				dlgFileDialog.Dispose();
 			}
 
-            debugLogger.WriteDebug_3("End Method: changeDatabase_Click()");
+            log.Debug("End Method: changeDatabase_Click()");
 		}
 
 		private void btnChangeOutputDirectory_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: changeOutput_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: changeOutput_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			dlgFolderDialog = new FolderBrowserDialog();
 			dlgFolderDialog.ShowNewFolderButton = true;
@@ -127,19 +124,19 @@ namespace ES_DKP_Utils
 
 			if (dlgFolderDialog.ShowDialog() == DialogResult.OK)
 			{
-                debugLogger.WriteDebug_2("Select Output Directory Dialog returns " + dlgFolderDialog.SelectedPath);
+                log.Debug("Select Output Directory Dialog returns " + dlgFolderDialog.SelectedPath);
 
 				txtOutputDirectory.Text = dlgFolderDialog.SelectedPath;
 				dlgFolderDialog.Dispose();
 			}
 
-            debugLogger.WriteDebug_3("End Method: changeOutput_Click()");
+            log.Debug("End Method: changeOutput_Click()");
 
 		}
 
         private void btnChangeBackupDirectory_Click(object sender, System.EventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: btnChangeBackupDirectory_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: btnChangeBackupDirectory_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             dlgFolderDialog = new FolderBrowserDialog();
             dlgFolderDialog.ShowNewFolderButton = true;
@@ -147,19 +144,19 @@ namespace ES_DKP_Utils
 
             if (dlgFolderDialog.ShowDialog() == DialogResult.OK)
             {
-                debugLogger.WriteDebug_2("Select Backup Directory Dialog returns " + dlgFolderDialog.SelectedPath);
+                log.Debug("Select Backup Directory Dialog returns " + dlgFolderDialog.SelectedPath);
 
                 txtBackupDirectory.Text = dlgFolderDialog.SelectedPath;
                 dlgFolderDialog.Dispose();
             }
 
-            debugLogger.WriteDebug_3("End Method: changeOutput_Click()");
+            log.Debug("End Method: changeOutput_Click()");
 
         }
 
         private void btnOK_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: settingsOK_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: settingsOK_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			owner.DBString = txtLocalDBFile.Text;
 			owner.LogFile = txtLogFile.Text;
@@ -179,27 +176,27 @@ namespace ES_DKP_Utils
 				iniFile.Configs["Other"].Set("tax",d/100 + "");
 				iniFile.Save();
 				owner.DKPTax = d/100;
-                debugLogger.WriteDebug_1("Changed Settings: LogFile = " + 
+                log.Info("Changed Settings: LogFile = " + 
                     owner.LogFile + ", DBFile = " + owner.DBString + ", DKPTax = " + owner.DKPTax +
                     ", OutputDirectory = " + owner.OutputDirectory);
 				this.Close();
 			} 
             catch (Exception ex) { 
                 MessageBox.Show("Could not parse DKP tax."); 
-                debugLogger.WriteDebug_1("Failed to parse DKP Tax: " + ex.Message); 
+                log.Error("Failed to parse DKP Tax: " + ex.Message); 
                 this.DialogResult = DialogResult.None; 
             }
 
-            debugLogger.WriteDebug_3("End Method: settingsOK_Click()");
+            log.Debug("End Method: settingsOK_Click()");
 		}
 
 		private void btnCancel_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: settingsCancel_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: settingsCancel_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			this.Close();
 
-            debugLogger.WriteDebug_3("End Method: settingsCancel_Click()");
+            log.Debug("End Method: settingsCancel_Click()");
 		}
 		#endregion
 

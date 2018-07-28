@@ -22,7 +22,6 @@ namespace ES_DKP_Utils
 		#region Other Declarations
 		private OleDbConnection dbConnect;
 		private OleDbDataAdapter dkpDA;
-		private OleDbCommandBuilder cmdBld;
 		private DataTable dateTable;
 		private DataTable raidTable;
 		private bool updateRaids;
@@ -53,16 +52,13 @@ namespace ES_DKP_Utils
 			}
 		}
 		private frmMain owner;
-        private DebugLogger debugLogger;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 		#endregion
 
 		#region Constructor
 		public ChooseRaidDialog(frmMain owner)
 		{
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("frmChooseRaid.log");
-#endif
-            debugLogger.WriteDebug_3("Enter Method: frmChooseRaid.frmChooseRaid(frmMain) (" + owner.ToString() + ")");
+            log.Debug("Enter Method: frmChooseRaid.frmChooseRaid(frmMain) (" + owner.ToString() + ")");
 
 			this.owner = owner;
 			InitializeComponent();
@@ -74,7 +70,7 @@ namespace ES_DKP_Utils
             }
 			catch (Exception ex) 
 			{
-                debugLogger.WriteDebug_1("Failed to create data connection: " + ex.Message);
+                log.Error("Failed to create data connection: " + ex.Message);
 				MessageBox.Show("Could not create data connection. \n(" + ex.Message + ")","Error");
 			}
 			try
@@ -86,7 +82,7 @@ namespace ES_DKP_Utils
 			}
 			catch (Exception ex) 
 			{
-                debugLogger.WriteDebug_1("Failed to open list of dates: " + ex.Message);
+                log.Error("Failed to open list of dates: " + ex.Message);
 				MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 			}
 			finally { dbConnect.Close(); }
@@ -94,7 +90,7 @@ namespace ES_DKP_Utils
 			cboDate.DataSource = new DataView(dateTable,"","formatDate DESC",DataViewRowState.CurrentRows);
 			cboDate.DisplayMember = "formatDate";
 
-            debugLogger.WriteDebug_3("End Method: frmChooseRaid.frmChooseRaid()");
+            log.Debug("End Method: frmChooseRaid.frmChooseRaid()");
 		}
 
 		#endregion
@@ -102,16 +98,16 @@ namespace ES_DKP_Utils
 		#region Events
 		private void cboDate_SelectedIndexChanged(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: cboDate_SelectedIndexChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: cboDate_SelectedIndexChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			updateRaids = true;
 
-            debugLogger.WriteDebug_3("End Method: cboDate_SelectedIndexChanged()");
+            log.Debug("End Method: cboDate_SelectedIndexChanged()");
 		}
 
 		private void cboDate_Leave(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: cboDate_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: cboDate_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			if (updateRaids)
 			{
@@ -138,7 +134,7 @@ namespace ES_DKP_Utils
 				}
 				catch (Exception ex) 
 				{
-                    debugLogger.WriteDebug_1("Failed to create list of raids: " + ex.Message);
+                    log.Error("Failed to create list of raids: " + ex.Message);
 					MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 				}
 				finally { dbConnect.Close(); }
@@ -146,17 +142,17 @@ namespace ES_DKP_Utils
 				cboRaid.DisplayMember = "EventNameOrLoot";
 			}
 
-            debugLogger.WriteDebug_3("End Method: cboDate_Leave()");
+            log.Debug("End Method: cboDate_Leave()");
 		}
 
 		private void btnOK_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: btnOK_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: btnOK_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			ReturnDate = cboDate.Text;
 			ReturnRaid = cboRaid.Text;
 
-            debugLogger.WriteDebug_3("End Method: btnOK_Click()");
+            log.Debug("End Method: btnOK_Click()");
 		}
 		#endregion
 

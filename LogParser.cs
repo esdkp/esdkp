@@ -61,16 +61,13 @@ namespace ES_DKP_Utils
         }
 
 		private frmMain owner;
-        private DebugLogger debugLogger;
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         #endregion
 
         #region Constructor
         public LogParser(frmMain owner, string log)
 		{
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("LogParser.log");
-#endif
-            debugLogger.WriteDebug_3("Begin Method: LogParser.LogParser(frmMain,log) (" + owner.ToString() + "," + log.ToString() + ")");
+            logger.Debug("Begin Method: LogParser.LogParser(frmMain,log) (" + owner.ToString() + "," + log.ToString() + ")");
 
 			this.owner = owner;
 			this.log = log;
@@ -82,7 +79,7 @@ namespace ES_DKP_Utils
 			} 
 			catch (Exception ex)
 			{
-                debugLogger.WriteDebug_1("Failed to initialize log parser: " + ex.Message);
+                logger.Error("Failed to initialize log parser: " + ex.Message);
 				MessageBox.Show("Error initializing log parser.\n\n" + ex.Message,"Error");
 			}
 			try 
@@ -94,7 +91,7 @@ namespace ES_DKP_Utils
 			}
 			catch (Exception ex)
 			{
-                debugLogger.WriteDebug_1("Failed to initialize log watcher: " + ex.Message);
+                logger.Error("Failed to initialize log watcher: " + ex.Message);
 				MessageBox.Show("Error initializing file system watcher.\n\n" + ex.Message,"Error");
 			}
 			TellsOn = false;
@@ -107,7 +104,7 @@ namespace ES_DKP_Utils
 
 			LoadNamesTiers();
 
-            debugLogger.WriteDebug_3("End Method: LogParser.LogParser()");
+            logger.Debug("End Method: LogParser.LogParser()");
         }
         #endregion
 
@@ -115,7 +112,7 @@ namespace ES_DKP_Utils
 
         public void LoadNamesTiers()
 		{
-            debugLogger.WriteDebug_3("Begin Method: LogParser.LoadNamesTiers()");
+            logger.Debug("Begin Method: LogParser.LoadNamesTiers()");
 
 			namesTiers = new DataTable();
 			OleDbConnection dbConnect = null;
@@ -129,17 +126,17 @@ namespace ES_DKP_Utils
 			}
 			catch (Exception ex) 
 			{
-                debugLogger.WriteDebug_1("Failed to load NamesTiers table: " + ex.Message);
+                logger.Error("Failed to load NamesTiers table: " + ex.Message);
 				MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 			}
 			finally { dbConnect.Close(); }
 
-            debugLogger.WriteDebug_3("End Method: LogParser.LoadNamesTiers()");
+            logger.Debug("End Method: LogParser.LoadNamesTiers()");
 		}
 
 		private string getLine(byte[] data, int offset) 
 		{
-            debugLogger.WriteDebug_3("Begin Method: LogParser.getLine()");
+            logger.Debug("Begin Method: LogParser.getLine()");
 
             int i = 0;
 			string s = "";
@@ -152,23 +149,23 @@ namespace ES_DKP_Utils
 
             owner.LineCount++;
 
-            debugLogger.WriteDebug_3("End Method: LogParser.getLine(), returning " + s);
+            logger.Debug("End Method: LogParser.getLine(), returning " + s);
 			return s;
 		}
 
 		public void OnChanged(object source, FileSystemEventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: OnChanged(object,FileSystemEventArgs) (" 
+            logger.Debug("Begin Method: OnChanged(object,FileSystemEventArgs) (" 
                 + source.ToString() + "," + e.ToString() + ")");
 
             changed = true;
 
-            debugLogger.WriteDebug_3("End Method: OnChanged()");
+            logger.Debug("End Method: OnChanged()");
 		}
 
 		public LogLineType Parse(string s)
 		{
-            debugLogger.WriteDebug_3("Begin Method: Parse(string) (" + s.ToString() + ")");
+            logger.Debug("Begin Method: Parse(string) (" + s.ToString() + ")");
 
 			if (TellsOn)
 			{
@@ -177,14 +174,14 @@ namespace ES_DKP_Utils
 
 				if (m.Success) 
 				{
-                    debugLogger.WriteDebug_3(s + " matches tell regex.");
+                    logger.Debug(s + " matches tell regex.");
 
                     owner.ParseCount++;
 
                     string name = m.Groups["name"].ToString();
 					if (!Tells.Contains(name)) 
 					{
-                        debugLogger.WriteDebug_3(name + " is not in tell array already.");
+                        logger.Debug(name + " is not in tell array already.");
 
 						Tells.Add(name);
 						DataRow[] k = namesTiers.Select("Name='" + name + "'");
@@ -201,7 +198,7 @@ namespace ES_DKP_Utils
 					}
 					return LogLineType.TELL;
 				}
-                debugLogger.WriteDebug_3(s + " does not match tell regex.");
+                logger.Debug(s + " does not match tell regex.");
 			}
 
 			if (AttendanceOn)
@@ -218,7 +215,7 @@ namespace ES_DKP_Utils
 
 					if ( zones.Contains(_zone) && owner.GuildNames.Contains(_guild))
 					{
-                        debugLogger.WriteDebug_3(_name + " <" + _guild + "> is in " + _zone + " which is in attendance zone array, adding");
+                        logger.Debug(_name + " <" + _guild + "> is in " + _zone + " which is in attendance zone array, adding");
 						owner.CurrentRaid.InputPerson(_name);
 					} 
 
@@ -226,7 +223,7 @@ namespace ES_DKP_Utils
                     return LogLineType.WHO;
 				}
 			}
-            debugLogger.WriteDebug_3("End Method: Parse()");
+            logger.Debug("End Method: Parse()");
             return LogLineType.NA;
         }
         #endregion
@@ -234,7 +231,7 @@ namespace ES_DKP_Utils
         #region Events
         void logTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: logTimer_Elapsed(object,ElapsedEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            logger.Debug("Begin Method: logTimer_Elapsed(object,ElapsedEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             if (!changed) return;
             changed = false;
@@ -253,7 +250,7 @@ namespace ES_DKP_Utils
             }
             catch (Exception ex)
             {
-                debugLogger.WriteDebug_1("Failed to open log file: " + ex.Message);
+                logger.Error("Failed to open log file: " + ex.Message);
             }
             try
             {
@@ -269,7 +266,7 @@ namespace ES_DKP_Utils
             }
             catch (Exception ex)
             {
-                debugLogger.WriteDebug_1("Failed to load new log data into memory: " + ex.Message);
+                logger.Error("Failed to load new log data into memory: " + ex.Message);
             }
             finally
             {
@@ -304,7 +301,7 @@ namespace ES_DKP_Utils
 
             owner.StatusMessage = "New lines: " + lines + ", " + tells + " tells, " + whos + " who results";
 
-            debugLogger.WriteDebug_3("End Method: logTimer_Elapsed()");
+            logger.Debug("End Method: logTimer_Elapsed()");
         }
         #endregion
     }

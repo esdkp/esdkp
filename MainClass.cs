@@ -27,7 +27,7 @@
  * 
  *  Sometimes raidname gets set to null?
  *  
- */ 
+ */
 
 using System;
 using System.Drawing;
@@ -140,7 +140,8 @@ namespace ES_DKP_Utils
 					parser = new LogParser(this,value);
 				}
 				catch (Exception ex) 
-				{ 
+				{
+                    log.Debug("Could not create new log parser: " + ex.Message);
 					MessageBox.Show("Error creating new log parser.  Log file not changed.", "Error");
 				}
 				_LogFile = value;
@@ -281,7 +282,7 @@ namespace ES_DKP_Utils
         private IConfigSource inifile;
         private LogParser parser;
         private IContainer components;
-        private DebugLogger debugLogger;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private MenuItem menuItem1;
         private MenuItem mnuImportRaidDump;
         private MenuItem mnuImportLog;
@@ -295,15 +296,12 @@ namespace ES_DKP_Utils
 		#region Constructor
 		public frmMain()
 		{
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("frmMain.log");
-#endif
-            debugLogger.WriteDebug_3("Begin Method: frmMain.frmMain()");
+            log.Debug("Begin Method: frmMain.frmMain()");
 
 			InitializeComponent();
 
 			Directory.SetCurrentDirectory(Directory.GetParent(Application.ExecutablePath).FullName);
-			debugLogger.WriteDebug_2("Set Current Directory to " + Directory.GetParent(Application.ExecutablePath).FullName);
+			log.Info("Set Current Directory to " + Directory.GetParent(Application.ExecutablePath).FullName);
 
             // TODO: Determine why this is a double nested try/catch to load some INI settings
 			try 
@@ -320,22 +318,23 @@ namespace ES_DKP_Utils
                 TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.0);
                 GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
                 AutomaticBackups = inifile.Configs["Other"].GetBoolean("AutomaticBackups", true);
-                debugLogger.WriteDebug_1("Read settings from INI: DBFile=" + DBString + ", LogFile=" + LogFile + ", OutputDirectory="
+                log.Info("Read settings from INI: DBFile=" + DBString + ", LogFile=" + LogFile + ", OutputDirectory="
                     + OutputDirectory + ", DKPTax=" + DKPTax + ", GuildNames=" + GuildNames);
 
 				StatusMessage ="Read settings from INI...";
 				try 
 				{
 					parser = new LogParser(this,LogFile);
-					debugLogger.WriteDebug_3("Created log parser");
+					log.Debug("Created log parser");
 				} 
 				catch (Exception ex) {
-					debugLogger.WriteDebug_1("Failed to create log parser: " + ex.Message);
+					log.Error("Failed to create log parser: " + ex.Message);
 				}
 			} 
 			catch (FileNotFoundException ex) 
 			{
-				debugLogger.WriteDebug_3("settings.ini not found, creating");
+                log.Debug(ex.Message);
+				log.Info("settings.ini not found, creating");
 
 				FileStream a = File.Create(Directory.GetCurrentDirectory() + "\\settings.ini");
 				a.Close();
@@ -357,19 +356,19 @@ namespace ES_DKP_Utils
                     GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
                     AutomaticBackups = inifile.Configs["Other"].GetBoolean("AutomaticBackups", true);
 					inifile.Save();
-					debugLogger.WriteDebug_1("Read settings from INI: dbFile=" + DBString + ", logFile=" + LogFile
+					log.Info("Read settings from INI: dbFile=" + DBString + ", logFile=" + LogFile
                         + ", outDir=" + OutputDirectory + ", tax=" + DKPTax + ", mindkp=" + MinDKP + ", GuildNames=" + GuildNames);
 				} 
 				catch (Exception exc) 
 				{ 
-					debugLogger.WriteDebug_1("Failed to create new settings.ini: " + exc.Message);
+					log.Error("Failed to create new settings.ini: " + exc.Message);
 					MessageBox.Show("Error opening settings.ini","Error");
 					Environment.Exit(1);
 				}
 			}	
 			catch (Exception ex) 
 			{
-				debugLogger.WriteDebug_1("Failed to load settings.ini: " + ex.Message);
+				log.Error("Failed to load settings.ini: " + ex.Message);
 				MessageBox.Show("Error opening settings.ini","Error");
 				Environment.Exit(1);
 			}
@@ -385,14 +384,14 @@ namespace ES_DKP_Utils
             UITimer.Tick += new EventHandler(UITimer_Tick);
             UITimer.Start();
 
-			debugLogger.WriteDebug_3("End Method: frmMain.frmMain()");
+			log.Debug("End Method: frmMain.frmMain()");
 		}
 
 
 
-		#endregion
+#endregion
 
-		#region Methods
+#region Methods
 		[STAThread]
 		static void Main() 
 	{
@@ -401,7 +400,7 @@ namespace ES_DKP_Utils
 
 		public void RefreshList()
 		{
-            debugLogger.WriteDebug_3("Begin Method: frmMain.RefreshList()");
+            log.Debug("Begin Method: frmMain.RefreshList()");
             
             ArrayList a = parser.TellsDKP;
 			listOfNames.Items.Clear();
@@ -411,7 +410,7 @@ namespace ES_DKP_Utils
 
 			foreach (Raider r in a)
 			{
-				debugLogger.WriteDebug_2("Adding Raider to list window" + r.ToString());
+				log.Debug("Adding Raider to list window" + r.ToString());
 
 				listOfNames.Items.Add(r.Person);
 				if (r.Tier.Equals(Raider.NOTIER)) listOfTiers.Items.Add("?");
@@ -420,12 +419,12 @@ namespace ES_DKP_Utils
 				else listOfDKP.Items.Add(r.DKP.ToString());
                 listOfAttd.Items.Add(r.AttendancePCT);
 			}
-			debugLogger.WriteDebug_3("End Method: frmMain.RefreshList()");
+			log.Debug("End Method: frmMain.RefreshList()");
 		}													
 
-		#endregion
+#endregion
 
-		#region Events
+#region Events
         private void UITimer_Tick(object sender, System.EventArgs e)
         {
             sbpLineCount.Text = "Lines: " + LineCount;
@@ -433,7 +432,13 @@ namespace ES_DKP_Utils
             sbpMessage.Text = StatusMessage;
             pgbProgress.Minimum = PBMin;
             pgbProgress.Maximum = PBMax;
-            if (PBVal>=PBMin&&PBVal<=PBMax) pgbProgress.Value = PBVal;
+
+            try {
+                if (PBVal >= PBMin && PBVal <= PBMax) pgbProgress.Value = PBVal;
+            }
+            catch (Exception ex) {
+                log.Error("Error updating progress bar: " + ex.Message);
+            }
 
             if (RefreshTells)
             {
@@ -444,16 +449,16 @@ namespace ES_DKP_Utils
 
 		private void dtpRaidDate_ValueChanged(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.dtpRaidDate_ValueChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+			log.Debug("Begin Method: frmMain.dtpRaidDate_ValueChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 			
 			CurrentRaid.RaidDate = dtpRaidDate.Value;
 
-			debugLogger.WriteDebug_3("End Method: frmMain.dtpRaidDate_ValueChanged()");
+			log.Debug("End Method: frmMain.dtpRaidDate_ValueChanged()");
 		}
 
 		private void mnuSettings_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.mnuSettings_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
+			log.Debug("Begin Method: frmMain.mnuSettings_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
 			
             SettingsDialog settings = new SettingsDialog(this);
 			if (settings.ShowDialog()==DialogResult.OK) 
@@ -462,78 +467,78 @@ namespace ES_DKP_Utils
 			}
 			settings.Dispose();
 
-			debugLogger.WriteDebug_3("End Method: frmMain.mnuSettings_Click()");
+			log.Debug("End Method: frmMain.mnuSettings_Click()");
 		}
 
 		private void mnuDKS_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.mnuDKS_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
+			log.Debug("Begin Method: frmMain.mnuDKS_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
 
 			TableViewer table = new TableViewer(this,TableViewer.DKPSELECT,"SELECT * FROM DKS ORDER BY Date DESC",false);
 			table.Show();
             StatusMessage = "Performing SELECT query...";
 
-			debugLogger.WriteDebug_3("End Method: frmMain.mnuDKSClick()");
+			log.Debug("End Method: frmMain.mnuDKSClick()");
 		}
 
 		private void mnuAlts_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.mnuAlts_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
+			log.Debug("Begin Method: frmMain.mnuAlts_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
 
 			TableViewer table = new TableViewer(this,TableViewer.DKPSELECT,"SELECT * FROM Alts ORDER BY AltName ASC",false);
 			table.Show();
 			StatusMessage = "Performing SELECT query...";
 
-			debugLogger.WriteDebug_3("End Method: frmMain.mnuDKS_Click()");
+			log.Debug("End Method: frmMain.mnuDKS_Click()");
 		}
 
 		private void mnuEventLog_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.mnuEventLog_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
+			log.Debug("Begin Method: frmMain.mnuEventLog_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
 
 			TableViewer table = new TableViewer(this,TableViewer.DKPSELECT,"SELECT * FROM EventLog ORDER BY EventDate DESC",false);
 			table.Show();
 			StatusMessage = "Performing SELECT query...";
 
-			debugLogger.WriteDebug_3("End Method: frmMain.mnuEventLog_Click()");
+			log.Debug("End Method: frmMain.mnuEventLog_Click()");
 		}
 
 		private void mnuNamesTiers_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.mnuNamesTiers_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
+			log.Debug("Begin Method: frmMain.mnuNamesTiers_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
 
 			TableViewer table = new TableViewer(this,TableViewer.DKPSELECT,"SELECT * FROM NamesTiers ORDER BY Name ASC",false);
 			table.Show();
 			StatusMessage = "Performing SELECT query...";
 
-			debugLogger.WriteDebug_3("End Method: frmMain.mnuNamesTiers_Click()");
+			log.Debug("End Method: frmMain.mnuNamesTiers_Click()");
 		}
 
 		private void mnuBalanceQuery_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.mnuBalanceQuery_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+			log.Debug("Begin Method: frmMain.mnuBalanceQuery_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			TableViewer table = new TableViewer(this,TableViewer.DKPSELECT,"SELECT Sum(DKS.PTS) AS DKPBalance, ActiveRaiders, (DKPBalance/ActiveRaiders) AS AVGBalance FROM DKS, qActiveRaiders WHERE (((DKS.Name)<>\"zzzDKP Retired\")) GROUP BY ActiveRaiders",true);
 			table.Show();
 			StatusMessage = "Performing SELECT query...";
 
-			debugLogger.WriteDebug_3("End Method: frmMain.mnuBalanceQuery_Click()");
+			log.Debug("End Method: frmMain.mnuBalanceQuery_Click()");
 		}
 
 		private void mnuDKPTotals_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.mnuDKPTotals_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
+			log.Debug("Begin Method: frmMain.mnuDKPTotals_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
 
 			TableViewer table = new TableViewer(this,TableViewer.DKPSELECT,"SELECT * FROM qDKPTotals",true);
 			table.Show();
 			StatusMessage = "Performing SELECT query...";
 
-			debugLogger.WriteDebug_3("End Method: frmMain.mnuDKPTotals_Click()");
+			log.Debug("End Method: frmMain.mnuDKPTotals_Click()");
 		}
 
 		private void mnuRetire_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.mnuRetire_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
+			log.Debug("Begin Method: frmMain.mnuRetire_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
 
 			InputBoxDialog input = new InputBoxDialog();
 			input.FormPrompt = "Who do you want to retire? ";
@@ -544,12 +549,12 @@ namespace ES_DKP_Utils
 			TableViewer table = new TableViewer(this,TableViewer.DKPUPDATE,"UPDATE DKS SET DKS.Name = \"zzzDKP Retired\",DKS.Comment = \"" + person + "\" WHERE (((DKS.Name)=\"" + person + "\"))",false);
 			StatusMessage = "Performing UPDATE query...";
 
-			debugLogger.WriteDebug_3("End Method: frmMain.mnuRetire_Click()");
+			log.Debug("End Method: frmMain.mnuRetire_Click()");
 		}
 
 		private void mnuUnretire_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.mnuUnretire_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
+			log.Debug("Begin Method: frmMain.mnuUnretire_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
 
 			InputBoxDialog input = new InputBoxDialog();
 			input.FormPrompt = "Who do you want to unretire? ";
@@ -560,12 +565,12 @@ namespace ES_DKP_Utils
 			TableViewer table = new TableViewer(this,TableViewer.DKPUPDATE,"UPDATE DKS SET DKS.Name = \"" + person + "\",DKS.Comment = \" \" WHERE (((DKS.Name)=\"zzzDKP Retired\" AND (DKS.Comment=\"" + person + "\")))",false);
 			StatusMessage = "Performing UPDATE query...";		
 
-			debugLogger.WriteDebug_3("End Method: frmMain.mnuUnretire_Click()");
+			log.Debug("End Method: frmMain.mnuUnretire_Click()");
 		}
 
 		private void mnuEnterSQL_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.mnuEnterSQL_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
+			log.Debug("Begin Method: frmMain.mnuEnterSQL_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")"); 
 
 			InputBoxDialog input = new InputBoxDialog();
 			input.FormPrompt = "Enter Query: ";
@@ -573,11 +578,11 @@ namespace ES_DKP_Utils
 			input.ShowDialog();
 			string query = input.InputResponse;
 			input.Close();
-			debugLogger.WriteDebug_3("InputBox.InputResponse returns " + query);
+			log.Debug("InputBox.InputResponse returns " + query);
 
 			if (query.StartsWith("SELECT"))
 			{
-				debugLogger.WriteDebug_2("SELECT query entered");
+				log.Info("SELECT query entered");
 
 				TableViewer table = new TableViewer(this,TableViewer.DKPSELECT,query,true);
 				table.Show();
@@ -585,36 +590,36 @@ namespace ES_DKP_Utils
 			}
 			else if (query.StartsWith("UPDATE")||query.StartsWith("DELETE")||query.StartsWith("INSERT")) 
 			{
-				debugLogger.WriteDebug_2("UPDATE, DELETE, or INSERT query entered");
+				log.Info("UPDATE, DELETE, or INSERT query entered");
 
 				TableViewer table = new TableViewer(this,TableViewer.DKPUPDATE,query,false);
                 StatusMessage = "Performing UPDATE query...";
 			}
 			else
 			{
-				debugLogger.WriteDebug_2("Invalid query entered");
+				log.Info("Invalid query entered");
 
 				MessageBox.Show("Invalid SQL Query","Error");
 			}
 
-			debugLogger.WriteDebug_3("End Method: frmMain.mnuEnterSQLQuery_Click()");
+			log.Debug("End Method: frmMain.mnuEnterSQLQuery_Click()");
 		
 		}
 
 		private void mnuNameClass_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.mnuNameClass_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+			log.Debug("Begin Method: frmMain.mnuNameClass_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			TableViewer table = new TableViewer(this,TableViewer.DKPSELECT,"SELECT * FROM NamesClassesRemix ORDER BY Name",false);
 			table.Show();
             StatusMessage = "Performing SELECT query...";
 
-			debugLogger.WriteDebug_3("End Method: frmMain.mnuNameClass_Click()");
+			log.Debug("End Method: frmMain.mnuNameClass_Click()");
 		}
 
 		private void mnuNewRaid_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.mnuNewRaid_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+			log.Debug("Begin Method: frmMain.mnuNewRaid_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			CurrentRaid = new Raid(this);
 			CurrentRaid.RaidDate = System.DateTime.Today;
@@ -645,23 +650,23 @@ namespace ES_DKP_Utils
             */
 			parser.LoadNamesTiers();
 
-			debugLogger.WriteDebug_1("New Raid Created.  Name: " + CurrentRaid.RaidName + " Date: " + CurrentRaid.RaidDate.ToString("dd MMM yyyy"));
+			log.Info("New Raid Created.  Name: " + CurrentRaid.RaidName + " Date: " + CurrentRaid.RaidDate.ToString("dd MMM yyyy"));
 
-			debugLogger.WriteDebug_3("End Method: frmMain.mnuNewRaid_Click()");
+			log.Debug("End Method: frmMain.mnuNewRaid_Click()");
 		}
 
 		private void btnAttendees_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.btnAttendees_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+			log.Debug("Begin Method: frmMain.btnAttendees_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 			
 			CurrentRaid.ShowAttendees();	
 	
-			debugLogger.WriteDebug_3("End Method: frmMain.btnAttendees_Click()");
+			log.Debug("End Method: frmMain.btnAttendees_Click()");
 		}
 
 		private void mnuOpenRaid_Click(object sender, System.EventArgs e)
 		{
-			debugLogger.WriteDebug_3("Begin Method: frmMain.mnuOpenRaid_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+			log.Debug("Begin Method: frmMain.mnuOpenRaid_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			ChooseRaidDialog raidselect = new ChooseRaidDialog(this);
 			if (raidselect.ShowDialog() == DialogResult.OK)
@@ -675,7 +680,7 @@ namespace ES_DKP_Utils
 				panel.Enabled = true;
 				dtpRaidDate.Value = CurrentRaid.RaidDate;
 				txtRaidName.Text = CurrentRaid.RaidName;
-                debugLogger.WriteDebug_1("Raid Loaded: " + CurrentRaid.RaidName + " (" + CurrentRaid.RaidDate.ToString("dd/mm/yyyy") + ")");
+                log.Info("Raid Loaded: " + CurrentRaid.RaidName + " (" + CurrentRaid.RaidDate.ToString("dd/mm/yyyy") + ")");
 
                 txtRaidName.Enabled = false;
 				dtpRaidDate.Enabled = false;
@@ -702,21 +707,21 @@ namespace ES_DKP_Utils
 				raidselect.Dispose();
 			}
 
-			debugLogger.WriteDebug_3("End Method: frmMain.mnuOpenRaid_Click()");
+			log.Debug("End Method: frmMain.mnuOpenRaid_Click()");
 		}
 
 		private void btnLoot_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: frmMain.btnLoot_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: frmMain.btnLoot_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 			
             CurrentRaid.ShowLoot();
 
-            debugLogger.WriteDebug_3("End Method: frmMain.btnLoot_Click()");
+            log.Debug("End Method: frmMain.btnLoot_Click()");
 		}
 
 		private void btnRecordLoot_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: frmMain.btnRecordLoot_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: frmMain.btnRecordLoot_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			RecordLootDialog record = null;
 
@@ -726,7 +731,7 @@ namespace ES_DKP_Utils
 			}
 			catch (Exception ex)
 			{
-                debugLogger.WriteDebug_1("Could not create frmRecordLoot: " + ex.Message); 
+                log.Error("Could not create frmRecordLoot: " + ex.Message); 
 				MessageBox.Show("Error: \n" + ex.Message);
 				return;
 			}
@@ -734,16 +739,16 @@ namespace ES_DKP_Utils
 			record.Dispose();
 			CurrentRaid.DivideDKP();
 
-            debugLogger.WriteDebug_3("End Method: frmMain.btnRecordLoot_Click");
+            log.Debug("End Method: frmMain.btnRecordLoot_Click");
 		}
 
 		private void btnImport_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: btnImport_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: btnImport_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 			if ((txtZoneNames.Text != null && txtZoneNames.Text.Length == 0)) 
 			{
 				MessageBox.Show("Input zone shortnames before running the attendance parser");
-                debugLogger.WriteDebug_2("Not loading attendance parser because no zone names are entered");
+                log.Warn("Not loading attendance parser because no zone names are entered");
 				return;
 			}
 
@@ -753,41 +758,41 @@ namespace ES_DKP_Utils
 			filedg.FilterIndex = 1;
 			if(filedg.ShowDialog() == DialogResult.OK)
 			{
-                debugLogger.WriteDebug_3("Log file dialog returns: " + filedg.FileName);
+                log.Debug("Log file dialog returns: " + filedg.FileName);
 				CurrentRaid.ParseAttendance(filedg.FileName, txtZoneNames.Text);
 				StatusMessage = "Finished parsing attendance...";
 				filedg.Dispose();
 			}
 
-            debugLogger.WriteDebug_3("End Method: btnImport_Click()");
+            log.Debug("End Method: btnImport_Click()");
 		}
 
 		private void txtRaidName_Leave(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: txtRaidName_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: txtRaidName_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 			
             CurrentRaid.RaidName = txtRaidName.Text;
 
-            debugLogger.WriteDebug_3("End Method: txtRaidName_Leave()");
+            log.Debug("End Method: txtRaidName_Leave()");
 		}
 
 		private void chkDouble_CheckedChanged(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: chkDouble_CheckedChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: chkDouble_CheckedChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			CurrentRaid.DoubleTier = chkDouble.Checked;
 
-            debugLogger.WriteDebug_3("End Method: chkDouble_CheckChanged()");
+            log.Debug("End Method: chkDouble_CheckChanged()");
 		}
 
 		private void btnSaveRaid_Click(object sender, System.EventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: btnSaveRaid_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: btnSaveRaid_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			CurrentRaid.DivideDKP();
             if (CurrentRaid.Attendees == 0)
             {
-                debugLogger.WriteDebug_1("Not saving raid... 0 attendees");
+                log.Warn("Not saving raid... 0 attendees");
                 return;
             }
             System.Threading.Thread thd = new System.Threading.Thread(new System.Threading.ThreadStart(CurrentRaid.SyncData));
@@ -811,31 +816,31 @@ namespace ES_DKP_Utils
             StatusMessage = "Updated tier standings...";
             panel.Enabled = true;
 
-            debugLogger.WriteDebug_3("End Method: btnSaveRaid_Click()");
+            log.Debug("End Method: btnSaveRaid_Click()");
 		}
 
 		private void btnAdd_Click(object sender, System.EventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: btnAdd_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: btnAdd_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			DataTable t = CurrentRaid.NotPresent();
 			AddRemoveDialog add = new AddRemoveDialog(this,t,AddRemoveDialog.ADD,CurrentRaid.RaidName,CurrentRaid.RaidDate);
 			add.ShowDialog();
 			add.Dispose();
 
-            debugLogger.WriteDebug_3("End Method: btnAdd_Click()");
+            log.Debug("End Method: btnAdd_Click()");
 		}
 
 		private void btnRemove_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: btnRemove_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: btnRemove_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			DataTable t = CurrentRaid.Present();
 			AddRemoveDialog remove = new AddRemoveDialog(this,t,AddRemoveDialog.REMOVE,CurrentRaid.RaidName,CurrentRaid.RaidDate);
 			remove.ShowDialog();
 			remove.Dispose();
 
-            debugLogger.WriteDebug_3("End Method: btnRemove_Click()");
+            log.Debug("End Method: btnRemove_Click()");
 		}
 
         private struct obj {
@@ -846,7 +851,7 @@ namespace ES_DKP_Utils
 
 		private void mnuDailyReport_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: mnuDailyReport_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: mnuDailyReport_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			DailyReportDialog dr = new DailyReportDialog();
 			DateTime t = dr.GetDate();
@@ -858,7 +863,7 @@ namespace ES_DKP_Utils
                 thd.Start();
 			}
 
-            debugLogger.WriteDebug_3("End Method: mnuDailyReport_Click()");
+            log.Debug("End Method: mnuDailyReport_Click()");
 		}
         private void DailyReport()
         {
@@ -867,27 +872,27 @@ namespace ES_DKP_Utils
 
 		private void mnuDKPOT_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: mnuDKPOT_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: mnuDKPOT_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			DKPOverTimeDialog dkpot = new DKPOverTimeDialog(this);
 			dkpot.ShowDialog();
 			dkpot.Dispose();
 
-            debugLogger.WriteDebug_3("End Method: btnAdd_Click()");
+            log.Debug("End Method: btnAdd_Click()");
 		}
 
 		private void mnuExit_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: mnuExit_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: mnuExit_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			Application.Exit();
 
-            debugLogger.WriteDebug_3("End Method: mnuExit_Click()");
+            log.Debug("End Method: mnuExit_Click()");
 		}
 
 		private void rbA_CheckedChanged(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: rbA_CheckChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: rbA_CheckChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             if (rdoA.Checked) this.ItemDKP = "A";
             else if (rdoB.Checked) this.ItemDKP = "B";
@@ -896,12 +901,12 @@ namespace ES_DKP_Utils
 			parser.TellsDKP.Sort();
 			RefreshTells = true;
 
-            debugLogger.WriteDebug_3("End Method: rbA_CheckChanged()");
+            log.Debug("End Method: rbA_CheckChanged()");
 		}
 
 		private void rbB_CheckedChanged(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: rbB_CheckChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: rbB_CheckChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			if (rdoA.Checked) this.ItemDKP = "A";
 			else if (rdoB.Checked) this.ItemDKP = "B";
@@ -910,12 +915,12 @@ namespace ES_DKP_Utils
 			parser.TellsDKP.Sort();
 			RefreshTells = true;
 
-            debugLogger.WriteDebug_3("End Method: rbB_CheckChanged()");
+            log.Debug("End Method: rbB_CheckChanged()");
 		}
 
 		private void rbC_CheckedChanged(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: rbC_CheckChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: rbC_CheckChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			if (rdoA.Checked) this.ItemDKP = "A";
 			else if (rdoB.Checked) this.ItemDKP = "B";
@@ -924,12 +929,12 @@ namespace ES_DKP_Utils
 			parser.TellsDKP.Sort();
 			RefreshTells = true;
 
-            debugLogger.WriteDebug_3("End Method: rbC_CheckChanged()");
+            log.Debug("End Method: rbC_CheckChanged()");
 		}
 
         private void rbATTD_CheckedChanged(object sender, EventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: rbATTD_CheckChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: rbATTD_CheckChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             if (rdoA.Checked) this.ItemDKP = "A";
             else if (rdoB.Checked) this.ItemDKP = "B";
@@ -938,33 +943,33 @@ namespace ES_DKP_Utils
             parser.TellsDKP.Sort();
             RefreshTells = true;
 
-            debugLogger.WriteDebug_3("End Method: rbATTD_CheckChanged()");
+            log.Debug("End Method: rbATTD_CheckChanged()");
         }
 
 		private void btnClear_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: btnClear_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: btnClear_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			parser.TellsDKP.Clear();
 			parser.Tells.Clear();
 			RefreshTells = true;
 
-            debugLogger.WriteDebug_3("End Method: btnClear_Click()");
+            log.Debug("End Method: btnClear_Click()");
 		}
 
         private void mnuAbout_Click(object sender, System.EventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: mnuAbout_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: mnuAbout_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             AboutDialog about = new AboutDialog();
             about.ShowDialog();
             about.Dispose();
 
-            debugLogger.WriteDebug_3("End Method: mnuAbout.Click()");
+            log.Debug("End Method: mnuAbout.Click()");
         }
-		#endregion
+#endregion
 
-		#region Windows Form Designer generated code
+#region Windows Form Designer generated code
 		/// <summary>
 		/// Required method for Designer support - do not modify
 		/// the contents of this method with the code editor.
@@ -1641,19 +1646,19 @@ namespace ES_DKP_Utils
 			base.Dispose( disposing );
 		}
 
-		#endregion
+#endregion
 
         private void mnuImportLog_Click(object sender, EventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: mnuImportLogClick(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: mnuImportLogClick(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
             // Do the same thing as the button.
             btnImport_Click(sender, e);
-            debugLogger.WriteDebug_3("End Method: mnuImportLogClick()");
+            log.Debug("End Method: mnuImportLogClick()");
         }
 
         private void mnuImportRaidDump_Click(object sender, EventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: mnuImportRaidDump_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: mnuImportRaidDump_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             String logdir = System.IO.Path.GetDirectoryName(this.LogFile);
             String eqdir = System.IO.Directory.GetParent(logdir).FullName;
@@ -1665,13 +1670,13 @@ namespace ES_DKP_Utils
             
             if (filedg.ShowDialog() == DialogResult.OK)
             {
-                debugLogger.WriteDebug_3("Log file dialog returns: " + filedg.FileName);
+                log.Debug("Log file dialog returns: " + filedg.FileName);
                 CurrentRaid.ParseRaidDump(filedg.FileName);
                 StatusMessage = "Finished parsing attendance...";
                 filedg.Dispose();
             }
 
-            debugLogger.WriteDebug_3("End Method: mnuImportRaidDump_Click()");
+            log.Debug("End Method: mnuImportRaidDump_Click()");
         }
 
         private void chkTells_CheckedChanged(object sender, EventArgs e)

@@ -61,16 +61,13 @@ namespace ES_DKP_Utils
             set { _AttendancePCT = value; }
         }
 		private frmMain owner;
-        private DebugLogger debugLogger;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         #endregion
 
         #region Constructor
         public Raider(frmMain owner, string p, string t, double d, double a)
 		{
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("Raider.log");
-#endif
-            debugLogger.WriteDebug_3("Begin Method: Raider.Raider(frmMain,string,string,double,double) (" + 
+            log.Debug("Begin Method: Raider.Raider(frmMain,string,string,double,double) (" + 
                 owner.ToString() + "," + p.ToString() + "," + t.ToString() + "," + d.ToString() + "," + a.ToString() + ")");
 
 			this.owner = owner;
@@ -80,7 +77,7 @@ namespace ES_DKP_Utils
             AttendancePCT = a;
             MINDKP = owner.MinDKP;
 
-            debugLogger.WriteDebug_3("End Method: Raider.Raider()");
+            log.Debug("End Method: Raider.Raider()");
 		}
         #endregion
 

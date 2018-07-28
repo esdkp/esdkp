@@ -14,8 +14,6 @@ namespace ES_DKP_Utils
         #region Declarations
         private frmMain owner;
 
-        private string OriginalRaidName;
-
 		private string _RaidName;
 		public string RaidName 
 		{
@@ -128,16 +126,13 @@ namespace ES_DKP_Utils
         private OleDbCommandBuilder altBld;
 
 		private ArrayList ignore;
-        private DebugLogger debugLogger;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         #endregion
 
         #region Constuctor
         public Raid(frmMain owner)
 		{
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("Raid.log");
-#endif
-            debugLogger.WriteDebug_3("Begin Method: Raid.Raid(frmMain) (" + owner.ToString() + ")");
+            log.Debug("Begin Method: Raid.Raid(frmMain) (" + owner.ToString() + ")");
 
 			this.owner = owner;
 			this.ignore = new ArrayList();
@@ -147,7 +142,7 @@ namespace ES_DKP_Utils
 			try { dbConnect = new OleDbConnection(connectionStr); }
 			catch (Exception ex) 
 			{
-                debugLogger.WriteDebug_1("Failed to create data connection: " + ex.Message);
+                log.Error("Failed to create data connection: " + ex.Message);
 				MessageBox.Show("Could not create data connection. \n(" + ex.Message + ")","Error");
 			}
 			dkpDA = new OleDbDataAdapter();
@@ -169,19 +164,19 @@ namespace ES_DKP_Utils
 			}
 			catch (Exception ex) 
 			{
-                debugLogger.WriteDebug_1("Failed to load people table: " + ex.Message);
+                log.Error("Failed to load people table: " + ex.Message);
 				MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 			}
 			finally { dbConnect.Close(); }
 
-            debugLogger.WriteDebug_3("End Method: Raid.Raid()");
+            log.Debug("End Method: Raid.Raid()");
         }
         #endregion
 
         #region Methods
         public void LoadRaid()
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.LoadRaid()");
+            log.Debug("Begin Method: Raid.LoadRaid()");
 
 			try
 			{
@@ -223,60 +218,60 @@ namespace ES_DKP_Utils
 			}
 			catch (Exception ex) 
 			{
-                debugLogger.WriteDebug_1("Failed to load raid: " + ex.Message);
+                log.Error("Failed to load raid: " + ex.Message);
 				MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 			}
 			finally { dbConnect.Close(); }
 
-            debugLogger.WriteDebug_3("End Method: Raid.LoadRaid()");
+            log.Debug("End Method: Raid.LoadRaid()");
 		}
 
 		public void ShowAttendees()
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.ShowAttendees()");
+            log.Debug("Begin Method: Raid.ShowAttendees()");
 
 			DataRow[] attendees = dbRaid.Select("(PTS>=0)");
 			DataTable newTable = rowsToTable(dbRaid,attendees);
 			TableViewer table = new TableViewer(owner,newTable,new TableViewer.UpdateDel(UpdateAttendees));
 			table.Show();
 
-            debugLogger.WriteDebug_3("End Method: Raid.ShowAttendees()");
+            log.Debug("End Method: Raid.ShowAttendees()");
 		}
 		public void UpdateAttendees(DataTable dt) 
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.UpdateAttendees(DataTable) (" + dt.ToString() + ")");
+            log.Debug("Begin Method: Raid.UpdateAttendees(DataTable) (" + dt.ToString() + ")");
 
 			foreach (DataRow r in dbRaid.Select("(PTS>=0)")) { dbRaid.Rows.Remove(r); }
 			foreach (DataRow r in dt.Rows) { dbRaid.Rows.Add(r.ItemArray); }			
 
-            debugLogger.WriteDebug_3("End Method: Raid.UpdateAttendees()");
+            log.Debug("End Method: Raid.UpdateAttendees()");
 		}
 
 		public void ShowLoot()
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.ShowLoot()");
+            log.Debug("Begin Method: Raid.ShowLoot()");
 
 			DataRow[] loot = dbRaid.Select("(PTS<0)");
 			DataTable newTable = rowsToTable(dbRaid,loot);
 			TableViewer table = new TableViewer(owner,newTable,new TableViewer.UpdateDel(UpdateLoot));
 			table.Show();
 
-            debugLogger.WriteDebug_3("End Method: Raid.ShowLoot()");
+            log.Debug("End Method: Raid.ShowLoot()");
 		}
 
 		public void UpdateLoot(DataTable dt) 
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.UpdateLoot(DataTable) (" + dt.ToString() + ")");
+            log.Debug("Begin Method: Raid.UpdateLoot(DataTable) (" + dt.ToString() + ")");
 
 			foreach (DataRow r in dbRaid.Select("(PTS<0)")) { dbRaid.Rows.Remove(r); }
 			foreach (DataRow r in dt.Rows) { dbRaid.Rows.Add(r.ItemArray); }
 
-            debugLogger.WriteDebug_3("End Method: Raid.UpdateLoot()");
+            log.Debug("End Method: Raid.UpdateLoot()");
 		}
 
 		public void InputPerson(string s)
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.InputPerson(string) (" + s.ToString() + ")");
+            log.Debug("Begin Method: Raid.InputPerson(string) (" + s.ToString() + ")");
 
 			DataRow[] rows = dbPeople.Select("Name='" + s + "'");
 
@@ -286,7 +281,7 @@ namespace ES_DKP_Utils
                 if (rs.Length == 0)
                 {
                     dbRaid.Rows.Add(new object[] { s, RaidDate, RaidName, 0, null, null });
-                    debugLogger.WriteDebug_3("Added person: " + s);
+                    log.Debug("Added person: " + s);
                 }
 			}
 			else
@@ -300,7 +295,7 @@ namespace ES_DKP_Utils
                         if (rs.Length == 0)
                         {
                             dbRaid.Rows.Add(new object[] { t, RaidDate, RaidName, 0, null, null });
-                            debugLogger.WriteDebug_3("Added person: " + t);
+                            log.Debug("Added person: " + t);
                         }
 
 					}
@@ -318,7 +313,7 @@ namespace ES_DKP_Utils
 							if (rs.Length==0) 
 							{
 								dbRaid.Rows.Add(new object[] {t,RaidDate,RaidName,0,null,null});
-                                debugLogger.WriteDebug_3("Added person: " + t);
+                                log.Debug("Added person: " + t);
 							}
 							if (t!=s) dbAlts.Rows.Add(new object[] {s,t});
 							altDA.Update(dbAlts);
@@ -331,7 +326,7 @@ namespace ES_DKP_Utils
 
         public void ParseRaidDump(string logFile)
         {
-            debugLogger.WriteDebug_3("Begin Method: Raid.ParseRaidDump(string) (" + logFile.ToString() + ")");
+            log.Debug("Begin Method: Raid.ParseRaidDump(string) (" + logFile.ToString() + ")");
 
             FileStream input;
             StreamReader sr;
@@ -346,7 +341,7 @@ namespace ES_DKP_Utils
             }
             catch (Exception ex)
             {
-                debugLogger.WriteDebug_1("Failed to open raid dump file to parse: " + ex.Message);
+                log.Error("Failed to open raid dump file to parse: " + ex.Message);
                 MessageBox.Show("File IO Error.\n(" + ex.Message + ")");
                 return;
             }
@@ -357,7 +352,7 @@ namespace ES_DKP_Utils
 
                 if (line == null)
                 {
-                    debugLogger.WriteDebug_3("Line in file empty, skipping");
+                    log.Debug("Line in file empty, skipping");
                     break;
                 }
 
@@ -381,7 +376,7 @@ namespace ES_DKP_Utils
                     if (rs.Length == 0)
                     {
                         dbRaid.Rows.Add(new object[] { s, RaidDate, RaidName, 0, null, null });
-                        debugLogger.WriteDebug_3("Added attendance row for " + s);
+                        log.Debug("Added attendance row for " + s);
                     }
                 }
                 else
@@ -395,7 +390,7 @@ namespace ES_DKP_Utils
                             if (rs.Length == 0)
                             {
                                 dbRaid.Rows.Add(new object[] { t, RaidDate, RaidName, 0, null, null });
-                                debugLogger.WriteDebug_3("Added attendance row for " + t + " (Alt: " + s + ")");
+                                log.Debug("Added attendance row for " + t + " (Alt: " + s + ")");
                             }
                         }
 
@@ -410,7 +405,7 @@ namespace ES_DKP_Utils
                             if (rs.Length == 0)
                             {
                                 dbRaid.Rows.Add(new object[] { t, RaidDate, RaidName, 0, null, null });
-                                debugLogger.WriteDebug_3("Added attendance row for " + t);
+                                log.Debug("Added attendance row for " + t);
                             }
                             if (t != s) dbAlts.Rows.Add(new object[] { s, t });
                             altDA.Update(dbAlts);
@@ -420,12 +415,12 @@ namespace ES_DKP_Utils
 
             }
 
-            debugLogger.WriteDebug_3("End Method: Raid.ParseRaidDump()");
+            log.Debug("End Method: Raid.ParseRaidDump()");
         }
 
 		public void ParseAttendance(string logFile, string zo) 
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.ParseAttendance(string,string) (" + logFile.ToString() + "," + zo.ToString() + ")");
+            log.Debug("Begin Method: Raid.ParseAttendance(string,string) (" + logFile.ToString() + "," + zo.ToString() + ")");
 
 			string[] zones = zo.Split(new char[] { ' ' });
 			string line;
@@ -444,7 +439,7 @@ namespace ES_DKP_Utils
 			}
 			catch (Exception ex) 
 			{
-                debugLogger.WriteDebug_1("Failed to open log to parse: " + ex.Message);
+                log.Error("Failed to open log to parse: " + ex.Message);
 				MessageBox.Show("File IO Error.\n(" + ex.Message + ")");
 				return;
 			}
@@ -464,7 +459,7 @@ namespace ES_DKP_Utils
 
                         if (owner.GuildNames.Contains(_guild) && zo.Contains(_zone) && !people.Contains(_name))
                         {
-                            debugLogger.WriteDebug_2(_name + " <" + _guild + "> is in zone " + _zone + ", adding to people array.");
+                            log.Debug(_name + " <" + _guild + "> is in zone " + _zone + ", adding to people array.");
                             people.Add(_name);
                         }        
                     }
@@ -486,7 +481,7 @@ namespace ES_DKP_Utils
                     if (rs.Length == 0)
                     {
                         dbRaid.Rows.Add(new object[] { s, RaidDate, RaidName, 0, null, null });
-                        debugLogger.WriteDebug_3("Added attendance row for " + s);
+                        log.Debug("Added attendance row for " + s);
                     }
 				}
 				else
@@ -500,7 +495,7 @@ namespace ES_DKP_Utils
                             if (rs.Length == 0)
                             {
                                 dbRaid.Rows.Add(new object[] { t, RaidDate, RaidName, 0, null, null });
-                                debugLogger.WriteDebug_3("Added attendance row for " + t + " (Alt: " + s + ")");
+                                log.Debug("Added attendance row for " + t + " (Alt: " + s + ")");
                             }
 						}
 					
@@ -515,7 +510,7 @@ namespace ES_DKP_Utils
 							if (rs.Length==0) 
 							{
 								dbRaid.Rows.Add(new object[] {t,RaidDate,RaidName,0,null,null});
-                                debugLogger.WriteDebug_3("Added attendance row for " + t);
+                                log.Debug("Added attendance row for " + t);
 							}
 							if (t!=s) dbAlts.Rows.Add(new object[] {s,t});
 							altDA.Update(dbAlts);
@@ -524,12 +519,12 @@ namespace ES_DKP_Utils
 				}
 					
 			}
-            debugLogger.WriteDebug_3("Begin Method: Raid.ParseAttendance()");
+            log.Debug("Begin Method: Raid.ParseAttendance()");
 		}
 
 		public string GetAlt(string s)
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.GetAlt(string) (" + s.ToString() + ")");
+            log.Debug("Begin Method: Raid.GetAlt(string) (" + s.ToString() + ")");
 
 			dbAlts = new DataTable("Alts");
 			string query = "SELECT * FROM ALTS";
@@ -542,7 +537,7 @@ namespace ES_DKP_Utils
 			}
 			catch (Exception ex) 
 			{
-                debugLogger.WriteDebug_1("Failed to load alts table: " + ex.Message);
+                log.Error("Failed to load alts table: " + ex.Message);
 				MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 			}
 			finally { dbConnect.Close(); }
@@ -551,11 +546,11 @@ namespace ES_DKP_Utils
 
             if (rows.Length > 0)
             {
-                debugLogger.WriteDebug_3("End Method: Raid.GetAlt(), returning " + (string)rows[0].ItemArray[1]); ;
+                log.Debug("End Method: Raid.GetAlt(), returning " + (string)rows[0].ItemArray[1]); ;
                 return (string)rows[0].ItemArray[1];
             }
 
-            debugLogger.WriteDebug_3("End Method: Raid.GetAlt(), returning ");
+            log.Debug("End Method: Raid.GetAlt(), returning ");
 			return "";
 
 		}
@@ -568,7 +563,7 @@ namespace ES_DKP_Utils
              *   
              * I've added guild as paramater [2], in case we want to use it in guild name matching.
              */
-            debugLogger.WriteDebug_3("Begin Method: Raid.ParseLine(string) (" + line.ToString() + ")");
+            log.Debug("Begin Method: Raid.ParseLine(string) (" + line.ToString() + ")");
 
             Regex r = new Regex(@"\[.*\] \[.*\] (?<name>\S+).*<(?<guild>.*)> ZONE: (?<zone>.*)$");
             Match m = r.Match(line.Trim());
@@ -577,13 +572,13 @@ namespace ES_DKP_Utils
                                  m.Groups["zone"].ToString(),
                                  m.Groups["guild"].ToString() };
 
-            debugLogger.WriteDebug_3("End Method: Raid.ParseLine(), returning {" + results[0] + "," + results[1] + "}");
+            log.Debug("End Method: Raid.ParseLine(), returning {" + results[0] + "," + results[1] + "}");
 			return results;
 		}
 
 		public void AddRowToLocalTable(object[] o)
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.AddRowToLocalTable(object[]) (" + o.ToString() + ")");
+            log.Debug("Begin Method: Raid.AddRowToLocalTable(object[]) (" + o.ToString() + ")");
             string s = "Creating new row: ";
             try
             {
@@ -593,52 +588,54 @@ namespace ES_DKP_Utils
                         s += k.ToString() + ",";
                     else s += "null,";
                 }
-                debugLogger.WriteDebug_2(s.TrimEnd(new char[] { ',' }));
+                log.Debug(s.TrimEnd(new char[] { ',' }));
             }
-            catch(Exception ex) { }
+            catch(Exception ex) {
+                log.Error("Error adding row to local table: " + ex.Message);
+            }
             
 
 			DataRow r = dbRaid.NewRow();
 			r.ItemArray = o;
 			dbRaid.Rows.Add(r);
 
-            debugLogger.WriteDebug_3("End Method: Raid.AddRowToLocalTable()");
+            log.Debug("End Method: Raid.AddRowToLocalTable()");
 		}
 
 		public void DivideDKP()
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.DivideDKP()");
+            log.Debug("Begin Method: Raid.DivideDKP()");
 
 			double dkp = 0.0;
 			DataRow[] rows = dbRaid.Select("PTS<0 AND LootRaid='" + RaidName + "'");
 			foreach (DataRow r in rows) { dkp += Math.Abs((double)r.ItemArray[3]); }
-            debugLogger.WriteDebug_3("Total dkp to distribute: " + dkp);
+            log.Info("Total dkp to distribute: " + dkp);
 
 			rows = dbRaid.Select("PTS>=0 AND EventNameOrLoot='" + RaidName + "'");
 			if (rows.Length==0) rows = dbRaid.Select("PTS>=0 AND EventNameOrLoot='" + RaidName + "0'");
 			if (rows.Length==0) return;
 
 			Attendees = rows.Length;
-            debugLogger.WriteDebug_3("Total attendees: " + Attendees);
+            log.Info("Total attendees: " + Attendees);
 
 			TotalDKP = dkp;
 			dkp *= (1 - owner.DKPTax);
 			dkp /= rows.Length;
 
-            debugLogger.WriteDebug_3("DKP per person: " + dkp);
+            log.Info("DKP per person: " + dkp);
 
 			foreach (DataRow r in rows) 
 			{
 				r.ItemArray = new object[] { r.ItemArray[0],r.ItemArray[1],r.ItemArray[2],dkp,r.ItemArray[4],r.ItemArray[5] };
 			}
 
-            debugLogger.WriteDebug_3("End Method: Raid.DivideDKP()");
+            log.Debug("End Method: Raid.DivideDKP()");
 		}
 
 		public void SyncData() 
 		{
             int k = 0;
-            debugLogger.WriteDebug_3("Begin Method: Raid.SyncData()");
+            log.Debug("Begin Method: Raid.SyncData()");
 
             owner.StatusMessage = "Saving raid...";
             owner.PBMin = 0;
@@ -654,16 +651,16 @@ namespace ES_DKP_Utils
 				updateCommand = new OleDbCommand(query,dbConnect);
 				dbConnect.Open();
 				updateCommand.ExecuteNonQuery();
-                debugLogger.WriteDebug_2("Updated " + k + " rows, flagged for deletion in DKS");
+                log.Info("Updated " + k + " rows, flagged for deletion in DKS");
 
 				query = "UPDATE EventLog SET DKPValue=-1 WHERE EventDate=#" + RaidDate.Month + "/" + RaidDate.Day + "/" + RaidDate.Year + "# AND ( EventName LIKE '" + RaidName + "%' )";
 				updateCommand = new OleDbCommand(query,dbConnect);
 				k = updateCommand.ExecuteNonQuery();
-                debugLogger.WriteDebug_2("Updated " + k + " rows, flagged for deletion in EventLog");
+                log.Info("Updated " + k + " rows, flagged for deletion in EventLog");
 			}
 			catch (Exception ex) 
 			{
-                debugLogger.WriteDebug_1("Failed to load either DKS or EventLog: " + ex.Message);
+                log.Error("Failed to load either DKS or EventLog: " + ex.Message);
 				MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 			}
 			finally { dbConnect.Close(); }
@@ -726,7 +723,7 @@ namespace ES_DKP_Utils
 				}
 				catch (Exception ex) 
 				{
-                    debugLogger.WriteDebug_1("Failed to update DKS or EventLog: " + ex.Message);
+                    log.Error("Failed to update DKS or EventLog: " + ex.Message);
 					MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 				}
 				finally { dbConnect.Close(); }
@@ -815,18 +812,18 @@ namespace ES_DKP_Utils
 				}				
 				catch (Exception ex) 
 				{
-                    debugLogger.WriteDebug_1("Failed to update DKS or EventLog: " + ex.Message);
+                    log.Error("Failed to update DKS or EventLog: " + ex.Message);
 					MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 				}
 				finally { dbConnect.Close(); }
 			}
 
-            debugLogger.WriteDebug_3("End Method: Raid.SyncRaid()");
+            log.Debug("End Method: Raid.SyncRaid()");
 		}
 
 		public void FigureTiers()
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.FigureTiers()");
+            log.Debug("Begin Method: Raid.FigureTiers()");
 
 			string query = "SELECT DISTINCT EventDate FROM EventLog WHERE EventDate <= #" + DateTime.Now.Month + "/" + DateTime.Now.Day + "/" + DateTime.Now.Year + "#";
 			DataTable dates = null;
@@ -840,7 +837,7 @@ namespace ES_DKP_Utils
 			}
 			catch (Exception ex) 
 			{
-                debugLogger.WriteDebug_1("Failed to fill dates table: " + ex.Message);
+                log.Error("Failed to fill dates table: " + ex.Message);
 				MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 			}
 			finally { dbConnect.Close(); }
@@ -864,7 +861,7 @@ namespace ES_DKP_Utils
 			}
 			catch (Exception ex) 
 			{
-                debugLogger.WriteDebug_1("Failed to fill attendance count or raid count table: " + ex.Message);
+                log.Error("Failed to fill attendance count or raid count table: " + ex.Message);
 				MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 			}
 			finally { dbConnect.Close(); }
@@ -881,9 +878,6 @@ namespace ES_DKP_Utils
 				double d;
 				string q;
 				d = (double) numraids/totalraids;
-				//if (d>=.60) c = 'A';
-				//else if (d>.30) c = 'B';
-				//else c = 'C';
                 if (d >= owner.TierAPct)
                     c = 'A';
                 else if (d >= owner.TierBPct)
@@ -902,19 +896,19 @@ namespace ES_DKP_Utils
 				}
 				catch (Exception ex) 
 				{
-                    debugLogger.WriteDebug_1("Failed to write NamesTiers row: " + ex.Message);
+                    log.Error("Failed to write NamesTiers row: " + ex.Message);
 					MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 				}
 				finally { dbConnect.Close(); }
 
 			}
 
-            debugLogger.WriteDebug_3("End Method: Raid.FigureTiers()");
+            log.Debug("End Method: Raid.FigureTiers()");
 		}
 
 		public void AddNameClass(string s, string t)
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.AddNameClass(string,string) (" + s.ToString() + "," + t.ToString() + ")");
+            log.Debug("Begin Method: Raid.AddNameClass(string,string) (" + s.ToString() + "," + t.ToString() + ")");
 
 			string query = "INSERT INTO NamesClassesRemix VALUES ('" + s + "','" + t + "')";
 			try
@@ -925,17 +919,17 @@ namespace ES_DKP_Utils
 			}
 			catch (Exception ex) 
 			{
-                debugLogger.WriteDebug_1("Failed to insert NamesClasses row: " + ex.Message);
+                log.Error("Failed to insert NamesClasses row: " + ex.Message);
 				MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 			}
 			finally { dbConnect.Close(); }
 
-            debugLogger.WriteDebug_3("End Method: Raid.AddNameClass()");
+            log.Debug("End Method: Raid.AddNameClass()");
 		}
 
 		public void AddPerson(string s)
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.AddPerson(string) (" + s.ToString() + ")");
+            log.Debug("Begin Method: Raid.AddPerson(string) (" + s.ToString() + ")");
 
 			if (Present().Select("Name='" + s + "' AND PTS>=0").Length==0) 
 			{
@@ -944,27 +938,27 @@ namespace ES_DKP_Utils
 				DivideDKP();
 			}
 
-            debugLogger.WriteDebug_3("End Method: Raid.AddPerson()");
+            log.Debug("End Method: Raid.AddPerson()");
 		}
 
 		public void RemovePerson(string s)
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.RemovePerson(string) (" + s.ToString() + ")");
+            log.Debug("Begin Method: Raid.RemovePerson(string) (" + s.ToString() + ")");
 
 			DataRow[] rows = dbRaid.Select("Name='" + s + "' AND PTS>=0");
             try { dbRaid.Rows.Remove(rows[0]); }
             catch (Exception ex)
             {
-                debugLogger.WriteDebug_1("Failed to remove " + s + " from local table: " + ex.Message);
+                log.Error("Failed to remove " + s + " from local table: " + ex.Message);
             }
             DivideDKP();
 
-            debugLogger.WriteDebug_3("End Method: Raid.RemovePerson()");
+            log.Debug("End Method: Raid.RemovePerson()");
 		}
 
 		public DataTable NotPresent()
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.NotPresent()");
+            log.Debug("Begin Method: Raid.NotPresent()");
 
 			DataTable p = dbPeople.Copy();
 			DataRow[] deleteMe = new DataRow[p.Rows.Count];
@@ -981,17 +975,17 @@ namespace ES_DKP_Utils
 
 			for (j=0; j<i; j++) p.Rows.Remove(deleteMe[j]);
 
-            debugLogger.WriteDebug_3("End Method: Raid.NotPresent(), returning " + p.ToString());
+            log.Debug("End Method: Raid.NotPresent(), returning " + p.ToString());
 			return p;
 		}
 
 		public DataTable Present()
 		{
-            debugLogger.WriteDebug_3("Begin Method: Raid.Present()");
+            log.Debug("Begin Method: Raid.Present()");
 
 			DataTable p = dbRaid.Copy();
 
-            debugLogger.WriteDebug_3("End Method: Raid.Present(),  returning " + p);
+            log.Debug("End Method: Raid.Present(),  returning " + p);
 			return p;
 		}
 

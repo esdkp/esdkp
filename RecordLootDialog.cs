@@ -42,29 +42,22 @@ namespace ES_DKP_Utils
         private bool nameEntered;
         private bool priceEntered;
         private frmMain owner;
-        private DebugLogger debugLogger;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         #endregion
 
         #region Constructors
         public RecordLootDialog()
         {
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("frmRecordLoot.log");
-#endif
-            debugLogger.WriteDebug_3("Begin Method: frmRecordLoot.frmRecordLoot()");
+            log.Debug("Begin Method: frmRecordLoot.frmRecordLoot()");
 
             InitializeComponent();
 
-            debugLogger.WriteDebug_3("End Method: frmRecordLoot.frmRecordLoot()");
+            log.Debug("End Method: frmRecordLoot.frmRecordLoot()");
         }
 
         public RecordLootDialog(frmMain owner, string name, string date)
         {
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("frmRecordLoot.log");
-#endif
-
-            debugLogger.WriteDebug_3("Begin Method: frmRecordLoot.frmRecordLoot(frmMain,string,string) (" + owner.ToString()
+            log.Debug("Begin Method: frmRecordLoot.frmRecordLoot(frmMain,string,string) (" + owner.ToString()
                 + "," + name.ToString() + "," + date.ToString() + ")");
 
             InitializeComponent();
@@ -77,7 +70,7 @@ namespace ES_DKP_Utils
             try { dbConnect = new OleDbConnection(connectionStr); }
             catch (Exception ex)
             {
-                debugLogger.WriteDebug_1("Failed to open data connection: " + ex.Message);
+                log.Error("Failed to open data connection: " + ex.Message);
                 MessageBox.Show("Could not create data connection. \n(" + ex.Message + ")", "Error");
             }
 
@@ -94,7 +87,7 @@ namespace ES_DKP_Utils
             }
             catch (Exception ex)
             {
-                debugLogger.WriteDebug_1("Failed to load loot tables: " + ex.Message);
+                log.Error("Failed to load loot tables: " + ex.Message);
                 MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")", "Error");
             }
             finally { dbConnect.Close(); }
@@ -113,7 +106,7 @@ namespace ES_DKP_Utils
             cboLoot.DisplayMember = "LootName";
             
 
-            debugLogger.WriteDebug_3("End Method: frmRecordLoot.frmLootRecord()");
+            log.Debug("End Method: frmRecordLoot.frmLootRecord()");
         }
 
         #endregion
@@ -121,17 +114,17 @@ namespace ES_DKP_Utils
         #region Events
         private void cboLoot_SelectedIndexChanged(object sender, System.EventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: cboLoot_SelectedIndexChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: cboLoot_SelectedIndexChanged(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             string s = "Changed cboPrice.Selected Index from " + cboPrice.SelectedIndex + " to ";
             cboPrice.SelectedIndex = cboLoot.SelectedIndex;
-            debugLogger.WriteDebug_2(s + cboPrice.SelectedIndex);
+            log.Debug(s + cboPrice.SelectedIndex);
 
-            debugLogger.WriteDebug_3("End Method: cboLoot_SelectedIndexChanged()");
+            log.Debug("End Method: cboLoot_SelectedIndexChanged()");
         }
         private void cboPeople_KeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: cboPeople_KeyPress(object,KeyPressEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: cboPeople_KeyPress(object,KeyPressEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             if (e.KeyChar >= 'A' && e.KeyChar <= 'z')
             {
@@ -144,18 +137,18 @@ namespace ES_DKP_Utils
                 s += ", after = " + cboPeople.SelectedIndex;
 
                 if (cboPeople.SelectedIndex == -1) { cboPeople.SelectedIndex = 0; s += ". Reset to 0"; }
-                debugLogger.WriteDebug_2(s);
+                log.Debug(s);
 
                 looter = cboPeople.SelectedIndex;
                 nameEntered = true;
                 cboPrice.Focus();
             }
 
-            debugLogger.WriteDebug_3("End Method: cboPeople_KeyPress()");
+            log.Debug("End Method: cboPeople_KeyPress()");
         }
         private void cboPeople_Leave(object sender, System.EventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: cboPeople_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: cboPeople_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             if (!nameEntered)
             {
@@ -164,15 +157,15 @@ namespace ES_DKP_Utils
                 s += ", after = " + cboPeople.Text + " (" + cboPeople.SelectedIndex + ")";
                 if (cboPeople.SelectedIndex == -1) { cboPeople.SelectedIndex = 0; s += " Reset to 0"; }
 
-                debugLogger.WriteDebug_2(s);
+                log.Debug(s);
                 looter = cboPeople.SelectedIndex;
             }
 
-            debugLogger.WriteDebug_3("End Method: cboPeople_Leave()");
+            log.Debug("End Method: cboPeople_Leave()");
         }
         private void cboLoot_Leave(object sender, System.EventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: cboLoot_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: cboLoot_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             if (!lootEntered)
             {
@@ -181,15 +174,15 @@ namespace ES_DKP_Utils
                 s += ", after = " + cboLoot.Text + " (" + cboLoot.SelectedIndex + ")";
                 loot = cboLoot.SelectedIndex;
 
-                debugLogger.WriteDebug_2(s);
+                log.Debug(s);
                 lootName = cboLoot.Text;
-
-                debugLogger.WriteDebug_3("End Method: cboLoot_Leave()");
             }
+
+            log.Debug("End Method: cboLoot_Leave()");
         }
         private void cboLoot_KeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: cboLoot_KeyPress(object,KeyPressEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: cboLoot_KeyPress(object,KeyPressEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             if (e.KeyChar >= 'A' && e.KeyChar <= 'z')
             {
@@ -201,43 +194,43 @@ namespace ES_DKP_Utils
                 cboLoot.SelectedIndex = cboLoot.FindString(cboLoot.Text);
                 s += ", after = " + cboLoot.Text + " (" + cboLoot.SelectedIndex + ")";
                 loot = cboLoot.SelectedIndex;
-                debugLogger.WriteDebug_2(s);
+                log.Debug(s);
 
                 lootName = cboLoot.Text;
                 lootEntered = true;
                 cboPeople.Focus();
             }
 
-            debugLogger.WriteDebug_3("End Method: cboLoot_KeyPress()");
+            log.Debug("End Method: cboLoot_KeyPress()");
         }
         private void cboPrice_Leave(object sender, System.EventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: cboPrice_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: cboPrice_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             if (!priceEntered) lootCost = cboPrice.Text;
 
-            debugLogger.WriteDebug_3("End Method: cboPrice_Leave()");
+            log.Debug("End Method: cboPrice_Leave()");
         }
         private void cboPrice_KeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: cboPrice_KeyPress(object,KeyPressEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: cboPrice_KeyPress(object,KeyPressEventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             if (e.KeyChar == 13)
             {
-                debugLogger.WriteDebug_2("Enter key pressed in cboPrice, Text = " + cboPrice.Text);
+                log.Debug("Enter key pressed in cboPrice, Text = " + cboPrice.Text);
 
                 lootCost = cboPrice.Text;
                 priceEntered = true;
                 btnRecord.Focus();
             }
 
-            debugLogger.WriteDebug_3("Begin Method: cboPrice_KeyPress()");
+            log.Debug("Begin Method: cboPrice_KeyPress()");
         }
         private void btnRecord_Click(object sender, System.EventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: btnRecord_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: btnRecord_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
-            debugLogger.WriteDebug_2("Upon entering btnRecord_Click, looter = " + looter + ", loot = " + loot + "," +
+            log.Info("Upon entering btnRecord_Click, looter = " + looter + ", loot = " + loot + "," +
                    "cboPeople.Text = " + cboPeople.Text + " (" + cboPeople.SelectedIndex + "), cboLoot.Text = " + cboLoot.Text + " (" + cboLoot.SelectedIndex + ")," +
                    "cboPrice.Text = " + cboPrice.Text + " (" + cboPrice.SelectedIndex + ")");
 
@@ -253,14 +246,25 @@ namespace ES_DKP_Utils
 
             nameEntered = lootEntered = priceEntered = false;
             DataRow r = null;
-            try { price = System.Int32.Parse(lootCost); }
-            catch (Exception ex) { MessageBox.Show("Invalid Price."); debugLogger.WriteDebug_1("Failed to parse price: " + ex.Message); return; }
+            try {
+                price = System.Int32.Parse(lootCost);
+            }
+            catch (Exception ex) {
+                MessageBox.Show("Invalid Price.");
+                log.Error("Failed to parse price: " + ex.Message);
+                return;
+            }
 
-            try { r = dtLoot.Select("LootName='" + lootName.Replace("'", "''") + "'")[0]; }
-            catch (Exception ex) { debugLogger.WriteDebug_1("Failed to select loot from table: " + ex.Message);  }
+            try {
+                r = dtLoot.Select("LootName='" + lootName.Replace("'", "''") + "'")[0];
+            }
+            catch (Exception ex) {
+                log.Error("Failed to select loot from table: " + ex.Message);
+            }
+
             if (r == null)
             {
-                debugLogger.WriteDebug_2("Item not found in Loot table: " + lootName);
+                log.Debug("Item not found in Loot table: " + lootName);
 
                 dtLoot.Rows.Add(new object[] { lootName, price });
                 try
@@ -268,20 +272,24 @@ namespace ES_DKP_Utils
                     foreach (DataRow t in dtLoot.Select("LootName='*** Select'")) dtLoot.Rows.Remove(t);
                     dkpDA.Update(dtLoot);
                 }
-                catch (Exception ex) { debugLogger.WriteDebug_1("Failed to update Loot table: " + ex.Message);  }
+                catch (Exception ex) {
+                    log.Error("Failed to update Loot table: " + ex.Message);
+                }
             }
             else
             {
                 if ((r.ItemArray[1].GetType() == System.Type.GetType("System.DBNull")) || ((int)r["DKP"] != price))
                 {
-                    debugLogger.WriteDebug_2("Item price null or different in Loot table, updating");
+                    log.Debug("Item price null or different in Loot table, updating");
                     try
                     {
                         r["DKP"] = price;
                         foreach (DataRow t in dtLoot.Select("LootName='*** Select'")) dtLoot.Rows.Remove(t);
                         dkpDA.Update(dtLoot);
                     }
-                    catch (Exception ex) { debugLogger.WriteDebug_1("Failed to update Loot table: " + ex.Message); }
+                    catch (Exception ex) {
+                        log.Error("Failed to update Loot table: " + ex.Message);
+                    }
                 }
             }
             try
@@ -292,15 +300,17 @@ namespace ES_DKP_Utils
 
                 lblStatus.Text = "Awarded " + cboPeople.Text + " " + lootName + " for a cost of " + price + " DKP.";
             }
-            catch (Exception ex) { debugLogger.WriteDebug_1("Failed to add loot row: " + ex.Message); }
+            catch (Exception ex) {
+                log.Error("Failed to add loot row: " + ex.Message);
+            }
         }
         private void btnClose_Click(object sender, System.EventArgs e)
         {
-            debugLogger.WriteDebug_3("Begin Method: btnClose_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: btnClose_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
             this.Close();
 
-            debugLogger.WriteDebug_3("Begin Method: btnClose_Click()");
+            log.Debug("Begin Method: btnClose_Click()");
         }
 
         #endregion

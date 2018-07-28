@@ -28,16 +28,13 @@ namespace ES_DKP_Utils
 		private bool add;
 		private string person;
 		private frmMain owner;
-        private DebugLogger debugLogger;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 		#endregion
 
 		#region Constructor
 		public AddRemoveDialog(frmMain owner, DataTable dt, int addOrRemove, string raidname, DateTime date)
 		{
-#if (DEBUG_1||DEBUG_2||DEBUG_3)
-            debugLogger = new DebugLogger("frmAddRemove.log");
-#endif
-            debugLogger.WriteDebug_3("Begin Method: frmAddRemove.frmAddRemove(frmMain,DataTable,int,string,DateTime) ("
+            log.Debug("Begin Method: frmAddRemove.frmAddRemove(frmMain,DataTable,int,string,DateTime) ("
                 + owner.ToString() + "," + dt.ToString() + "," + addOrRemove.ToString() + "," + date.ToShortDateString() + ")");
 			InitializeComponent();
 			this.owner = owner;
@@ -48,14 +45,14 @@ namespace ES_DKP_Utils
 			if (addOrRemove == ADD) { btnAddRemove.Text = "Add"; add = true; }
 			else if (addOrRemove == REMOVE) { btnAddRemove.Text = "Remove"; add = false; }
 
-            debugLogger.WriteDebug_3("End Method: frmAddRemove.frmAddRemove()");
+            log.Debug("End Method: frmAddRemove.frmAddRemove()");
 		}
 		#endregion
 
 		#region Events
 		private void btnAddRemove_Click(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: btnAddRemove_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: btnAddRemove_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			if (add) 
 			{
@@ -66,18 +63,18 @@ namespace ES_DKP_Utils
                 owner.CurrentRaid.RemovePerson(person);
 			}
 
-            debugLogger.WriteDebug_3("End Method: btnAddRemove_Click()");
+            log.Debug("End Method: btnAddRemove_Click()");
 		}
 
 		private void cboPeople_Leave(object sender, System.EventArgs e)
 		{
-            debugLogger.WriteDebug_3("Begin Method: cboPeople_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+            log.Debug("Begin Method: cboPeople_Leave(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			cboPeople.SelectedIndex = cboPeople.FindString(cboPeople.Text);
-            debugLogger.WriteDebug_3("AutoCompleted: " + cboPeople.Text);
+            log.Debug("AutoCompleted: " + cboPeople.Text);
 			person = cboPeople.Text;
 
-            debugLogger.WriteDebug_3("End Method: cboPeople_Leave()");
+            log.Debug("End Method: cboPeople_Leave()");
         }
 		#endregion
 
