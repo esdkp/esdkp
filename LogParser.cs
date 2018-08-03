@@ -165,8 +165,6 @@ namespace ES_DKP_Utils
 
 		public LogLineType Parse(string s)
 		{
-            logger.Debug("Begin Method: Parse(string) (" + s.ToString() + ")");
-
 			if (TellsOn)
 			{
                 Regex r = new Regex(@"\[.*\] (?<name>\S+) (tells|told) you, '(?<message>.*)'");
@@ -198,7 +196,6 @@ namespace ES_DKP_Utils
 					}
 					return LogLineType.TELL;
 				}
-                logger.Debug(s + " does not match tell regex.");
 			}
 
 			if (AttendanceOn)
@@ -223,7 +220,6 @@ namespace ES_DKP_Utils
                     return LogLineType.WHO;
 				}
 			}
-            logger.Debug("End Method: Parse()");
             return LogLineType.NA;
         }
         #endregion
