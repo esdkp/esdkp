@@ -1717,7 +1717,7 @@ namespace ES_DKP_Utils
                 string zipFileName = "DKP-" + time.ToString("yyyyMMdd-HHmmss") + ".zip";
                 string zipFilePath = Path.Combine(BackupDirectory, zipFileName);
 
-                string tempDirectory = Path.Combine(BackupDirectory, "temp");
+                string tempDirectory = Path.Combine(Directory.GetCurrentDirectory(), "temp");
                 if (Directory.Exists(tempDirectory))
                 {
                     Directory.Delete(tempDirectory, true);
