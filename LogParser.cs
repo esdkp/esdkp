@@ -18,6 +18,7 @@ namespace ES_DKP_Utils
 		private long logPointer;
 		private long logSize;
 		private System.IO.FileSystemWatcher logWatcher;
+        private System.IO.FileSystemWatcher raidDumpWatcher;
 		private DataTable namesTiers;
 		private string log;
         private bool changed;
@@ -71,6 +72,7 @@ namespace ES_DKP_Utils
 
 			this.owner = owner;
 			this.log = log;
+
 			try 
 			{
 				logStream = new FileStream(log,FileMode.OpenOrCreate,FileAccess.Read);
@@ -82,6 +84,7 @@ namespace ES_DKP_Utils
                 logger.Error("Failed to initialize log parser: " + ex.Message);
 				MessageBox.Show("Error initializing log parser.\n\n" + ex.Message,"Error");
 			}
+
 			try 
 			{
 				logWatcher = new FileSystemWatcher(Path.GetDirectoryName(log),Path.GetFileName(log));
@@ -94,6 +97,21 @@ namespace ES_DKP_Utils
                 logger.Error("Failed to initialize log watcher: " + ex.Message);
 				MessageBox.Show("Error initializing file system watcher.\n\n" + ex.Message,"Error");
 			}
+
+            try
+            {
+                raidDumpWatcher = new FileSystemWatcher(Directory.GetParent(Path.GetDirectoryName(log)).ToString());
+                raidDumpWatcher.NotifyFilter = NotifyFilters.FileName;
+                raidDumpWatcher.Filter = "RaidRoster*.txt";
+                raidDumpWatcher.Created += new System.IO.FileSystemEventHandler(OnRaidDump);
+                raidDumpWatcher.EnableRaisingEvents = true;
+            }
+            catch (Exception ex)
+            {
+                logger.Error("Failed to initialize raid dump watcher: " + ex.Message);
+                MessageBox.Show("Error initializing raid dump watcher.\n\n" + ex.Message, "Error");
+            }
+
 			TellsOn = false;
 			AttendanceOn = false;
 			Tells = new ArrayList();
@@ -162,6 +180,28 @@ namespace ES_DKP_Utils
 
             logger.Debug("End Method: OnChanged()");
 		}
+
+        public void OnRaidDump(object source, FileSystemEventArgs e)
+        {
+            logger.Debug("Begin Method: OnRaidDump(object,FileSystemEventArgs) ("
+                + source.ToString() + "," + e.ToString() + ")");
+
+            logger.Debug("New Raid Roster found: " + e.FullPath.ToString());
+
+            DialogResult dr = MessageBox.Show("New raid dump detected:\n" + e.FullPath.ToString() + "\n\nWould you like to import?", "New Raid Roster Detected", MessageBoxButtons.YesNo);
+
+            if(dr == DialogResult.Yes)
+            {
+                logger.Debug("User said yes, importing raid dump");
+                owner.CurrentRaid.ParseRaidDump(e.FullPath.ToString());
+            }
+            else
+            {
+                logger.Debug("User said no, skipping raid dump import");
+            }
+            
+            logger.Debug("End Method: OnRaidDump()");
+        }
 
 		public LogLineType Parse(string s)
 		{
