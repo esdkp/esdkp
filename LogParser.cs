@@ -188,16 +188,21 @@ namespace ES_DKP_Utils
 
             logger.Debug("New Raid Roster found: " + e.FullPath.ToString());
 
-            DialogResult dr = MessageBox.Show("New raid dump detected:\n" + e.FullPath.ToString() + "\n\nWould you like to import?", "New Raid Roster Detected", MessageBoxButtons.YesNo);
+            if (owner.CurrentRaid != null)
+            {
+                DialogResult dr = MessageBox.Show("New raid dump detected:\n" + e.FullPath.ToString() + "\n\nWould you like to import?", 
+                                                  "New Raid Dump Detected", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                                                  MessageBoxDefaultButton.Button1);
 
-            if(dr == DialogResult.Yes)
-            {
-                logger.Debug("User said yes, importing raid dump");
-                owner.CurrentRaid.ParseRaidDump(e.FullPath.ToString());
-            }
-            else
-            {
-                logger.Debug("User said no, skipping raid dump import");
+                if (dr == DialogResult.Yes)
+                {
+                    logger.Debug("User said yes, importing raid dump");
+                    owner.CurrentRaid.ParseRaidDump(e.FullPath.ToString());
+                }
+                else
+                {
+                    logger.Debug("User said no, skipping raid dump import");
+                }
             }
             
             logger.Debug("End Method: OnRaidDump()");
