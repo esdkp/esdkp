@@ -61,6 +61,13 @@ namespace ES_DKP_Utils
             set { _LootOn = value; }
         }
 
+        private bool _RaidDumpOn;
+        public bool RaidDumpOn
+        {
+            get { return _RaidDumpOn; }
+            set { _RaidDumpOn = value; }
+        }
+
 		private frmMain owner;
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         #endregion
@@ -114,6 +121,7 @@ namespace ES_DKP_Utils
 
 			TellsOn = false;
 			AttendanceOn = false;
+            RaidDumpOn = true;
 			Tells = new ArrayList();
 			TellsDKP = new ArrayList();
             logTimer = new System.Timers.Timer(5000);
@@ -188,23 +196,16 @@ namespace ES_DKP_Utils
 
             logger.Debug("New Raid Roster found: " + e.FullPath.ToString());
 
-            if (owner.CurrentRaid != null)
+            if (RaidDumpOn && owner.CurrentRaid != null && owner.CurrentRaid.RaidName.Length > 0)
             {
-                DialogResult dr = MessageBox.Show("New raid dump detected:\n" + e.FullPath.ToString() + "\n\nWould you like to import?", 
-                                                  "New Raid Dump Detected", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                                                  MessageBoxDefaultButton.Button1);
-
-                if (dr == DialogResult.Yes)
-                {
-                    logger.Debug("User said yes, importing raid dump");
-                    owner.CurrentRaid.ParseRaidDump(e.FullPath.ToString());
-                }
-                else
-                {
-                    logger.Debug("User said no, skipping raid dump import");
-                }
+                logger.Debug("Raid dump processing is on, attempting to process " + e.FullPath.ToString());
+                owner.CurrentRaid.ParseRaidDump(e.FullPath.ToString());
             }
-            
+            else
+            {
+                logger.Debug("Skipping raid dump import of " + e.FullPath.ToString());
+            }
+
             logger.Debug("End Method: OnRaidDump()");
         }
 
