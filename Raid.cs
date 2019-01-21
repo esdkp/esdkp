@@ -361,6 +361,9 @@ namespace ES_DKP_Utils
                 people.Add(parts[1]);
             } while (line != null);
 
+            sr.Close();
+            input.Close();
+
             if (people.Count > 0)
             {
                 MessageBox.Show("Found " + people.Count + " raiders including " + people[0] + ".");

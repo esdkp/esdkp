@@ -290,7 +290,7 @@ namespace ES_DKP_Utils
         private CheckBox chkTells;
         private CheckBox chkWho;
         private CheckBox chkLoot;
-
+        private MenuItem mnuExitNoBackup;
         private System.Windows.Forms.Timer UITimer;
 
 		#region Constructor
@@ -1057,6 +1057,7 @@ namespace ES_DKP_Utils
             this.lblRaidDate = new System.Windows.Forms.Label();
             this.lblRaidName = new System.Windows.Forms.Label();
             this.pgbProgress = new System.Windows.Forms.ProgressBar();
+            this.mnuExitNoBackup = new System.Windows.Forms.MenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.sbpMessage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sbpProgressBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sbpLineCount)).BeginInit();
@@ -1084,7 +1085,8 @@ namespace ES_DKP_Utils
             this.mnuQueries,
             this.mnuTables,
             this.mnuFileSep,
-            this.mnuExit});
+            this.mnuExit,
+            this.mnuExitNoBackup});
             this.mnuDKP.Text = "DKP";
             // 
             // mnuNewRaid
@@ -1624,6 +1626,12 @@ namespace ES_DKP_Utils
             this.pgbProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.pgbProgress.TabIndex = 2;
             // 
+            // mnuExitNoBackup
+            // 
+            this.mnuExitNoBackup.Index = 9;
+            this.mnuExitNoBackup.Text = "Exit w/o Backup";
+            this.mnuExitNoBackup.Click += new System.EventHandler(this.mnuExitNoBackup_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
@@ -1679,7 +1687,7 @@ namespace ES_DKP_Utils
             
             OpenFileDialog filedg = new OpenFileDialog();
             filedg.InitialDirectory = eqdir;
-            filedg.Filter = "Raid Roster (*.txt)|RaidRoster-*.txt|All files (*.*)|*.*";
+            filedg.Filter = "Raid Roster (*.txt)|RaidRoster*.txt|All files (*.*)|*.*";
             filedg.FilterIndex = 1;
             
             if (filedg.ShowDialog() == DialogResult.OK)
@@ -1730,6 +1738,16 @@ namespace ES_DKP_Utils
 
                 MessageBox.Show("Backed up database to " + zipFilePath, "Automatic DB Backup", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+        }
+
+        private void mnuExitNoBackup_Click(object sender, EventArgs e)
+        {
+            log.Debug("Begin Method: mnuExitNoBackup_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+
+            AutomaticBackups = false;
+            Application.Exit();
+
+            log.Debug("End Method: mnuExitNoBackup_Click()");
         }
     }
 }
