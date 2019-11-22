@@ -136,7 +136,7 @@ namespace ES_DKP_Utils
 
 		private string getLine(byte[] data, int offset) 
 		{
-            logger.Debug("Begin Method: LogParser.getLine()");
+            //logger.Debug("Begin Method: LogParser.getLine()");
 
             int i = 0;
 			string s = "";
@@ -149,7 +149,7 @@ namespace ES_DKP_Utils
 
             owner.LineCount++;
 
-            logger.Debug("End Method: LogParser.getLine(), returning " + s);
+            //logger.Debug("End Method: LogParser.getLine(), returning " + s);
 			return s;
 		}
 
