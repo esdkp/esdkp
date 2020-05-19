@@ -286,6 +286,8 @@ namespace ES_DKP_Utils
         }
         #endregion
 
+        public int LastRaidDaysThreshold { get; set; }
+
         private IConfigSource inifile;
         private LogParser parser;
         private IContainer components;
@@ -326,6 +328,7 @@ namespace ES_DKP_Utils
                 GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
                 AutomaticBackups = inifile.Configs["Other"].GetBoolean("AutomaticBackups", true);
                 RaidDaysWindow = inifile.Configs["Other"].GetInt("RaidDaysWindow", 20);
+                LastRaidDaysThreshold = inifile.Configs["Other"].GetInt("LastRaidDaysThreshold", 7);
                 log.Info("Read settings from INI: DBFile=" + DBString + ", LogFile=" + LogFile + ", OutputDirectory="
                     + OutputDirectory + ", DKPTax=" + DKPTax + ", GuildNames=" + GuildNames);
 

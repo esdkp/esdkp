@@ -1143,8 +1143,8 @@ namespace ES_DKP_Utils
                 sw2.Write("[td][b][i]" + i + "[/i][/b][/td]");
                 i++;
             }
-            sw.Write("<td width='15%'><b><i>DKP Net Change</b></i></td><td width='15%'><b><i>DKP Total</b></i><td width='15'></td><td width='20%'><b><i>Tier</b></i></td><td width='*'><i><b>Last Raid</i></b></td></tr>");
-            sw2.Write("[td][b][i]DKP Net Change[/i][/b][/td][td][b][i]DKP Total[/i][/b][/td][td][/td][td][b][i]Tier[/i][/b][/td][td][b][i]Last Raid[/i][/b][/td][/tr]");
+            sw.Write("<td width='15%'><b><i>DKP Net Change</b></i></td><td width='15%'><b><i>DKP Total</b></i><td width='15'></td><td width='*'><b><i>Tier</b></i></td><td width='10'><i><b>Age</i></b></td></tr>");
+            sw2.Write("[td][b][i]DKP Net Change[/i][/b][/td][td][b][i]DKP Total[/i][/b][/td][td][/td][td][b][i]Tier[/i][/b][/td][td][b][i]Age[/i][/b][/td][/tr]");
             owner.PBVal += 10;
             foreach (DataRow r in dtNT.Rows)
             {
@@ -1173,15 +1173,16 @@ namespace ES_DKP_Utils
                 totalnetchange += earned;
                 totaldkp += (double)dtTotal.Select("Name='" + r["Name"] + "'")[0]["Total"];
                 DateTime lastRaid = (DateTime)dtFinal.Select("Name='" + r["Name"] + "'")[0]["LastRaid"];
+                int daysSinceLastRaid = (int)(t - lastRaid).TotalDays;
 
                 sw.Write("<td>" + String.Format("{0:+0.00;-0.00;00.00}",earned) + "</td>");
 				sw.Write("<td>" + String.Format("{0:+0.000#;-0.000#;00.000#}",dtTotal.Select("Name='" + r["Name"]+ "'")[0]["Total"]) + "</td>");
                 sw.Write("<td>" + r["Tier"] + "</td><td>" + String.Format("{0:00.00}", r["TPercent"]) + "% (" + r["NumRaids"] + "/" + dtAllEvents.Rows.Count + ")</td>");
-                sw.Write("<td>" + lastRaid.ToString("MM-dd-yyyy") + " " + (t - lastRaid).TotalDays + "d</td></tr>");
+                sw.Write("<td>" + (daysSinceLastRaid >= owner.LastRaidDaysThreshold ? $"{daysSinceLastRaid}d" : "") + "</td></tr>");
                 sw2.Write("[td]" + String.Format("{0:+0.00;-0.00;00.00}",earned) + "[/td]");
 				sw2.Write("[td]" + String.Format("{0:+0.000#;-0.000#;00.000#}",dtTotal.Select("Name='" + r["Name"]+ "'")[0]["Total"]) + "[/td]");
                 sw2.Write("[td]" + r["Tier"] + "[/td][td]" + String.Format("{0:00.00}", r["TPercent"]) + "% (" + r["NumRaids"] + "/" + dtAllEvents.Rows.Count + ")[/td]");
-                sw2.Write("[td]" + lastRaid.ToString("MM-dd-yyyy") + " " + (t - lastRaid).TotalDays + "d[/td][/tr]");
+                sw2.Write("[td]" + (daysSinceLastRaid >= owner.LastRaidDaysThreshold ? $"{daysSinceLastRaid}d" : "") + "[/td][/tr]");
 			}
 			sw.Write("<tr><td><b><i>Totals:</b></i></td>");
             sw2.Write("[tr][td][b][i]Totals:[/i][/b][/td]");
