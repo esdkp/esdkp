@@ -215,6 +215,13 @@ namespace ES_DKP_Utils
             set { _GuildNames = value; }
         }
 
+        private System.Int32 _RaidDaysWindow;
+        public System.Int32 RaidDaysWindow
+        {
+            get { return _RaidDaysWindow; }
+            set { _RaidDaysWindow = value; }
+        }
+
 		private string _ItemDKP = "B";
 		public string ItemDKP
 		{
@@ -318,6 +325,7 @@ namespace ES_DKP_Utils
                 TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.0);
                 GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
                 AutomaticBackups = inifile.Configs["Other"].GetBoolean("AutomaticBackups", true);
+                RaidDaysWindow = inifile.Configs["Other"].GetInt("RaidDaysWindow", 20);
                 log.Info("Read settings from INI: DBFile=" + DBString + ", LogFile=" + LogFile + ", OutputDirectory="
                     + OutputDirectory + ", DKPTax=" + DKPTax + ", GuildNames=" + GuildNames);
 
@@ -354,6 +362,7 @@ namespace ES_DKP_Utils
                     TierBPct = inifile.Configs["Other"].GetDouble("tierbpct", 0.3);
                     TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.0);
                     GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
+                    RaidDaysWindow = inifile.Configs["Other"].GetInt("RaidDaysWindow", 20);
                     AutomaticBackups = inifile.Configs["Other"].GetBoolean("AutomaticBackups", true);
 					inifile.Save();
 					log.Info("Read settings from INI: dbFile=" + DBString + ", logFile=" + LogFile
@@ -1273,7 +1282,7 @@ namespace ES_DKP_Utils
             // 
             // stbStatusBar
             // 
-            this.stbStatusBar.Location = new System.Drawing.Point(0, 518);
+            this.stbStatusBar.Location = new System.Drawing.Point(0, 281);
             this.stbStatusBar.Name = "stbStatusBar";
             this.stbStatusBar.Panels.AddRange(new System.Windows.Forms.StatusBarPanel[] {
             this.sbpMessage,
@@ -1281,7 +1290,7 @@ namespace ES_DKP_Utils
             this.sbpLineCount,
             this.sbpParseCount});
             this.stbStatusBar.ShowPanels = true;
-            this.stbStatusBar.Size = new System.Drawing.Size(1192, 44);
+            this.stbStatusBar.Size = new System.Drawing.Size(564, 23);
             this.stbStatusBar.SizingGrip = false;
             this.stbStatusBar.TabIndex = 0;
             // 
@@ -1333,52 +1342,48 @@ namespace ES_DKP_Utils
             this.panel.Controls.Add(this.lblRaidDate);
             this.panel.Controls.Add(this.lblRaidName);
             this.panel.Enabled = false;
-            this.panel.Location = new System.Drawing.Point(14, 15);
+            this.panel.Location = new System.Drawing.Point(7, 8);
             this.panel.Name = "panel";
-            this.panel.Size = new System.Drawing.Size(1112, 489);
+            this.panel.Size = new System.Drawing.Size(556, 265);
             this.panel.TabIndex = 1;
             // 
             // listOfAttd
             // 
-            this.listOfAttd.ItemHeight = 25;
-            this.listOfAttd.Location = new System.Drawing.Point(1028, 30);
+            this.listOfAttd.Location = new System.Drawing.Point(514, 16);
             this.listOfAttd.Name = "listOfAttd";
-            this.listOfAttd.Size = new System.Drawing.Size(74, 329);
+            this.listOfAttd.Size = new System.Drawing.Size(37, 173);
             this.listOfAttd.TabIndex = 34;
             this.listOfAttd.TabStop = false;
             // 
             // listOfDKP
             // 
-            this.listOfDKP.ItemHeight = 25;
-            this.listOfDKP.Location = new System.Drawing.Point(872, 30);
+            this.listOfDKP.Location = new System.Drawing.Point(436, 16);
             this.listOfDKP.Name = "listOfDKP";
-            this.listOfDKP.Size = new System.Drawing.Size(144, 329);
+            this.listOfDKP.Size = new System.Drawing.Size(72, 173);
             this.listOfDKP.TabIndex = 14;
             this.listOfDKP.TabStop = false;
             // 
             // listOfTiers
             // 
-            this.listOfTiers.ItemHeight = 25;
-            this.listOfTiers.Location = new System.Drawing.Point(812, 30);
+            this.listOfTiers.Location = new System.Drawing.Point(406, 16);
             this.listOfTiers.Name = "listOfTiers";
-            this.listOfTiers.Size = new System.Drawing.Size(48, 329);
+            this.listOfTiers.Size = new System.Drawing.Size(24, 173);
             this.listOfTiers.TabIndex = 13;
             this.listOfTiers.TabStop = false;
             // 
             // listOfNames
             // 
-            this.listOfNames.ItemHeight = 25;
-            this.listOfNames.Location = new System.Drawing.Point(544, 30);
+            this.listOfNames.Location = new System.Drawing.Point(272, 16);
             this.listOfNames.Name = "listOfNames";
-            this.listOfNames.Size = new System.Drawing.Size(256, 329);
+            this.listOfNames.Size = new System.Drawing.Size(128, 173);
             this.listOfNames.TabIndex = 12;
             this.listOfNames.TabStop = false;
             // 
             // txtZoneNames
             // 
-            this.txtZoneNames.Location = new System.Drawing.Point(16, 436);
+            this.txtZoneNames.Location = new System.Drawing.Point(8, 236);
             this.txtZoneNames.Name = "txtZoneNames";
-            this.txtZoneNames.Size = new System.Drawing.Size(516, 31);
+            this.txtZoneNames.Size = new System.Drawing.Size(258, 20);
             this.txtZoneNames.TabIndex = 13;
             // 
             // grpWatchFor
@@ -1386,9 +1391,9 @@ namespace ES_DKP_Utils
             this.grpWatchFor.Controls.Add(this.chkLoot);
             this.grpWatchFor.Controls.Add(this.chkWho);
             this.grpWatchFor.Controls.Add(this.chkTells);
-            this.grpWatchFor.Location = new System.Drawing.Point(296, 114);
+            this.grpWatchFor.Location = new System.Drawing.Point(148, 62);
             this.grpWatchFor.Name = "grpWatchFor";
-            this.grpWatchFor.Size = new System.Drawing.Size(236, 174);
+            this.grpWatchFor.Size = new System.Drawing.Size(118, 94);
             this.grpWatchFor.TabIndex = 36;
             this.grpWatchFor.TabStop = false;
             this.grpWatchFor.Text = "Watch For...";
@@ -1396,9 +1401,9 @@ namespace ES_DKP_Utils
             // chkLoot
             // 
             this.chkLoot.AutoSize = true;
-            this.chkLoot.Location = new System.Drawing.Point(14, 122);
+            this.chkLoot.Location = new System.Drawing.Point(7, 66);
             this.chkLoot.Name = "chkLoot";
-            this.chkLoot.Size = new System.Drawing.Size(86, 29);
+            this.chkLoot.Size = new System.Drawing.Size(47, 17);
             this.chkLoot.TabIndex = 2;
             this.chkLoot.Text = "Loot";
             this.chkLoot.UseVisualStyleBackColor = true;
@@ -1407,9 +1412,9 @@ namespace ES_DKP_Utils
             // chkWho
             // 
             this.chkWho.AutoSize = true;
-            this.chkWho.Location = new System.Drawing.Point(14, 79);
+            this.chkWho.Location = new System.Drawing.Point(7, 43);
             this.chkWho.Name = "chkWho";
-            this.chkWho.Size = new System.Drawing.Size(89, 29);
+            this.chkWho.Size = new System.Drawing.Size(51, 17);
             this.chkWho.TabIndex = 1;
             this.chkWho.Text = "/who";
             this.chkWho.UseVisualStyleBackColor = true;
@@ -1418,9 +1423,9 @@ namespace ES_DKP_Utils
             // chkTells
             // 
             this.chkTells.AutoSize = true;
-            this.chkTells.Location = new System.Drawing.Point(14, 37);
+            this.chkTells.Location = new System.Drawing.Point(7, 20);
             this.chkTells.Name = "chkTells";
-            this.chkTells.Size = new System.Drawing.Size(90, 29);
+            this.chkTells.Size = new System.Drawing.Size(48, 17);
             this.chkTells.TabIndex = 0;
             this.chkTells.Text = "Tells";
             this.chkTells.UseVisualStyleBackColor = true;
@@ -1428,17 +1433,17 @@ namespace ES_DKP_Utils
             // 
             // lblAttd
             // 
-            this.lblAttd.Location = new System.Drawing.Point(1022, 2);
+            this.lblAttd.Location = new System.Drawing.Point(511, 1);
             this.lblAttd.Name = "lblAttd";
-            this.lblAttd.Size = new System.Drawing.Size(64, 29);
+            this.lblAttd.Size = new System.Drawing.Size(32, 16);
             this.lblAttd.TabIndex = 35;
             this.lblAttd.Text = "Attd:";
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(964, 414);
+            this.btnClear.Location = new System.Drawing.Point(482, 224);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(138, 44);
+            this.btnClear.Size = new System.Drawing.Size(69, 24);
             this.btnClear.TabIndex = 33;
             this.btnClear.Text = "Clear Tells";
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
@@ -1446,63 +1451,63 @@ namespace ES_DKP_Utils
             // dtpRaidDate
             // 
             this.dtpRaidDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpRaidDate.Location = new System.Drawing.Point(150, 22);
+            this.dtpRaidDate.Location = new System.Drawing.Point(75, 12);
             this.dtpRaidDate.Name = "dtpRaidDate";
-            this.dtpRaidDate.Size = new System.Drawing.Size(256, 31);
+            this.dtpRaidDate.Size = new System.Drawing.Size(128, 20);
             this.dtpRaidDate.TabIndex = 1;
             this.dtpRaidDate.Value = new System.DateTime(2006, 5, 20, 0, 0, 0, 0);
             this.dtpRaidDate.ValueChanged += new System.EventHandler(this.dtpRaidDate_ValueChanged);
             // 
             // btnRemove
             // 
-            this.btnRemove.Location = new System.Drawing.Point(16, 185);
+            this.btnRemove.Location = new System.Drawing.Point(8, 100);
             this.btnRemove.Name = "btnRemove";
-            this.btnRemove.Size = new System.Drawing.Size(128, 59);
+            this.btnRemove.Size = new System.Drawing.Size(64, 32);
             this.btnRemove.TabIndex = 6;
             this.btnRemove.Text = "Remove Person";
             this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
             // 
             // btnAdd
             // 
-            this.btnAdd.Location = new System.Drawing.Point(16, 114);
+            this.btnAdd.Location = new System.Drawing.Point(8, 62);
             this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(128, 60);
+            this.btnAdd.Size = new System.Drawing.Size(64, 32);
             this.btnAdd.TabIndex = 3;
             this.btnAdd.Text = "Add Person";
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
             // 
             // chkDouble
             // 
-            this.chkDouble.Location = new System.Drawing.Point(310, 299);
+            this.chkDouble.Location = new System.Drawing.Point(155, 162);
             this.chkDouble.Name = "chkDouble";
-            this.chkDouble.Size = new System.Drawing.Size(176, 30);
+            this.chkDouble.Size = new System.Drawing.Size(88, 16);
             this.chkDouble.TabIndex = 12;
             this.chkDouble.Text = "Double Tier";
             this.chkDouble.CheckedChanged += new System.EventHandler(this.chkDouble_CheckedChanged);
             // 
             // lblZoneNames
             // 
-            this.lblZoneNames.Location = new System.Drawing.Point(10, 390);
+            this.lblZoneNames.Location = new System.Drawing.Point(5, 211);
             this.lblZoneNames.Name = "lblZoneNames";
-            this.lblZoneNames.Size = new System.Drawing.Size(292, 44);
+            this.lblZoneNames.Size = new System.Drawing.Size(146, 24);
             this.lblZoneNames.TabIndex = 28;
             this.lblZoneNames.Text = "Raid Zone Shortname(s):";
             this.lblZoneNames.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // btnSaveRaid
             // 
-            this.btnSaveRaid.Location = new System.Drawing.Point(156, 325);
+            this.btnSaveRaid.Location = new System.Drawing.Point(78, 176);
             this.btnSaveRaid.Name = "btnSaveRaid";
-            this.btnSaveRaid.Size = new System.Drawing.Size(128, 59);
+            this.btnSaveRaid.Size = new System.Drawing.Size(64, 32);
             this.btnSaveRaid.TabIndex = 10;
             this.btnSaveRaid.Text = "Save Raid";
             this.btnSaveRaid.Click += new System.EventHandler(this.btnSaveRaid_Click);
             // 
             // btnRecordLoot
             // 
-            this.btnRecordLoot.Location = new System.Drawing.Point(156, 114);
+            this.btnRecordLoot.Location = new System.Drawing.Point(78, 62);
             this.btnRecordLoot.Name = "btnRecordLoot";
-            this.btnRecordLoot.Size = new System.Drawing.Size(128, 60);
+            this.btnRecordLoot.Size = new System.Drawing.Size(64, 32);
             this.btnRecordLoot.TabIndex = 7;
             this.btnRecordLoot.Text = "Record Loot";
             this.btnRecordLoot.Click += new System.EventHandler(this.btnRecordLoot_Click);
@@ -1513,9 +1518,9 @@ namespace ES_DKP_Utils
             this.grpItemTier.Controls.Add(this.rdoA);
             this.grpItemTier.Controls.Add(this.rdoB);
             this.grpItemTier.Controls.Add(this.rdoC);
-            this.grpItemTier.Location = new System.Drawing.Point(544, 384);
+            this.grpItemTier.Location = new System.Drawing.Point(272, 208);
             this.grpItemTier.Name = "grpItemTier";
-            this.grpItemTier.Size = new System.Drawing.Size(324, 89);
+            this.grpItemTier.Size = new System.Drawing.Size(162, 48);
             this.grpItemTier.TabIndex = 22;
             this.grpItemTier.TabStop = false;
             this.grpItemTier.Text = "Item Tier";
@@ -1523,9 +1528,9 @@ namespace ES_DKP_Utils
             // rdoATTD
             // 
             this.rdoATTD.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rdoATTD.Location = new System.Drawing.Point(204, 30);
+            this.rdoATTD.Location = new System.Drawing.Point(102, 16);
             this.rdoATTD.Name = "rdoATTD";
-            this.rdoATTD.Size = new System.Drawing.Size(108, 44);
+            this.rdoATTD.Size = new System.Drawing.Size(54, 24);
             this.rdoATTD.TabIndex = 17;
             this.rdoATTD.Text = "ATTD";
             this.rdoATTD.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1534,9 +1539,9 @@ namespace ES_DKP_Utils
             // rdoA
             // 
             this.rdoA.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rdoA.Location = new System.Drawing.Point(16, 30);
+            this.rdoA.Location = new System.Drawing.Point(8, 16);
             this.rdoA.Name = "rdoA";
-            this.rdoA.Size = new System.Drawing.Size(48, 44);
+            this.rdoA.Size = new System.Drawing.Size(24, 24);
             this.rdoA.TabIndex = 14;
             this.rdoA.Text = "A";
             this.rdoA.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1545,9 +1550,9 @@ namespace ES_DKP_Utils
             // rdoB
             // 
             this.rdoB.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rdoB.Location = new System.Drawing.Point(80, 30);
+            this.rdoB.Location = new System.Drawing.Point(40, 16);
             this.rdoB.Name = "rdoB";
-            this.rdoB.Size = new System.Drawing.Size(48, 44);
+            this.rdoB.Size = new System.Drawing.Size(24, 24);
             this.rdoB.TabIndex = 15;
             this.rdoB.Text = "B";
             this.rdoB.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1556,9 +1561,9 @@ namespace ES_DKP_Utils
             // rdoC
             // 
             this.rdoC.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rdoC.Location = new System.Drawing.Point(144, 30);
+            this.rdoC.Location = new System.Drawing.Point(72, 16);
             this.rdoC.Name = "rdoC";
-            this.rdoC.Size = new System.Drawing.Size(48, 44);
+            this.rdoC.Size = new System.Drawing.Size(24, 24);
             this.rdoC.TabIndex = 16;
             this.rdoC.Text = "C";
             this.rdoC.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1566,85 +1571,85 @@ namespace ES_DKP_Utils
             // 
             // dkpLabel
             // 
-            this.dkpLabel.Location = new System.Drawing.Point(866, 2);
+            this.dkpLabel.Location = new System.Drawing.Point(433, 1);
             this.dkpLabel.Name = "dkpLabel";
-            this.dkpLabel.Size = new System.Drawing.Size(112, 29);
+            this.dkpLabel.Size = new System.Drawing.Size(56, 16);
             this.dkpLabel.TabIndex = 17;
             this.dkpLabel.Text = "DKP:";
             // 
             // lblTier
             // 
-            this.lblTier.Location = new System.Drawing.Point(810, 2);
+            this.lblTier.Location = new System.Drawing.Point(405, 1);
             this.lblTier.Name = "lblTier";
-            this.lblTier.Size = new System.Drawing.Size(64, 29);
+            this.lblTier.Size = new System.Drawing.Size(32, 16);
             this.lblTier.TabIndex = 16;
             this.lblTier.Text = "Tier:";
             // 
             // lblName
             // 
-            this.lblName.Location = new System.Drawing.Point(538, 2);
+            this.lblName.Location = new System.Drawing.Point(269, 1);
             this.lblName.Name = "lblName";
-            this.lblName.Size = new System.Drawing.Size(144, 29);
+            this.lblName.Size = new System.Drawing.Size(72, 16);
             this.lblName.TabIndex = 15;
             this.lblName.Text = "Name:";
             // 
             // btnLoot
             // 
-            this.btnLoot.Location = new System.Drawing.Point(16, 325);
+            this.btnLoot.Location = new System.Drawing.Point(8, 176);
             this.btnLoot.Name = "btnLoot";
-            this.btnLoot.Size = new System.Drawing.Size(128, 59);
+            this.btnLoot.Size = new System.Drawing.Size(64, 32);
             this.btnLoot.TabIndex = 5;
             this.btnLoot.Text = "View Loot";
             this.btnLoot.Click += new System.EventHandler(this.btnLoot_Click);
             // 
             // btnAttendees
             // 
-            this.btnAttendees.Location = new System.Drawing.Point(16, 255);
+            this.btnAttendees.Location = new System.Drawing.Point(8, 138);
             this.btnAttendees.Name = "btnAttendees";
-            this.btnAttendees.Size = new System.Drawing.Size(128, 59);
+            this.btnAttendees.Size = new System.Drawing.Size(64, 32);
             this.btnAttendees.TabIndex = 4;
             this.btnAttendees.Text = "View Attendees";
             this.btnAttendees.Click += new System.EventHandler(this.btnAttendees_Click);
             // 
             // txtRaidName
             // 
-            this.txtRaidName.Location = new System.Drawing.Point(150, 66);
+            this.txtRaidName.Location = new System.Drawing.Point(75, 36);
             this.txtRaidName.Name = "txtRaidName";
-            this.txtRaidName.Size = new System.Drawing.Size(382, 31);
+            this.txtRaidName.Size = new System.Drawing.Size(191, 20);
             this.txtRaidName.TabIndex = 2;
             this.txtRaidName.Leave += new System.EventHandler(this.txtRaidName_Leave);
             // 
             // lblRaidDate
             // 
-            this.lblRaidDate.Location = new System.Drawing.Point(10, 30);
+            this.lblRaidDate.Location = new System.Drawing.Point(5, 16);
             this.lblRaidDate.Name = "lblRaidDate";
-            this.lblRaidDate.Size = new System.Drawing.Size(128, 29);
+            this.lblRaidDate.Size = new System.Drawing.Size(64, 16);
             this.lblRaidDate.TabIndex = 1;
             this.lblRaidDate.Text = "Raid Date:";
             this.lblRaidDate.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lblRaidName
             // 
-            this.lblRaidName.Location = new System.Drawing.Point(10, 68);
+            this.lblRaidName.Location = new System.Drawing.Point(5, 37);
             this.lblRaidName.Name = "lblRaidName";
-            this.lblRaidName.Size = new System.Drawing.Size(128, 30);
+            this.lblRaidName.Size = new System.Drawing.Size(64, 16);
             this.lblRaidName.TabIndex = 0;
             this.lblRaidName.Text = "Raid Name:";
             this.lblRaidName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // pgbProgress
             // 
-            this.pgbProgress.Location = new System.Drawing.Point(558, 521);
+            this.pgbProgress.Location = new System.Drawing.Point(279, 282);
             this.pgbProgress.Name = "pgbProgress";
-            this.pgbProgress.Size = new System.Drawing.Size(206, 40);
+            this.pgbProgress.Size = new System.Drawing.Size(103, 22);
             this.pgbProgress.Step = 1;
             this.pgbProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.pgbProgress.TabIndex = 2;
             // 
             // frmMain
             // 
-            this.AutoScaleBaseSize = new System.Drawing.Size(10, 24);
-            this.ClientSize = new System.Drawing.Size(1192, 562);
+            this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
+            this.ClientSize = new System.Drawing.Size(564, 304);
             this.Controls.Add(this.pgbProgress);
             this.Controls.Add(this.panel);
             this.Controls.Add(this.stbStatusBar);
