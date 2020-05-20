@@ -1143,8 +1143,8 @@ namespace ES_DKP_Utils
                 sw2.Write("[td][b][i]" + i + "[/i][/b][/td]");
                 i++;
             }
-            sw.Write("<td width='15%'><b><i>DKP Net Change</b></i></td><td width='15%'><b><i>DKP Total</b></i><td width='15'></td><td width='*'><b><i>Tier</b></i></td><td width='10'><i><b>Age</i></b></td></tr>");
-            sw2.Write("[td][b][i]DKP Net Change[/i][/b][/td][td][b][i]DKP Total[/i][/b][/td][td][/td][td][b][i]Tier[/i][/b][/td][td][b][i]Age[/i][/b][/td][/tr]");
+            sw.Write("<td width='15%'><b><i>DKP Net Change</b></i></td><td width='15%'><b><i>DKP Total</b></i><td width='15'></td><td width='*'><b><i>Tier</b></i></td><td width='10'><i><b>MIA</i></b></td></tr>");
+            sw2.Write("[td][b][i]DKP Net Change[/i][/b][/td][td][b][i]DKP Total[/i][/b][/td][td][/td][td][b][i]Tier[/i][/b][/td][td][b][i]MIA[/i][/b][/td][/tr]");
             owner.PBVal += 10;
             foreach (DataRow r in dtNT.Rows)
             {
