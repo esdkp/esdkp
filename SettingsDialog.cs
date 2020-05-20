@@ -47,6 +47,10 @@ namespace ES_DKP_Utils
         private Label lblBackupDirectory;
         private TextBox txtBackupDirectory;
         private Button btnChangeBackupDirectory;
+        private Label lblRaidDays;
+        private TextBox txtRaidDays;
+        private TextBox txtLastRaidThreshold;
+        private Label lblLastRaidThreshhold;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 		#endregion
 
@@ -64,12 +68,14 @@ namespace ES_DKP_Utils
 			txtLocalDBFile.Text = iniFile.Configs["Files"].GetString("dbfile","");
 			txtOutputDirectory.Text = iniFile.Configs["Files"].GetString("outdir","");
             //txtBackupDirectory.Text = iniFile.Configs["Files"].GetString("backup_directory", "\\backups");
-			txtTax.Text = iniFile.Configs["Other"].GetDouble("tax",0)*100 + "";
-            txtMinDKP.Text = iniFile.Configs["Other"].GetDouble("mindkp", 0) + "";
-            txtTierAPct.Text = iniFile.Configs["Other"].GetDouble("tierapct", 0.60) + "";
-            txtTierBPct.Text = iniFile.Configs["Other"].GetDouble("tierbpct", 0.40) + "";
-            txtTierCPct.Text = iniFile.Configs["Other"].GetDouble("tiercpct", 0.30) + "";
+			txtTax.Text = (iniFile.Configs["Other"].GetDouble("tax",0)*100).ToString();
+            txtMinDKP.Text = iniFile.Configs["Other"].GetDouble("mindkp", 0).ToString();
+            txtTierAPct.Text = iniFile.Configs["Other"].GetDouble("tierapct", 0.60).ToString();
+            txtTierBPct.Text = iniFile.Configs["Other"].GetDouble("tierbpct", 0.40).ToString();
+            txtTierCPct.Text = iniFile.Configs["Other"].GetDouble("tiercpct", 0.30).ToString();
             txtGuildNames.Text = iniFile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
+            txtRaidDays.Text = iniFile.Configs["Other"].GetInt("RaidDaysWindow", 20).ToString();
+            txtLastRaidThreshold.Text = iniFile.Configs["Other"].GetInt("LastRaidDaysThreshold", 7).ToString();
             log.Debug("End Method: frmSettings.frmSettings()");
 		}
 		#endregion
@@ -170,6 +176,8 @@ namespace ES_DKP_Utils
             iniFile.Configs["Other"].Set("tierbpct", Double.Parse(txtTierBPct.Text));
             iniFile.Configs["Other"].Set("tiercpct", Double.Parse(txtTierCPct.Text));
             iniFile.Configs["Other"].Set("GuildNames", txtGuildNames.Text);
+            iniFile.Configs["Other"].Set("RaidDaysWindow", txtRaidDays.Text);
+            iniFile.Configs["Other"].Set("LastRaidDaysThreshold", txtLastRaidThreshold.Text);
 
             try { 
 				double d = Double.Parse(txtTax.Text);	
@@ -230,9 +238,13 @@ namespace ES_DKP_Utils
             this.txtGuildNames = new System.Windows.Forms.TextBox();
             this.lblGuildNames = new System.Windows.Forms.Label();
             this.toolTipGuildNames = new System.Windows.Forms.ToolTip(this.components);
+            this.lblRaidDays = new System.Windows.Forms.Label();
             this.lblBackupDirectory = new System.Windows.Forms.Label();
             this.txtBackupDirectory = new System.Windows.Forms.TextBox();
             this.btnChangeBackupDirectory = new System.Windows.Forms.Button();
+            this.txtRaidDays = new System.Windows.Forms.TextBox();
+            this.txtLastRaidThreshold = new System.Windows.Forms.TextBox();
+            this.lblLastRaidThreshhold = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // txtLogFile
@@ -263,7 +275,7 @@ namespace ES_DKP_Utils
             // btnOK
             // 
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOK.Location = new System.Drawing.Point(94, 291);
+            this.btnOK.Location = new System.Drawing.Point(94, 351);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(72, 32);
             this.btnOK.TabIndex = 6;
@@ -273,7 +285,7 @@ namespace ES_DKP_Utils
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(175, 291);
+            this.btnCancel.Location = new System.Drawing.Point(175, 351);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(72, 32);
             this.btnCancel.TabIndex = 7;
@@ -445,6 +457,18 @@ namespace ES_DKP_Utils
             this.toolTipGuildNames.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
             this.toolTipGuildNames.ToolTipTitle = "Multiple Guild Names";
             // 
+            // lblRaidDays
+            // 
+            this.lblRaidDays.AutoSize = true;
+            this.lblRaidDays.Location = new System.Drawing.Point(-1, 279);
+            this.lblRaidDays.Name = "lblRaidDays";
+            this.lblRaidDays.Size = new System.Drawing.Size(101, 13);
+            this.lblRaidDays.TabIndex = 51;
+            this.lblRaidDays.Text = "Raid Days Window:";
+            this.lblRaidDays.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolTipGuildNames.SetToolTip(this.lblRaidDays, "Separate Guild Names with a Pipe\r\n\r\nFor example:\r\nEternal Sovereign|Crusaders Val" +
+        "ourous");
+            // 
             // lblBackupDirectory
             // 
             this.lblBackupDirectory.Location = new System.Drawing.Point(-7, 84);
@@ -469,12 +493,41 @@ namespace ES_DKP_Utils
             this.btnChangeBackupDirectory.Size = new System.Drawing.Size(24, 20);
             this.btnChangeBackupDirectory.TabIndex = 50;
             this.btnChangeBackupDirectory.Click += new System.EventHandler(this.btnChangeBackupDirectory_Click);
-
+            // 
+            // txtRaidDays
+            // 
+            this.txtRaidDays.Location = new System.Drawing.Point(106, 276);
+            this.txtRaidDays.Name = "txtRaidDays";
+            this.txtRaidDays.Size = new System.Drawing.Size(60, 20);
+            this.txtRaidDays.TabIndex = 52;
+            // 
+            // txtLastRaidThreshold
+            // 
+            this.txtLastRaidThreshold.Location = new System.Drawing.Point(106, 302);
+            this.txtLastRaidThreshold.Name = "txtLastRaidThreshold";
+            this.txtLastRaidThreshold.Size = new System.Drawing.Size(60, 20);
+            this.txtLastRaidThreshold.TabIndex = 54;
+            // 
+            // lblLastRaidThreshhold
+            // 
+            this.lblLastRaidThreshhold.AutoSize = true;
+            this.lblLastRaidThreshhold.Location = new System.Drawing.Point(-1, 305);
+            this.lblLastRaidThreshhold.Name = "lblLastRaidThreshhold";
+            this.lblLastRaidThreshhold.Size = new System.Drawing.Size(105, 13);
+            this.lblLastRaidThreshhold.TabIndex = 53;
+            this.lblLastRaidThreshhold.Text = "Last Raid Threshold:";
+            this.lblLastRaidThreshhold.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolTipGuildNames.SetToolTip(this.lblLastRaidThreshhold, "Separate Guild Names with a Pipe\r\n\r\nFor example:\r\nEternal Sovereign|Crusaders Val" +
+        "ourous");
             // 
             // SettingsDialog
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(337, 335);
+            this.ClientSize = new System.Drawing.Size(337, 395);
+            this.Controls.Add(this.txtLastRaidThreshold);
+            this.Controls.Add(this.lblLastRaidThreshhold);
+            this.Controls.Add(this.txtRaidDays);
+            this.Controls.Add(this.lblRaidDays);
             this.Controls.Add(this.btnChangeBackupDirectory);
             this.Controls.Add(this.txtBackupDirectory);
             this.Controls.Add(this.lblBackupDirectory);
