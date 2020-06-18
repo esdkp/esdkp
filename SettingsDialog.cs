@@ -65,9 +65,9 @@ namespace ES_DKP_Utils
 			Directory.SetCurrentDirectory(Directory.GetParent(Application.ExecutablePath).FullName);
 			iniFile = new IniConfigSource(Directory.GetCurrentDirectory() + "\\settings.ini");
 			txtLogFile.Text = iniFile.Configs["Files"].GetString("logfile","");
-			txtLocalDBFile.Text = iniFile.Configs["Files"].GetString("dbfile","");
-			txtOutputDirectory.Text = iniFile.Configs["Files"].GetString("outdir","");
-            //txtBackupDirectory.Text = iniFile.Configs["Files"].GetString("backup_directory", "\\backups");
+			txtLocalDBFile.Text = iniFile.Configs["Files"].GetString("dbfile", Directory.GetCurrentDirectory() + "\\DKP.mdb");
+			txtOutputDirectory.Text = iniFile.Configs["Files"].GetString("outdir", Directory.GetCurrentDirectory());
+            txtBackupDirectory.Text = iniFile.Configs["Files"].GetString("backupdir", Directory.GetCurrentDirectory());
 			txtTax.Text = (iniFile.Configs["Other"].GetDouble("tax",0)*100).ToString();
             txtMinDKP.Text = iniFile.Configs["Other"].GetDouble("mindkp", 0).ToString();
             txtTierAPct.Text = iniFile.Configs["Other"].GetDouble("tierapct", 0.60).ToString();
@@ -86,7 +86,7 @@ namespace ES_DKP_Utils
             log.Debug("Begin Method: changeFile_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			dlgFileDialog = new OpenFileDialog();
-			dlgFileDialog.InitialDirectory = "C:\\";
+			dlgFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
 			dlgFileDialog.Filter = "Everquest Log File (Eqlog_*.txt)|Eqlog_*.txt|All files (*.*)|*.*";
 			dlgFileDialog.FilterIndex = 1;
 			if(dlgFileDialog.ShowDialog() == DialogResult.OK)
@@ -105,7 +105,7 @@ namespace ES_DKP_Utils
             log.Debug("Begin Method: changeDatabase_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
 			dlgFileDialog = new OpenFileDialog();
-			dlgFileDialog.InitialDirectory = "C:\\";
+			dlgFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
 			dlgFileDialog.Filter = "Microsoft Access Database (*.mdb)|*.mdb|All files (*.*)|*.*";
 			dlgFileDialog.FilterIndex = 1;
 
@@ -239,12 +239,12 @@ namespace ES_DKP_Utils
             this.lblGuildNames = new System.Windows.Forms.Label();
             this.toolTipGuildNames = new System.Windows.Forms.ToolTip(this.components);
             this.lblRaidDays = new System.Windows.Forms.Label();
+            this.lblLastRaidThreshhold = new System.Windows.Forms.Label();
             this.lblBackupDirectory = new System.Windows.Forms.Label();
             this.txtBackupDirectory = new System.Windows.Forms.TextBox();
             this.btnChangeBackupDirectory = new System.Windows.Forms.Button();
             this.txtRaidDays = new System.Windows.Forms.TextBox();
             this.txtLastRaidThreshold = new System.Windows.Forms.TextBox();
-            this.lblLastRaidThreshhold = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // txtLogFile
@@ -357,6 +357,7 @@ namespace ES_DKP_Utils
             this.btnChangeLocalDBFile.Name = "btnChangeLocalDBFile";
             this.btnChangeLocalDBFile.Size = new System.Drawing.Size(24, 20);
             this.btnChangeLocalDBFile.TabIndex = 9;
+            this.btnChangeLocalDBFile.Click += new System.EventHandler(this.btnChangeLocalDBFile_Click);
             // 
             // txtLocalDBFile
             // 
@@ -469,6 +470,18 @@ namespace ES_DKP_Utils
             this.toolTipGuildNames.SetToolTip(this.lblRaidDays, "Separate Guild Names with a Pipe\r\n\r\nFor example:\r\nEternal Sovereign|Crusaders Val" +
         "ourous");
             // 
+            // lblLastRaidThreshhold
+            // 
+            this.lblLastRaidThreshhold.AutoSize = true;
+            this.lblLastRaidThreshhold.Location = new System.Drawing.Point(-1, 305);
+            this.lblLastRaidThreshhold.Name = "lblLastRaidThreshhold";
+            this.lblLastRaidThreshhold.Size = new System.Drawing.Size(105, 13);
+            this.lblLastRaidThreshhold.TabIndex = 53;
+            this.lblLastRaidThreshhold.Text = "Last Raid Threshold:";
+            this.lblLastRaidThreshhold.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolTipGuildNames.SetToolTip(this.lblLastRaidThreshhold, "Separate Guild Names with a Pipe\r\n\r\nFor example:\r\nEternal Sovereign|Crusaders Val" +
+        "ourous");
+            // 
             // lblBackupDirectory
             // 
             this.lblBackupDirectory.Location = new System.Drawing.Point(-7, 84);
@@ -507,18 +520,6 @@ namespace ES_DKP_Utils
             this.txtLastRaidThreshold.Name = "txtLastRaidThreshold";
             this.txtLastRaidThreshold.Size = new System.Drawing.Size(60, 20);
             this.txtLastRaidThreshold.TabIndex = 54;
-            // 
-            // lblLastRaidThreshhold
-            // 
-            this.lblLastRaidThreshhold.AutoSize = true;
-            this.lblLastRaidThreshhold.Location = new System.Drawing.Point(-1, 305);
-            this.lblLastRaidThreshhold.Name = "lblLastRaidThreshhold";
-            this.lblLastRaidThreshhold.Size = new System.Drawing.Size(105, 13);
-            this.lblLastRaidThreshhold.TabIndex = 53;
-            this.lblLastRaidThreshhold.Text = "Last Raid Threshold:";
-            this.lblLastRaidThreshhold.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.toolTipGuildNames.SetToolTip(this.lblLastRaidThreshhold, "Separate Guild Names with a Pipe\r\n\r\nFor example:\r\nEternal Sovereign|Crusaders Val" +
-        "ourous");
             // 
             // SettingsDialog
             // 

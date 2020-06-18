@@ -316,10 +316,10 @@ namespace ES_DKP_Utils
 			try 
 			{
 				inifile = new IniConfigSource(Directory.GetCurrentDirectory() + "\\settings.ini");
-				DBString = inifile.Configs["Files"].GetString("dbfile","");
+				DBString = inifile.Configs["Files"].GetString("dbfile", Directory.GetCurrentDirectory() + "\\DKP.mdb");
 				LogFile = inifile.Configs["Files"].GetString("logfile","");
-				OutputDirectory = inifile.Configs["Files"].GetString("outdir","");
-                BackupDirectory = inifile.Configs["Files"].GetString("backupdir", Directory.GetCurrentDirectory() + "\\backups");
+				OutputDirectory = inifile.Configs["Files"].GetString("outdir", Directory.GetCurrentDirectory());
+                BackupDirectory = inifile.Configs["Files"].GetString("backupdir", Directory.GetCurrentDirectory());
 				DKPTax = inifile.Configs["Other"].GetDouble("tax",0.0);
                 MinDKP = inifile.Configs["Other"].GetDouble("mindkp", 0);
                 TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.6);
@@ -356,9 +356,9 @@ namespace ES_DKP_Utils
 					inifile.AddConfig("Files");
 					inifile.AddConfig("Other");
 					LogFile = inifile.Configs["Files"].GetString("logfile","");
-					DBString = inifile.Configs["Files"].GetString("dbfile","");
-					OutputDirectory = inifile.Configs["Files"].GetString("outdir","");
-                    BackupDirectory = inifile.Configs["Files"].GetString("backupdir", "");
+					DBString = inifile.Configs["Files"].GetString("dbfile", Directory.GetCurrentDirectory() + "\\DKP.mdb");
+					OutputDirectory = inifile.Configs["Files"].GetString("outdir", Directory.GetCurrentDirectory());
+                    BackupDirectory = inifile.Configs["Files"].GetString("backupdir", Directory.GetCurrentDirectory());
                     DKPTax = inifile.Configs["Other"].GetDouble("tax",0.0);
                     MinDKP = inifile.Configs["Other"].GetDouble("mindkp", 0);
                     TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.6);
@@ -366,6 +366,7 @@ namespace ES_DKP_Utils
                     TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.0);
                     GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
                     RaidDaysWindow = inifile.Configs["Other"].GetInt("RaidDaysWindow", 20);
+                    LastRaidDaysThreshold = inifile.Configs["Other"].GetInt("LastRaidDaysThreshold", 7);
                     AutomaticBackups = inifile.Configs["Other"].GetBoolean("AutomaticBackups", true);
 					inifile.Save();
 					log.Info("Read settings from INI: dbFile=" + DBString + ", logFile=" + LogFile
