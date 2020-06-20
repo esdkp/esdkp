@@ -1736,7 +1736,11 @@ namespace ES_DKP_Utils
 
         private void frmMain_FormClosing(object sender, EventArgs e)
         {
-            if (AutomaticBackups)
+            if (AutomaticBackups && !(Directory.Exists(BackupDirectory))) {
+                MessageBox.Show("Cannot automatically backup database - Backup Directory does not exist.  Please check your settings.",
+                                "Automatic DB Backup", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else if (AutomaticBackups)
             {
                 DateTime time = DateTime.UtcNow;
                 Directory.CreateDirectory(BackupDirectory);
