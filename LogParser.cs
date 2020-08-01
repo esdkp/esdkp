@@ -19,6 +19,7 @@ namespace ES_DKP_Utils
 		private long logSize;
 		private System.IO.FileSystemWatcher logWatcher;
 		private DataTable namesTiers;
+        private DataTable alts;
 		private string log;
         private bool changed;
         private System.Timers.Timer logTimer;
@@ -71,6 +72,24 @@ namespace ES_DKP_Utils
 
 			this.owner = owner;
 			this.log = log;
+
+            // TODO: Was going to replace complicated logic with something like this, but will take time to test.
+            //try
+            //{
+            //    using (FileStream fs = new FileStream(log, FileMode.OpenOrCreate, FileAccess.Read))
+            //    {
+            //        using (StreamReader sr = new StreamReader(fs)) {
+            //            while (changed)
+            //            {
+            //                while (!sr.EndOfStream)
+            //                    Parse(sr.ReadLine())
+            //                while (sr.EndOfStream)
+            //                    Thread.Sleep(100)
+            //            }
+            //        }
+            //    }
+            //}
+
 			try 
 			{
 				logStream = new FileStream(log,FileMode.OpenOrCreate,FileAccess.Read);
@@ -114,8 +133,9 @@ namespace ES_DKP_Utils
 		{
             logger.Debug("Begin Method: LogParser.LoadNamesTiers()");
 
-			namesTiers = new DataTable();
-			OleDbConnection dbConnect = null;
+            OleDbConnection dbConnect = null;
+
+            namesTiers = new DataTable();
 			try 
 			{
 				dbConnect = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + owner.DBString);
@@ -130,6 +150,22 @@ namespace ES_DKP_Utils
 				MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
 			}
 			finally { dbConnect.Close(); }
+
+            alts = new DataTable();
+            try
+            {
+                dbConnect = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + owner.DBString);
+                string query = "SELECT AltName, Field3 FROM Alts";
+                OleDbDataAdapter altDA = new OleDbDataAdapter(query, dbConnect);
+                dbConnect.Open();
+                altDA.Fill(alts);
+            }
+            catch (Exception ex)
+            {
+                logger.Error("Failed to load Alts table: " + ex.Message);
+                MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")", "Error");
+            }
+            finally { dbConnect.Close(); }
 
             logger.Debug("End Method: LogParser.LoadNamesTiers()");
 		}
@@ -183,14 +219,25 @@ namespace ES_DKP_Utils
 
 						Tells.Add(name);
 						DataRow[] k = namesTiers.Select("Name='" + name + "'");
-						if (k.Length>0) 
+                        DataRow[] alt = alts.Select("AltName='" + name + "'");
+                        
+                        // If it's an alt, and no main was found, set the main array to the alt.
+                        if (alt.Length > 0 && k.Length<=0)
+                        {
+                            k = namesTiers.Select("Name='" + (string)alt[0]["Field3"] + "'");
+                        }
+
+                        // Now if we successfully found someone in the namesTiers table, they should be a main
+                        if (k.Length>0) 
 						{
 							TellsDKP.Add(new Raider(owner,(string)k[0]["Name"],(string)k[0]["Tier"],(double)k[0]["SumOfPTS"],(double)Decimal.ToDouble((decimal)k[0]["TPercent"])));
 						} 
-						else 
+                        // Otherwise, add them to the tells table with the default values for not tracked
+                        else
 						{
 							TellsDKP.Add(new Raider(owner,name,Raider.NOTIER,Raider.NODKP,Raider.NOATTENDANCE));
 						}
+
 						TellsDKP.Sort();
                         owner.RefreshTells = true;					
 					}
