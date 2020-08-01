@@ -9,50 +9,50 @@ using System.Data.OleDb;
 
 namespace ES_DKP_Utils
 {
-	public class LogParser
+    public class LogParser
     {
         public enum LogLineType { TELL, WHO, LOOT, NA }
 
         #region Declarations
         private FileStream logStream;
-		private long logPointer;
-		private long logSize;
-		private System.IO.FileSystemWatcher logWatcher;
-		private DataTable namesTiers;
+        private long logPointer;
+        private long logSize;
+        private System.IO.FileSystemWatcher logWatcher;
+        private DataTable namesTiers;
         private DataTable alts;
-		private string log;
+        private string log;
         private bool changed;
         private System.Timers.Timer logTimer;
 
         private ArrayList _Tells;
-		public ArrayList Tells
-		{
-			get	{ return _Tells; }
-			set	{ _Tells = value; }
-		}
+        public ArrayList Tells
+        {
+            get	{ return _Tells; }
+            set	{ _Tells = value; }
+        }
 
-		private ArrayList _TellsDKP;
-		public ArrayList TellsDKP
-		{
-			get { return _TellsDKP;	}
-			set	{ _TellsDKP = value; }
-		}
+        private ArrayList _TellsDKP;
+        public ArrayList TellsDKP
+        {
+            get { return _TellsDKP;	}
+            set	{ _TellsDKP = value; }
+        }
 
-		private bool _TellsOn;
-		public bool TellsOn
-		{
-			get	{ return _TellsOn; }
-			set	{
+        private bool _TellsOn;
+        public bool TellsOn
+        {
+            get	{ return _TellsOn; }
+            set	{
                 _TellsOn = value;
             }
-		}
+        }
 
-		private bool _AttendanceOn;
-		public bool AttendanceOn
-		{
-			get { return _AttendanceOn; }
+        private bool _AttendanceOn;
+        public bool AttendanceOn
+        {
+            get { return _AttendanceOn; }
             set { _AttendanceOn = value; }
-		}
+        }
 
         private bool _LootOn;
         public bool LootOn
@@ -61,17 +61,17 @@ namespace ES_DKP_Utils
             set { _LootOn = value; }
         }
 
-		private frmMain owner;
+        private frmMain owner;
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         #endregion
 
         #region Constructor
         public LogParser(frmMain owner, string log)
-		{
+        {
             logger.Debug("Begin Method: LogParser.LogParser(frmMain,log) (" + owner.ToString() + "," + log.ToString() + ")");
 
-			this.owner = owner;
-			this.log = log;
+            this.owner = owner;
+            this.log = log;
 
             // TODO: Was going to replace complicated logic with something like this, but will take time to test.
             //try
@@ -90,38 +90,38 @@ namespace ES_DKP_Utils
             //    }
             //}
 
-			try 
-			{
-				logStream = new FileStream(log,FileMode.OpenOrCreate,FileAccess.Read);
-				logPointer  = logSize = logStream.Length;
-				logStream.Close();
-			} 
-			catch (Exception ex)
-			{
+            try 
+            {
+                logStream = new FileStream(log,FileMode.OpenOrCreate,FileAccess.Read);
+                logPointer  = logSize = logStream.Length;
+                logStream.Close();
+            } 
+            catch (Exception ex)
+            {
                 logger.Error("Failed to initialize log parser: " + ex.Message);
-				MessageBox.Show("Error initializing log parser.\n\n" + ex.Message,"Error");
-			}
-			try 
-			{
-				logWatcher = new FileSystemWatcher(Path.GetDirectoryName(log),Path.GetFileName(log));
-				logWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.FileName | NotifyFilters.Size;
-				logWatcher.Changed += new System.IO.FileSystemEventHandler(OnChanged);
-				logWatcher.EnableRaisingEvents = true;
-			}
-			catch (Exception ex)
-			{
+                MessageBox.Show("Error initializing log parser.\n\n" + ex.Message,"Error");
+            }
+            try 
+            {
+                logWatcher = new FileSystemWatcher(Path.GetDirectoryName(log),Path.GetFileName(log));
+                logWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.FileName | NotifyFilters.Size;
+                logWatcher.Changed += new System.IO.FileSystemEventHandler(OnChanged);
+                logWatcher.EnableRaisingEvents = true;
+            }
+            catch (Exception ex)
+            {
                 logger.Error("Failed to initialize log watcher: " + ex.Message);
-				MessageBox.Show("Error initializing file system watcher.\n\n" + ex.Message,"Error");
-			}
-			TellsOn = false;
-			AttendanceOn = false;
-			Tells = new ArrayList();
-			TellsDKP = new ArrayList();
+                MessageBox.Show("Error initializing file system watcher.\n\n" + ex.Message,"Error");
+            }
+            TellsOn = false;
+            AttendanceOn = false;
+            Tells = new ArrayList();
+            TellsDKP = new ArrayList();
             logTimer = new System.Timers.Timer(5000);
             logTimer.Start();
             logTimer.Elapsed += new System.Timers.ElapsedEventHandler(logTimer_Elapsed);
 
-			LoadNamesTiers();
+            LoadNamesTiers();
 
             logger.Debug("End Method: LogParser.LogParser()");
         }
@@ -130,26 +130,26 @@ namespace ES_DKP_Utils
         #region Methods
 
         public void LoadNamesTiers()
-		{
+        {
             logger.Debug("Begin Method: LogParser.LoadNamesTiers()");
 
             OleDbConnection dbConnect = null;
 
             namesTiers = new DataTable();
-			try 
-			{
-				dbConnect = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + owner.DBString);
-				string query = "Select NamesTiers.Name, NamesTiers.Tier, NamesTiers.TPercent, Sum(DKS.PTS) as SumOfPTS From (NamesTiers INNER JOIN DKS ON NamesTiers.Name = DKS.Name) GROUP BY NamesTiers.Name, NamesTiers.Tier, NamesTiers.TPercent";
-				OleDbDataAdapter dkpDA = new OleDbDataAdapter(query,dbConnect);
-				dbConnect.Open();
-				dkpDA.Fill(namesTiers);
-			}
-			catch (Exception ex) 
-			{
+            try 
+            {
+                dbConnect = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + owner.DBString);
+                string query = "Select NamesTiers.Name, NamesTiers.Tier, NamesTiers.TPercent, Sum(DKS.PTS) as SumOfPTS From (NamesTiers INNER JOIN DKS ON NamesTiers.Name = DKS.Name) GROUP BY NamesTiers.Name, NamesTiers.Tier, NamesTiers.TPercent";
+                OleDbDataAdapter dkpDA = new OleDbDataAdapter(query,dbConnect);
+                dbConnect.Open();
+                dkpDA.Fill(namesTiers);
+            }
+            catch (Exception ex) 
+            {
                 logger.Error("Failed to load NamesTiers table: " + ex.Message);
-				MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
-			}
-			finally { dbConnect.Close(); }
+                MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")","Error");
+            }
+            finally { dbConnect.Close(); }
 
             alts = new DataTable();
             try
@@ -168,14 +168,14 @@ namespace ES_DKP_Utils
             finally { dbConnect.Close(); }
 
             logger.Debug("End Method: LogParser.LoadNamesTiers()");
-		}
+        }
 
-		private string getLine(byte[] data, int offset) 
-		{
+        private string getLine(byte[] data, int offset) 
+        {
             //logger.Debug("Begin Method: LogParser.getLine()");
 
             int i = 0;
-			string s = "";
+            string s = "";
           
             while ( (i+offset)<data.Length && (char)data[i+offset] != '\n') 
             {
@@ -186,18 +186,18 @@ namespace ES_DKP_Utils
             owner.LineCount++;
 
             //logger.Debug("End Method: LogParser.getLine(), returning " + s);
-			return s;
-		}
+            return s;
+        }
 
-		public void OnChanged(object source, FileSystemEventArgs e)
-		{
+        public void OnChanged(object source, FileSystemEventArgs e)
+        {
             logger.Debug("Begin Method: OnChanged(object,FileSystemEventArgs) (" 
                 + source.ToString() + "," + e.ToString() + ")");
 
             changed = true;
 
             logger.Debug("End Method: OnChanged()");
-		}
+        }
 
         public LogLineType Parse(string s)
         {
