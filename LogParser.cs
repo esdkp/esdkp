@@ -199,26 +199,26 @@ namespace ES_DKP_Utils
             logger.Debug("End Method: OnChanged()");
 		}
 
-		public LogLineType Parse(string s)
-		{
-			if (TellsOn)
-			{
+        public LogLineType Parse(string s)
+        {
+            if (TellsOn)
+            {
                 Regex r = new Regex(@"\[.*\] (?<name>\S+) (tells|told) you, '(?<message>.*)'");
-				Match m = r.Match(s);
+                Match m = r.Match(s);
 
-				if (m.Success) 
-				{
+                if (m.Success) 
+                {
                     logger.Debug(s + " matches tell regex.");
 
                     owner.ParseCount++;
 
                     string name = m.Groups["name"].ToString();
-					if (!Tells.Contains(name)) 
-					{
+                    if (!Tells.Contains(name)) 
+                    {
                         logger.Debug(name + " is not in tell array already.");
 
-						Tells.Add(name);
-						DataRow[] k = namesTiers.Select("Name='" + name + "'");
+                        Tells.Add(name);
+                        DataRow[] k = namesTiers.Select("Name='" + name + "'");
                         DataRow[] alt = alts.Select("AltName='" + name + "'");
                         
                         // If it's an alt, and no main was found, set the main array to the alt.
@@ -229,44 +229,44 @@ namespace ES_DKP_Utils
 
                         // Now if we successfully found someone in the namesTiers table, they should be a main
                         if (k.Length>0) 
-						{
-							TellsDKP.Add(new Raider(owner,(string)k[0]["Name"],(string)k[0]["Tier"],(double)k[0]["SumOfPTS"],(double)Decimal.ToDouble((decimal)k[0]["TPercent"])));
-						} 
+                        {
+                            TellsDKP.Add(new Raider(owner,(string)k[0]["Name"],(string)k[0]["Tier"],(double)k[0]["SumOfPTS"],(double)Decimal.ToDouble((decimal)k[0]["TPercent"])));
+                        } 
                         // Otherwise, add them to the tells table with the default values for not tracked
                         else
-						{
-							TellsDKP.Add(new Raider(owner,name,Raider.NOTIER,Raider.NODKP,Raider.NOATTENDANCE));
-						}
+                        {
+                            TellsDKP.Add(new Raider(owner,name,Raider.NOTIER,Raider.NODKP,Raider.NOATTENDANCE));
+                        }
 
-						TellsDKP.Sort();
+                        TellsDKP.Sort();
                         owner.RefreshTells = true;					
-					}
-					return LogLineType.TELL;
-				}
-			}
+                    }
+                    return LogLineType.TELL;
+                }
+            }
 
-			if (AttendanceOn)
-			{
+            if (AttendanceOn)
+            {
                 string zones = owner.Zones;
                 Regex r = new Regex(@"\[.*\] \[.*\] (?<name>\S+).*<(?<guild>.*)> ZONE: (?<zone>.*)$");
                 Match m = r.Match(s.Trim());
 
-				if (m.Success)
-				{
+                if (m.Success)
+                {
                     string _guild = m.Groups["guild"].ToString();
                     string _zone = m.Groups["zone"].ToString();
                     string _name = m.Groups["name"].ToString();
 
-					if ( zones.Contains(_zone) && owner.GuildNames.Contains(_guild))
-					{
+                    if ( zones.Contains(_zone) && owner.GuildNames.Contains(_guild))
+                    {
                         logger.Debug(_name + " <" + _guild + "> is in " + _zone + " which is in attendance zone array, adding");
-						owner.CurrentRaid.InputPerson(_name);
-					} 
+                        owner.CurrentRaid.InputPerson(_name);
+                    } 
 
                     owner.ParseCount++;
                     return LogLineType.WHO;
-				}
-			}
+                }
+            }
             return LogLineType.NA;
         }
         #endregion
