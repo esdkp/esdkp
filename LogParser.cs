@@ -205,6 +205,8 @@ namespace ES_DKP_Utils
             {
                 Regex r = new Regex(@"\[.*\] (?<name>\S+) (tells|told) you, '(?<message>.*)'");
                 Match m = r.Match(s);
+                string tellType = "N/A";
+                string[] keywords = { "main", "alt", "guest", "app" };
 
                 if (m.Success) 
                 {
@@ -213,6 +215,18 @@ namespace ES_DKP_Utils
                     owner.ParseCount++;
 
                     string name = m.Groups["name"].ToString();
+                    string message = m.Groups["message"].ToString();
+
+                    foreach (string keyword in keywords)
+                    {
+                        if (message.StartsWith(keyword))
+                        {
+                            tellType = keyword;
+                            message = message.Remove(0, keyword.Length);
+                            message = message.TrimStart();
+                        }
+                    }
+
                     if (!Tells.Contains(name)) 
                     {
                         logger.Debug(name + " is not in tell array already.");
@@ -230,12 +244,12 @@ namespace ES_DKP_Utils
                         // Now if we successfully found someone in the namesTiers table, they should be a main
                         if (k.Length>0) 
                         {
-                            TellsDKP.Add(new Raider(owner,(string)k[0]["Name"],(string)k[0]["Tier"],(double)k[0]["SumOfPTS"],(double)Decimal.ToDouble((decimal)k[0]["TPercent"])));
+                            TellsDKP.Add(new Raider(owner,(string)k[0]["Name"],(string)k[0]["Tier"],(double)k[0]["SumOfPTS"],(double)Decimal.ToDouble((decimal)k[0]["TPercent"]), tellType));
                         } 
                         // Otherwise, add them to the tells table with the default values for not tracked
                         else
                         {
-                            TellsDKP.Add(new Raider(owner,name,Raider.NOTIER,Raider.NODKP,Raider.NOATTENDANCE));
+                            TellsDKP.Add(new Raider(owner,name,Raider.NOTIER,Raider.NODKP,Raider.NOATTENDANCE, tellType));
                         }
 
                         TellsDKP.Sort();
