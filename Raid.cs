@@ -5,6 +5,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Collections;
+using System.Linq;
+using Newtonsoft.Json;
 
 namespace ES_DKP_Utils
 {
@@ -819,6 +821,11 @@ namespace ES_DKP_Utils
                     MessageBox.Show("Could not open data connection. \n(" + ex.Message + ")", "Error");
                 }
                 finally { dbConnect.Close(); }
+            }
+
+            if (true)
+            {
+                MessageBox.Show(JsonConvert.SerializeObject(this));
             }
 
             log.Debug("End Method: Raid.SyncRaid()");
