@@ -63,15 +63,16 @@ namespace ES_DKP_Utils
 
         public string TellType { get; set; }
 
+		public string ItemMessage { get; set; }
 
         private frmMain owner;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        #endregion
+		#endregion
 
-        #region Constructor
-        public Raider(frmMain owner, string p, string t, double d, double a, string tellType="N/A")
+		#region Constructor
+		public Raider(frmMain owner, string p, string t, double d, double a, string tellType = "N/A", string itemMessage = "")
 		{
-            log.Debug($"Begin Method: Raider.Raider(frmMain,string,string,double,double,string) ({owner}, {p}, {t}, {d}, {a}, {tellType}");
+            log.Debug($"Begin Method: Raider.Raider(frmMain,string,string,double,double,string,string) ({owner}, {p}, {t}, {d}, {a}, {tellType}, {itemMessage}");
 
 			this.owner = owner;
 			Person = p;
@@ -80,6 +81,7 @@ namespace ES_DKP_Utils
             AttendancePCT = a;
             MINDKP = owner.MinDKP;
 			TellType = tellType;
+			ItemMessage = itemMessage;
 
             log.Debug("End Method: Raider.Raider()");
 		}

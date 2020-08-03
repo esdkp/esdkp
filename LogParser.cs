@@ -222,16 +222,15 @@ namespace ES_DKP_Utils
                         if (message.StartsWith(keyword))
                         {
                             tellType = keyword;
-                            message = message.Remove(0, keyword.Length);
-                            message = message.TrimStart();
+                            message = message.Remove(0, keyword.Length).TrimStart();
                         }
                     }
 
+                    // I'm not sure we actually care about multiple tells from the same person, not for what we're about to do
                     if (!Tells.Contains(name)) 
                     {
                         logger.Debug(name + " is not in tell array already.");
 
-                        Tells.Add(name);
                         DataRow[] k = namesTiers.Select("Name='" + name + "'");
                         DataRow[] alt = alts.Select("AltName='" + name + "'");
                         
@@ -244,12 +243,14 @@ namespace ES_DKP_Utils
                         // Now if we successfully found someone in the namesTiers table, they should be a main
                         if (k.Length>0) 
                         {
-                            TellsDKP.Add(new Raider(owner,(string)k[0]["Name"],(string)k[0]["Tier"],(double)k[0]["SumOfPTS"],(double)Decimal.ToDouble((decimal)k[0]["TPercent"]), tellType));
+                            Tells.Add((string)k[0]["Name"]);
+                            TellsDKP.Add(new Raider(owner,(string)k[0]["Name"],(string)k[0]["Tier"],(double)k[0]["SumOfPTS"],(double)Decimal.ToDouble((decimal)k[0]["TPercent"]), tellType, message));
                         } 
                         // Otherwise, add them to the tells table with the default values for not tracked
                         else
                         {
-                            TellsDKP.Add(new Raider(owner,name,Raider.NOTIER,Raider.NODKP,Raider.NOATTENDANCE, tellType));
+                            Tells.Add(name);
+                            TellsDKP.Add(new Raider(owner,name,Raider.NOTIER,Raider.NODKP,Raider.NOATTENDANCE, tellType, message));
                         }
 
                         TellsDKP.Sort();
