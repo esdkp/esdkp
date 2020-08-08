@@ -433,8 +433,17 @@ namespace ES_DKP_Utils
 		public void RefreshList()
 		{
             log.Debug("Begin Method: frmMain.RefreshList()");
-            
-            ArrayList a = parser.TellsDKP;
+
+            ArrayList a = new ArrayList();
+
+            foreach (string key in parser.ItemTells.Keys)
+            {
+                foreach(object tell in parser.ItemTells[key])
+                {
+                    a.Add(tell);
+                }
+            }
+
 			listOfNames.Items.Clear();
 			listOfTiers.Items.Clear();
 			listOfDKP.Items.Clear();
@@ -455,6 +464,7 @@ namespace ES_DKP_Utils
                 listTellType.Items.Add(r.TellType);
                 listItemMessage.Items.Add(r.ItemMessage);
 			}
+
 			log.Debug("End Method: frmMain.RefreshList()");
 		}													
 
@@ -943,7 +953,12 @@ namespace ES_DKP_Utils
             else if (rdoB.Checked) this.ItemDKP = "B";
             else if (rdoC.Checked) this.ItemDKP = "C";
             else this.ItemDKP = "ATTD";
-			parser.TellsDKP.Sort();
+			
+            foreach (string key in parser.ItemTells.Keys)
+            {
+                parser.ItemTells[key].Sort();
+            }
+            
 			RefreshTells = true;
 
             log.Debug("End Method: rbA_CheckChanged()");
@@ -957,8 +972,13 @@ namespace ES_DKP_Utils
 			else if (rdoB.Checked) this.ItemDKP = "B";
             else if (rdoC.Checked) this.ItemDKP = "C";
             else this.ItemDKP = "ATTD";
-			parser.TellsDKP.Sort();
-			RefreshTells = true;
+
+            foreach (string key in parser.ItemTells.Keys)
+            {
+                parser.ItemTells[key].Sort();
+            }
+
+            RefreshTells = true;
 
             log.Debug("End Method: rbB_CheckChanged()");
 		}
@@ -971,8 +991,13 @@ namespace ES_DKP_Utils
 			else if (rdoB.Checked) this.ItemDKP = "B";
             else if (rdoC.Checked) this.ItemDKP = "C";
             else this.ItemDKP = "ATTD";
-			parser.TellsDKP.Sort();
-			RefreshTells = true;
+
+            foreach (string key in parser.ItemTells.Keys)
+            {
+                parser.ItemTells[key].Sort();
+            }
+
+            RefreshTells = true;
 
             log.Debug("End Method: rbC_CheckChanged()");
 		}
@@ -985,7 +1010,12 @@ namespace ES_DKP_Utils
             else if (rdoB.Checked) this.ItemDKP = "B";
             else if (rdoC.Checked) this.ItemDKP = "C";
             else this.ItemDKP = "ATTD";
-            parser.TellsDKP.Sort();
+
+            foreach (string key in parser.ItemTells.Keys)
+            {
+                parser.ItemTells[key].Sort();
+            }
+
             RefreshTells = true;
 
             log.Debug("End Method: rbATTD_CheckChanged()");
@@ -995,8 +1025,7 @@ namespace ES_DKP_Utils
 		{
             log.Debug("Begin Method: btnClear_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
-			parser.TellsDKP.Clear();
-			parser.Tells.Clear();
+            parser.ItemTells.Clear();
 			RefreshTells = true;
 
             log.Debug("End Method: btnClear_Click()");
