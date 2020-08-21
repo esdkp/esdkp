@@ -5,7 +5,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Data;
 using System.Data.OleDb;
-
+using System.Collections.Generic;
 
 namespace ES_DKP_Utils
 {
@@ -17,49 +17,17 @@ namespace ES_DKP_Utils
         private FileStream logStream;
         private long logPointer;
         private long logSize;
-        private System.IO.FileSystemWatcher logWatcher;
+        private FileSystemWatcher logWatcher;
         private DataTable namesTiers;
         private DataTable alts;
         private string log;
         private bool changed;
         private System.Timers.Timer logTimer;
 
-        private ArrayList _Tells;
-        public ArrayList Tells
-        {
-            get	{ return _Tells; }
-            set	{ _Tells = value; }
-        }
-
-        private ArrayList _TellsDKP;
-        public ArrayList TellsDKP
-        {
-            get { return _TellsDKP;	}
-            set	{ _TellsDKP = value; }
-        }
-
-        private bool _TellsOn;
-        public bool TellsOn
-        {
-            get	{ return _TellsOn; }
-            set	{
-                _TellsOn = value;
-            }
-        }
-
-        private bool _AttendanceOn;
-        public bool AttendanceOn
-        {
-            get { return _AttendanceOn; }
-            set { _AttendanceOn = value; }
-        }
-
-        private bool _LootOn;
-        public bool LootOn
-        {
-            get { return _LootOn; }
-            set { _LootOn = value; }
-        }
+        public Dictionary<String, ArrayList> ItemTells { get; set; }
+        public bool TellsOn { get; set; }
+        public bool AttendanceOn { get; set; }
+        public bool LootOn { get; set; }
 
         private frmMain owner;
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -115,8 +83,7 @@ namespace ES_DKP_Utils
             }
             TellsOn = false;
             AttendanceOn = false;
-            Tells = new ArrayList();
-            TellsDKP = new ArrayList();
+            ItemTells = new Dictionary<string, ArrayList>();
             logTimer = new System.Timers.Timer(5000);
             logTimer.Start();
             logTimer.Elapsed += new System.Timers.ElapsedEventHandler(logTimer_Elapsed);
@@ -199,12 +166,29 @@ namespace ES_DKP_Utils
             logger.Debug("End Method: OnChanged()");
         }
 
+        private bool TellExists(string message, string person)
+        {
+            bool tellFound = false;
+
+            if (ItemTells.ContainsKey(message))
+            {
+                foreach (Raider raider in ItemTells[message])
+                {
+                    tellFound = person == raider.Person;
+                }
+            }
+
+            return tellFound;
+        }
+
         public LogLineType Parse(string s)
         {
             if (TellsOn)
             {
                 Regex r = new Regex(@"\[.*\] (?<name>\S+) (tells|told) you, '(?<message>.*)'");
                 Match m = r.Match(s);
+                string tellType = "N/A";
+                string[] keywords = { "main", "alt", "guest", "app" };
 
                 if (m.Success) 
                 {
@@ -213,34 +197,49 @@ namespace ES_DKP_Utils
                     owner.ParseCount++;
 
                     string name = m.Groups["name"].ToString();
-                    if (!Tells.Contains(name)) 
-                    {
-                        logger.Debug(name + " is not in tell array already.");
+                    string message = m.Groups["message"].ToString();
 
-                        Tells.Add(name);
-                        DataRow[] k = namesTiers.Select("Name='" + name + "'");
-                        DataRow[] alt = alts.Select("AltName='" + name + "'");
-                        
-                        // If it's an alt, and no main was found, set the main array to the alt.
-                        if (alt.Length > 0 && k.Length<=0)
+                    foreach (string keyword in keywords)
+                    {
+                        if (message.ToLower().StartsWith(keyword))
                         {
-                            k = namesTiers.Select("Name='" + (string)alt[0]["Field3"] + "'");
+                            tellType = keyword;
+                            message = message.Remove(0, keyword.Length).TrimStart();
+                        }
+                    }
+
+                    if (!ItemTells.ContainsKey(message))
+                    {
+                        ItemTells[message] = new ArrayList();
+                    }
+
+                    if (!TellExists(message, name))
+                    {
+                        DataRow[] raider = namesTiers.Select("Name='" + name + "'");
+                        DataRow[] alt = alts.Select("AltName='" + name + "'");
+
+                        if (alt.Length > 0 && raider.Length <= 0)
+                        {
+                            raider = namesTiers.Select("Name='" + (string)alt[0]["Field3"] + "'");
                         }
 
-                        // Now if we successfully found someone in the namesTiers table, they should be a main
-                        if (k.Length>0) 
+                        if (raider.Length>0)
                         {
-                            TellsDKP.Add(new Raider(owner,(string)k[0]["Name"],(string)k[0]["Tier"],(double)k[0]["SumOfPTS"],(double)Decimal.ToDouble((decimal)k[0]["TPercent"])));
-                        } 
-                        // Otherwise, add them to the tells table with the default values for not tracked
+                            ItemTells[message].Add(new Raider(owner, (string)raider[0]["Name"], (string)raider[0]["Tier"], (double)raider[0]["SumOfPTS"], (double)Decimal.ToDouble((decimal)raider[0]["TPercent"]), tellType, message));
+                        }
                         else
                         {
-                            TellsDKP.Add(new Raider(owner,name,Raider.NOTIER,Raider.NODKP,Raider.NOATTENDANCE));
+                            ItemTells[message].Add(new Raider(owner, name, Raider.NOTIER, Raider.NODKP, Raider.NOATTENDANCE, tellType, message));
                         }
 
-                        TellsDKP.Sort();
-                        owner.RefreshTells = true;					
+                        foreach (string key in ItemTells.Keys)
+                        {
+                            ItemTells[key].Sort();
+                        }
                     }
+
+                    owner.RefreshTells = true;
+
                     return LogLineType.TELL;
                 }
             }

@@ -40,6 +40,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 using Nini.Config;
+using System.Collections.Generic;
 
 namespace ES_DKP_Utils
 {
@@ -300,6 +301,10 @@ namespace ES_DKP_Utils
         private CheckBox chkWho;
         private CheckBox chkLoot;
         private MenuItem mnuExitNoBackup;
+        private ListBox listTellType;
+        private Label lblTellType;
+        private ListBox listItemMessage;
+        private Label lblMessage;
         private System.Windows.Forms.Timer UITimer;
 
 		#region Constructor
@@ -428,12 +433,23 @@ namespace ES_DKP_Utils
 		public void RefreshList()
 		{
             log.Debug("Begin Method: frmMain.RefreshList()");
-            
-            ArrayList a = parser.TellsDKP;
+
+            ArrayList a = new ArrayList();
+
+            foreach (string key in parser.ItemTells.Keys)
+            {
+                foreach(object tell in parser.ItemTells[key])
+                {
+                    a.Add(tell);
+                }
+            }
+
 			listOfNames.Items.Clear();
 			listOfTiers.Items.Clear();
 			listOfDKP.Items.Clear();
             listOfAttd.Items.Clear();
+            listTellType.Items.Clear();
+            listItemMessage.Items.Clear();
 
 			foreach (Raider r in a)
 			{
@@ -445,7 +461,10 @@ namespace ES_DKP_Utils
 				if (r.DKP == Raider.NODKP) listOfDKP.Items.Add("?");
 				else listOfDKP.Items.Add(r.DKP.ToString());
                 listOfAttd.Items.Add(r.AttendancePCT);
+                listTellType.Items.Add(r.TellType);
+                listItemMessage.Items.Add(r.ItemMessage);
 			}
+
 			log.Debug("End Method: frmMain.RefreshList()");
 		}													
 
@@ -669,6 +688,8 @@ namespace ES_DKP_Utils
 			listOfTiers.Enabled = true;
 			listOfDKP.Enabled = true;
             listOfAttd.Enabled = true;
+            listTellType.Enabled = true;
+            listItemMessage.Enabled = true;
             rdoB.Checked = true;
 
             chkWho.Checked = false;
@@ -723,6 +744,8 @@ namespace ES_DKP_Utils
 				listOfTiers.Enabled = true;
 				listOfDKP.Enabled = true;
                 listOfAttd.Enabled = true;
+                listTellType.Enabled = true;
+                listItemMessage.Enabled = true;
 
                 chkWho.Checked = false;
                 chkTells.Checked = false;
@@ -930,7 +953,12 @@ namespace ES_DKP_Utils
             else if (rdoB.Checked) this.ItemDKP = "B";
             else if (rdoC.Checked) this.ItemDKP = "C";
             else this.ItemDKP = "ATTD";
-			parser.TellsDKP.Sort();
+			
+            foreach (string key in parser.ItemTells.Keys)
+            {
+                parser.ItemTells[key].Sort();
+            }
+            
 			RefreshTells = true;
 
             log.Debug("End Method: rbA_CheckChanged()");
@@ -944,8 +972,13 @@ namespace ES_DKP_Utils
 			else if (rdoB.Checked) this.ItemDKP = "B";
             else if (rdoC.Checked) this.ItemDKP = "C";
             else this.ItemDKP = "ATTD";
-			parser.TellsDKP.Sort();
-			RefreshTells = true;
+
+            foreach (string key in parser.ItemTells.Keys)
+            {
+                parser.ItemTells[key].Sort();
+            }
+
+            RefreshTells = true;
 
             log.Debug("End Method: rbB_CheckChanged()");
 		}
@@ -958,8 +991,13 @@ namespace ES_DKP_Utils
 			else if (rdoB.Checked) this.ItemDKP = "B";
             else if (rdoC.Checked) this.ItemDKP = "C";
             else this.ItemDKP = "ATTD";
-			parser.TellsDKP.Sort();
-			RefreshTells = true;
+
+            foreach (string key in parser.ItemTells.Keys)
+            {
+                parser.ItemTells[key].Sort();
+            }
+
+            RefreshTells = true;
 
             log.Debug("End Method: rbC_CheckChanged()");
 		}
@@ -972,7 +1010,12 @@ namespace ES_DKP_Utils
             else if (rdoB.Checked) this.ItemDKP = "B";
             else if (rdoC.Checked) this.ItemDKP = "C";
             else this.ItemDKP = "ATTD";
-            parser.TellsDKP.Sort();
+
+            foreach (string key in parser.ItemTells.Keys)
+            {
+                parser.ItemTells[key].Sort();
+            }
+
             RefreshTells = true;
 
             log.Debug("End Method: rbATTD_CheckChanged()");
@@ -982,8 +1025,7 @@ namespace ES_DKP_Utils
 		{
             log.Debug("Begin Method: btnClear_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
-			parser.TellsDKP.Clear();
-			parser.Tells.Clear();
+            parser.ItemTells.Clear();
 			RefreshTells = true;
 
             log.Debug("End Method: btnClear_Click()");
@@ -1044,6 +1086,8 @@ namespace ES_DKP_Utils
             this.sbpLineCount = new System.Windows.Forms.StatusBarPanel();
             this.sbpParseCount = new System.Windows.Forms.StatusBarPanel();
             this.panel = new System.Windows.Forms.Panel();
+            this.listTellType = new System.Windows.Forms.ListBox();
+            this.lblTellType = new System.Windows.Forms.Label();
             this.listOfAttd = new System.Windows.Forms.ListBox();
             this.listOfDKP = new System.Windows.Forms.ListBox();
             this.listOfTiers = new System.Windows.Forms.ListBox();
@@ -1076,6 +1120,8 @@ namespace ES_DKP_Utils
             this.lblRaidDate = new System.Windows.Forms.Label();
             this.lblRaidName = new System.Windows.Forms.Label();
             this.pgbProgress = new System.Windows.Forms.ProgressBar();
+            this.listItemMessage = new System.Windows.Forms.ListBox();
+            this.lblMessage = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.sbpMessage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sbpProgressBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sbpLineCount)).BeginInit();
@@ -1294,7 +1340,7 @@ namespace ES_DKP_Utils
             this.sbpLineCount,
             this.sbpParseCount});
             this.stbStatusBar.ShowPanels = true;
-            this.stbStatusBar.Size = new System.Drawing.Size(564, 23);
+            this.stbStatusBar.Size = new System.Drawing.Size(849, 23);
             this.stbStatusBar.SizingGrip = false;
             this.stbStatusBar.TabIndex = 0;
             // 
@@ -1321,6 +1367,10 @@ namespace ES_DKP_Utils
             // 
             // panel
             // 
+            this.panel.Controls.Add(this.listItemMessage);
+            this.panel.Controls.Add(this.lblMessage);
+            this.panel.Controls.Add(this.listTellType);
+            this.panel.Controls.Add(this.lblTellType);
             this.panel.Controls.Add(this.listOfAttd);
             this.panel.Controls.Add(this.listOfDKP);
             this.panel.Controls.Add(this.listOfTiers);
@@ -1348,8 +1398,24 @@ namespace ES_DKP_Utils
             this.panel.Enabled = false;
             this.panel.Location = new System.Drawing.Point(7, 8);
             this.panel.Name = "panel";
-            this.panel.Size = new System.Drawing.Size(556, 265);
+            this.panel.Size = new System.Drawing.Size(842, 265);
             this.panel.TabIndex = 1;
+            // 
+            // listTellType
+            // 
+            this.listTellType.Location = new System.Drawing.Point(557, 16);
+            this.listTellType.Name = "listTellType";
+            this.listTellType.Size = new System.Drawing.Size(61, 173);
+            this.listTellType.TabIndex = 37;
+            this.listTellType.TabStop = false;
+            // 
+            // lblTellType
+            // 
+            this.lblTellType.Location = new System.Drawing.Point(554, 1);
+            this.lblTellType.Name = "lblTellType";
+            this.lblTellType.Size = new System.Drawing.Size(61, 16);
+            this.lblTellType.TabIndex = 38;
+            this.lblTellType.Text = "TellType:";
             // 
             // listOfAttd
             // 
@@ -1650,10 +1716,26 @@ namespace ES_DKP_Utils
             this.pgbProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.pgbProgress.TabIndex = 2;
             // 
+            // listItemMessage
+            // 
+            this.listItemMessage.Location = new System.Drawing.Point(624, 16);
+            this.listItemMessage.Name = "listItemMessage";
+            this.listItemMessage.Size = new System.Drawing.Size(215, 173);
+            this.listItemMessage.TabIndex = 39;
+            this.listItemMessage.TabStop = false;
+            // 
+            // lblMessage
+            // 
+            this.lblMessage.Location = new System.Drawing.Point(621, 1);
+            this.lblMessage.Name = "lblMessage";
+            this.lblMessage.Size = new System.Drawing.Size(82, 16);
+            this.lblMessage.TabIndex = 40;
+            this.lblMessage.Text = "Item Message:";
+            // 
             // frmMain
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(564, 304);
+            this.ClientSize = new System.Drawing.Size(849, 304);
             this.Controls.Add(this.pgbProgress);
             this.Controls.Add(this.panel);
             this.Controls.Add(this.stbStatusBar);
