@@ -1,34 +1,3 @@
-/* TODO
- * 
- *  Detailed Tier, Class reports 
- * 
- *  Replace InputBoxDialog with combobox method.
- *  
- *  About Screen
- * 
- *  Remote server support
- * 
- *  Redo loot form ~ FUBAR
- * 
- *  Make the two functions in Raid that add a person to a raid into one
- * 
- *  Add dialog if you try to save raid but there's no attendees - allow only spend rows to be added, but warn.
- * 
- *  Cleanup - Switch string += to stringbuilder, make property names make sense 
- */
-
-/* BUGS
- * 
- *  raid date sometimes gets changed randomly to today's date
- *  (Can not duplicate :( )
- * 
- *  People who fall to 0% attendance disappear from the reports 
- *  & NamesTiers Table, but should prompt to retire them.
- * 
- *  Sometimes raidname gets set to null?
- *  
- */
-
 using System;
 using System.Drawing;
 using System.Collections;
@@ -305,6 +274,7 @@ namespace ES_DKP_Utils
         private Label lblTellType;
         private ListBox listItemMessage;
         private Label lblMessage;
+        private CheckBox chkSortIncludesItemMessage;
         private System.Windows.Forms.Timer UITimer;
 
 		#region Constructor
@@ -438,13 +408,20 @@ namespace ES_DKP_Utils
 
             foreach (string key in parser.ItemTells.Keys)
             {
-                foreach(object tell in parser.ItemTells[key])
+                foreach (object tell in parser.ItemTells[key])
                 {
                     a.Add(tell);
                 }
             }
 
-			listOfNames.Items.Clear();
+            // ItemTells is stored sorted within each matching message, with messages as the keys of the dictionary
+            // If we want this behavior, then the list as it comes in by message, will be accurate.  If not, we need to resort.
+            if (!chkSortIncludesItemMessage.Checked)
+            {
+                a.Sort();
+            }
+
+            listOfNames.Items.Clear();
 			listOfTiers.Items.Clear();
 			listOfDKP.Items.Clear();
             listOfAttd.Items.Clear();
@@ -679,6 +656,7 @@ namespace ES_DKP_Utils
 			txtRaidName.Text = CurrentRaid.RaidName;
 			dtpRaidDate.Value = CurrentRaid.RaidDate;
 			chkDouble.Checked = false;
+            chkSortIncludesItemMessage.Checked = false;
 			txtRaidName.Enabled = true;
 			dtpRaidDate.Enabled = true;
 			txtZoneNames.Enabled = true;
@@ -696,11 +674,6 @@ namespace ES_DKP_Utils
             chkTells.Checked = false;
             chkLoot.Checked = false;
 
-            /*
-			parser.TellsOn = false;
-			parser.AttendanceOn = false;
-            parser.LootOn = false;
-            */
 			parser.LoadNamesTiers();
 
 			log.Info("New Raid Created.  Name: " + CurrentRaid.RaidName + " Date: " + CurrentRaid.RaidDate.ToString("dd MMM yyyy"));
@@ -840,7 +813,12 @@ namespace ES_DKP_Utils
             log.Debug("End Method: chkDouble_CheckChanged()");
 		}
 
-		private void btnSaveRaid_Click(object sender, System.EventArgs e)
+        private void chkSortIncludesItemMessage_CheckedChanged(object sender, EventArgs e)
+        {
+            RefreshTells = true;
+        }
+
+        private void btnSaveRaid_Click(object sender, System.EventArgs e)
         {
             log.Debug("Begin Method: btnSaveRaid_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
@@ -1086,6 +1064,9 @@ namespace ES_DKP_Utils
             this.sbpLineCount = new System.Windows.Forms.StatusBarPanel();
             this.sbpParseCount = new System.Windows.Forms.StatusBarPanel();
             this.panel = new System.Windows.Forms.Panel();
+            this.chkSortIncludesItemMessage = new System.Windows.Forms.CheckBox();
+            this.listItemMessage = new System.Windows.Forms.ListBox();
+            this.lblMessage = new System.Windows.Forms.Label();
             this.listTellType = new System.Windows.Forms.ListBox();
             this.lblTellType = new System.Windows.Forms.Label();
             this.listOfAttd = new System.Windows.Forms.ListBox();
@@ -1120,8 +1101,6 @@ namespace ES_DKP_Utils
             this.lblRaidDate = new System.Windows.Forms.Label();
             this.lblRaidName = new System.Windows.Forms.Label();
             this.pgbProgress = new System.Windows.Forms.ProgressBar();
-            this.listItemMessage = new System.Windows.Forms.ListBox();
-            this.lblMessage = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.sbpMessage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sbpProgressBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sbpLineCount)).BeginInit();
@@ -1332,7 +1311,7 @@ namespace ES_DKP_Utils
             // 
             // stbStatusBar
             // 
-            this.stbStatusBar.Location = new System.Drawing.Point(0, 281);
+            this.stbStatusBar.Location = new System.Drawing.Point(0, 403);
             this.stbStatusBar.Name = "stbStatusBar";
             this.stbStatusBar.Panels.AddRange(new System.Windows.Forms.StatusBarPanel[] {
             this.sbpMessage,
@@ -1367,6 +1346,7 @@ namespace ES_DKP_Utils
             // 
             // panel
             // 
+            this.panel.Controls.Add(this.chkSortIncludesItemMessage);
             this.panel.Controls.Add(this.listItemMessage);
             this.panel.Controls.Add(this.lblMessage);
             this.panel.Controls.Add(this.listTellType);
@@ -1398,20 +1378,45 @@ namespace ES_DKP_Utils
             this.panel.Enabled = false;
             this.panel.Location = new System.Drawing.Point(7, 8);
             this.panel.Name = "panel";
-            this.panel.Size = new System.Drawing.Size(842, 265);
+            this.panel.Size = new System.Drawing.Size(842, 389);
             this.panel.TabIndex = 1;
+            // 
+            // chkSortIncludesItemMessage
+            // 
+            this.chkSortIncludesItemMessage.Location = new System.Drawing.Point(132, 182);
+            this.chkSortIncludesItemMessage.Name = "chkSortIncludesItemMessage";
+            this.chkSortIncludesItemMessage.Size = new System.Drawing.Size(111, 23);
+            this.chkSortIncludesItemMessage.TabIndex = 41;
+            this.chkSortIncludesItemMessage.Text = "Sort by Message";
+            this.chkSortIncludesItemMessage.CheckedChanged += new System.EventHandler(this.chkSortIncludesItemMessage_CheckedChanged);
+            // 
+            // listItemMessage
+            // 
+            this.listItemMessage.Location = new System.Drawing.Point(601, 16);
+            this.listItemMessage.Name = "listItemMessage";
+            this.listItemMessage.Size = new System.Drawing.Size(238, 368);
+            this.listItemMessage.TabIndex = 39;
+            this.listItemMessage.TabStop = false;
+            // 
+            // lblMessage
+            // 
+            this.lblMessage.Location = new System.Drawing.Point(598, 1);
+            this.lblMessage.Name = "lblMessage";
+            this.lblMessage.Size = new System.Drawing.Size(82, 16);
+            this.lblMessage.TabIndex = 40;
+            this.lblMessage.Text = "Item Message:";
             // 
             // listTellType
             // 
-            this.listTellType.Location = new System.Drawing.Point(557, 16);
+            this.listTellType.Location = new System.Drawing.Point(534, 16);
             this.listTellType.Name = "listTellType";
-            this.listTellType.Size = new System.Drawing.Size(61, 173);
+            this.listTellType.Size = new System.Drawing.Size(61, 368);
             this.listTellType.TabIndex = 37;
             this.listTellType.TabStop = false;
             // 
             // lblTellType
             // 
-            this.lblTellType.Location = new System.Drawing.Point(554, 1);
+            this.lblTellType.Location = new System.Drawing.Point(534, 0);
             this.lblTellType.Name = "lblTellType";
             this.lblTellType.Size = new System.Drawing.Size(61, 16);
             this.lblTellType.TabIndex = 38;
@@ -1419,41 +1424,41 @@ namespace ES_DKP_Utils
             // 
             // listOfAttd
             // 
-            this.listOfAttd.Location = new System.Drawing.Point(514, 16);
+            this.listOfAttd.Location = new System.Drawing.Point(491, 16);
             this.listOfAttd.Name = "listOfAttd";
-            this.listOfAttd.Size = new System.Drawing.Size(37, 173);
+            this.listOfAttd.Size = new System.Drawing.Size(37, 368);
             this.listOfAttd.TabIndex = 34;
             this.listOfAttd.TabStop = false;
             // 
             // listOfDKP
             // 
-            this.listOfDKP.Location = new System.Drawing.Point(436, 16);
+            this.listOfDKP.Location = new System.Drawing.Point(413, 16);
             this.listOfDKP.Name = "listOfDKP";
-            this.listOfDKP.Size = new System.Drawing.Size(72, 173);
+            this.listOfDKP.Size = new System.Drawing.Size(72, 368);
             this.listOfDKP.TabIndex = 14;
             this.listOfDKP.TabStop = false;
             // 
             // listOfTiers
             // 
-            this.listOfTiers.Location = new System.Drawing.Point(406, 16);
+            this.listOfTiers.Location = new System.Drawing.Point(383, 16);
             this.listOfTiers.Name = "listOfTiers";
-            this.listOfTiers.Size = new System.Drawing.Size(24, 173);
+            this.listOfTiers.Size = new System.Drawing.Size(24, 368);
             this.listOfTiers.TabIndex = 13;
             this.listOfTiers.TabStop = false;
             // 
             // listOfNames
             // 
-            this.listOfNames.Location = new System.Drawing.Point(272, 16);
+            this.listOfNames.Location = new System.Drawing.Point(249, 16);
             this.listOfNames.Name = "listOfNames";
-            this.listOfNames.Size = new System.Drawing.Size(128, 173);
+            this.listOfNames.Size = new System.Drawing.Size(128, 368);
             this.listOfNames.TabIndex = 12;
             this.listOfNames.TabStop = false;
             // 
             // txtZoneNames
             // 
-            this.txtZoneNames.Location = new System.Drawing.Point(8, 236);
+            this.txtZoneNames.Location = new System.Drawing.Point(8, 366);
             this.txtZoneNames.Name = "txtZoneNames";
-            this.txtZoneNames.Size = new System.Drawing.Size(258, 20);
+            this.txtZoneNames.Size = new System.Drawing.Size(235, 20);
             this.txtZoneNames.TabIndex = 13;
             // 
             // grpWatchFor
@@ -1461,7 +1466,7 @@ namespace ES_DKP_Utils
             this.grpWatchFor.Controls.Add(this.chkLoot);
             this.grpWatchFor.Controls.Add(this.chkWho);
             this.grpWatchFor.Controls.Add(this.chkTells);
-            this.grpWatchFor.Location = new System.Drawing.Point(148, 62);
+            this.grpWatchFor.Location = new System.Drawing.Point(125, 62);
             this.grpWatchFor.Name = "grpWatchFor";
             this.grpWatchFor.Size = new System.Drawing.Size(118, 94);
             this.grpWatchFor.TabIndex = 36;
@@ -1503,7 +1508,7 @@ namespace ES_DKP_Utils
             // 
             // lblAttd
             // 
-            this.lblAttd.Location = new System.Drawing.Point(511, 1);
+            this.lblAttd.Location = new System.Drawing.Point(488, 1);
             this.lblAttd.Name = "lblAttd";
             this.lblAttd.Size = new System.Drawing.Size(32, 16);
             this.lblAttd.TabIndex = 35;
@@ -1511,9 +1516,9 @@ namespace ES_DKP_Utils
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(482, 224);
+            this.btnClear.Location = new System.Drawing.Point(8, 315);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(69, 24);
+            this.btnClear.Size = new System.Drawing.Size(64, 24);
             this.btnClear.TabIndex = 33;
             this.btnClear.Text = "Clear Tells";
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
@@ -1548,7 +1553,7 @@ namespace ES_DKP_Utils
             // 
             // chkDouble
             // 
-            this.chkDouble.Location = new System.Drawing.Point(155, 162);
+            this.chkDouble.Location = new System.Drawing.Point(132, 162);
             this.chkDouble.Name = "chkDouble";
             this.chkDouble.Size = new System.Drawing.Size(88, 16);
             this.chkDouble.TabIndex = 12;
@@ -1557,7 +1562,7 @@ namespace ES_DKP_Utils
             // 
             // lblZoneNames
             // 
-            this.lblZoneNames.Location = new System.Drawing.Point(5, 211);
+            this.lblZoneNames.Location = new System.Drawing.Point(5, 339);
             this.lblZoneNames.Name = "lblZoneNames";
             this.lblZoneNames.Size = new System.Drawing.Size(146, 24);
             this.lblZoneNames.TabIndex = 28;
@@ -1566,7 +1571,7 @@ namespace ES_DKP_Utils
             // 
             // btnSaveRaid
             // 
-            this.btnSaveRaid.Location = new System.Drawing.Point(78, 176);
+            this.btnSaveRaid.Location = new System.Drawing.Point(8, 252);
             this.btnSaveRaid.Name = "btnSaveRaid";
             this.btnSaveRaid.Size = new System.Drawing.Size(64, 32);
             this.btnSaveRaid.TabIndex = 10;
@@ -1575,7 +1580,7 @@ namespace ES_DKP_Utils
             // 
             // btnRecordLoot
             // 
-            this.btnRecordLoot.Location = new System.Drawing.Point(78, 62);
+            this.btnRecordLoot.Location = new System.Drawing.Point(8, 214);
             this.btnRecordLoot.Name = "btnRecordLoot";
             this.btnRecordLoot.Size = new System.Drawing.Size(64, 32);
             this.btnRecordLoot.TabIndex = 7;
@@ -1588,7 +1593,7 @@ namespace ES_DKP_Utils
             this.grpItemTier.Controls.Add(this.rdoA);
             this.grpItemTier.Controls.Add(this.rdoB);
             this.grpItemTier.Controls.Add(this.rdoC);
-            this.grpItemTier.Location = new System.Drawing.Point(272, 208);
+            this.grpItemTier.Location = new System.Drawing.Point(81, 299);
             this.grpItemTier.Name = "grpItemTier";
             this.grpItemTier.Size = new System.Drawing.Size(162, 48);
             this.grpItemTier.TabIndex = 22;
@@ -1641,7 +1646,7 @@ namespace ES_DKP_Utils
             // 
             // dkpLabel
             // 
-            this.dkpLabel.Location = new System.Drawing.Point(433, 1);
+            this.dkpLabel.Location = new System.Drawing.Point(410, 1);
             this.dkpLabel.Name = "dkpLabel";
             this.dkpLabel.Size = new System.Drawing.Size(56, 16);
             this.dkpLabel.TabIndex = 17;
@@ -1649,7 +1654,7 @@ namespace ES_DKP_Utils
             // 
             // lblTier
             // 
-            this.lblTier.Location = new System.Drawing.Point(405, 1);
+            this.lblTier.Location = new System.Drawing.Point(380, 1);
             this.lblTier.Name = "lblTier";
             this.lblTier.Size = new System.Drawing.Size(32, 16);
             this.lblTier.TabIndex = 16;
@@ -1657,7 +1662,7 @@ namespace ES_DKP_Utils
             // 
             // lblName
             // 
-            this.lblName.Location = new System.Drawing.Point(269, 1);
+            this.lblName.Location = new System.Drawing.Point(246, 1);
             this.lblName.Name = "lblName";
             this.lblName.Size = new System.Drawing.Size(72, 16);
             this.lblName.TabIndex = 15;
@@ -1685,7 +1690,7 @@ namespace ES_DKP_Utils
             // 
             this.txtRaidName.Location = new System.Drawing.Point(75, 36);
             this.txtRaidName.Name = "txtRaidName";
-            this.txtRaidName.Size = new System.Drawing.Size(191, 20);
+            this.txtRaidName.Size = new System.Drawing.Size(168, 20);
             this.txtRaidName.TabIndex = 2;
             this.txtRaidName.Leave += new System.EventHandler(this.txtRaidName_Leave);
             // 
@@ -1709,33 +1714,17 @@ namespace ES_DKP_Utils
             // 
             // pgbProgress
             // 
-            this.pgbProgress.Location = new System.Drawing.Point(279, 282);
+            this.pgbProgress.Location = new System.Drawing.Point(279, 404);
             this.pgbProgress.Name = "pgbProgress";
             this.pgbProgress.Size = new System.Drawing.Size(103, 22);
             this.pgbProgress.Step = 1;
             this.pgbProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.pgbProgress.TabIndex = 2;
             // 
-            // listItemMessage
-            // 
-            this.listItemMessage.Location = new System.Drawing.Point(624, 16);
-            this.listItemMessage.Name = "listItemMessage";
-            this.listItemMessage.Size = new System.Drawing.Size(215, 173);
-            this.listItemMessage.TabIndex = 39;
-            this.listItemMessage.TabStop = false;
-            // 
-            // lblMessage
-            // 
-            this.lblMessage.Location = new System.Drawing.Point(621, 1);
-            this.lblMessage.Name = "lblMessage";
-            this.lblMessage.Size = new System.Drawing.Size(82, 16);
-            this.lblMessage.TabIndex = 40;
-            this.lblMessage.Text = "Item Message:";
-            // 
             // frmMain
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(849, 304);
+            this.ClientSize = new System.Drawing.Size(849, 426);
             this.Controls.Add(this.pgbProgress);
             this.Controls.Add(this.panel);
             this.Controls.Add(this.stbStatusBar);

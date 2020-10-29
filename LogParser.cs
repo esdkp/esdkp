@@ -231,7 +231,8 @@ namespace ES_DKP_Utils
                         {
                             ItemTells[message].Add(new Raider(owner, name, Raider.NOTIER, Raider.NODKP, Raider.NOATTENDANCE, tellType, message));
                         }
-
+                        
+                        // This is the tell sorting here
                         foreach (string key in ItemTells.Keys)
                         {
                             ItemTells[key].Sort();
