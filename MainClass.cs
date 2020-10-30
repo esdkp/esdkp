@@ -1516,9 +1516,9 @@ namespace ES_DKP_Utils
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(8, 315);
+            this.btnClear.Location = new System.Drawing.Point(8, 299);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(64, 24);
+            this.btnClear.Size = new System.Drawing.Size(64, 40);
             this.btnClear.TabIndex = 33;
             this.btnClear.Text = "Clear Tells";
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
