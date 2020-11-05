@@ -297,15 +297,18 @@ namespace ES_DKP_Utils
             }
             try
             {
-                newData = new byte[logStream.Length - logPointer + 1];
-                logStream.Seek(logPointer, SeekOrigin.Begin);
-                logStream.Read(newData, 0, (int)(logStream.Length - logPointer));
-                toRead = newSize = (int)(logStream.Length - logPointer);
-                logPointer = logStream.Length;
-                owner.StatusMessage = "Log changes detected, parsing " + newSize + " bytes.";
-                owner.PBMin = 0;
-                owner.PBMax = newSize;
-                owner.PBVal = 0;
+                if (logStream != null)
+                {
+                    newData = new byte[logStream.Length - logPointer + 1];
+                    logStream.Seek(logPointer, SeekOrigin.Begin);
+                    logStream.Read(newData, 0, (int)(logStream.Length - logPointer));
+                    toRead = newSize = (int)(logStream.Length - logPointer);
+                    logPointer = logStream.Length;
+                    owner.StatusMessage = "Log changes detected, parsing " + newSize + " bytes.";
+                    owner.PBMin = 0;
+                    owner.PBMax = newSize;
+                    owner.PBVal = 0;
+                }
             }
             catch (Exception ex)
             {
@@ -313,7 +316,10 @@ namespace ES_DKP_Utils
             }
             finally
             {
-                logStream.Close();
+                if (logStream != null)
+                {
+                    logStream.Close();
+                }
             }
 
             int tells = 0;
