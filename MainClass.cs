@@ -1774,17 +1774,25 @@ namespace ES_DKP_Utils
             String logdir = System.IO.Path.GetDirectoryName(this.LogFile);
             String eqdir = System.IO.Directory.GetParent(logdir).FullName;
             
-            OpenFileDialog filedg = new OpenFileDialog();
-            filedg.InitialDirectory = eqdir;
-            filedg.Filter = "Raid Roster (*.txt)|RaidRoster*.txt|All files (*.*)|*.*";
-            filedg.FilterIndex = 1;
-            
-            if (filedg.ShowDialog() == DialogResult.OK)
+            if (CurrentRaid == null)
             {
-                log.Debug("Log file dialog returns: " + filedg.FileName);
-                CurrentRaid.ParseRaidDump(filedg.FileName);
-                StatusMessage = "Finished parsing attendance...";
-                filedg.Dispose();
+                log.Debug("Cannot parse raid attendance file if CurrentRaid is null");
+                MessageBox.Show("Please have an active raid before trying to parse a raid dump file.");
+            }
+            else
+            {
+                OpenFileDialog filedg = new OpenFileDialog();
+                filedg.InitialDirectory = eqdir;
+                filedg.Filter = "Raid Roster (*.txt)|RaidRoster*.txt|All files (*.*)|*.*";
+                filedg.FilterIndex = 1;
+
+                if (filedg.ShowDialog() == DialogResult.OK)
+                {
+                    log.Debug("Log file dialog returns: " + filedg.FileName);
+                    CurrentRaid.ParseRaidDump(filedg.FileName);
+                    StatusMessage = "Finished parsing attendance...";
+                    filedg.Dispose();
+                }
             }
 
             log.Debug("End Method: mnuImportRaidDump_Click()");
