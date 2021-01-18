@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+using Nini.Config;
 using System;
 using System.Drawing;
 using System.Collections;
@@ -8,7 +10,6 @@ using System.Data.OleDb;
 using System.IO;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
-using Nini.Config;
 using System.Collections.Generic;
 
 namespace ES_DKP_Utils
@@ -262,7 +263,7 @@ namespace ES_DKP_Utils
         private LogParser parser;
         private IContainer components;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        private MenuItem menuItem1;
+        private MenuItem mnuImport;
         private MenuItem mnuImportRaidDump;
         private MenuItem mnuImportLog;
         private GroupBox grpWatchFor;
@@ -275,6 +276,8 @@ namespace ES_DKP_Utils
         private ListBox listItemMessage;
         private Label lblMessage;
         private CheckBox chkSortIncludesItemMessage;
+        private MenuItem mnuExport;
+        private MenuItem mnuExportRaidJson;
         private System.Windows.Forms.Timer UITimer;
 
 		#region Constructor
@@ -1034,7 +1037,7 @@ namespace ES_DKP_Utils
             this.mnuNewRaid = new System.Windows.Forms.MenuItem();
             this.mnuOpenRaid = new System.Windows.Forms.MenuItem();
             this.mnuSettings = new System.Windows.Forms.MenuItem();
-            this.menuItem1 = new System.Windows.Forms.MenuItem();
+            this.mnuImport = new System.Windows.Forms.MenuItem();
             this.mnuImportLog = new System.Windows.Forms.MenuItem();
             this.mnuImportRaidDump = new System.Windows.Forms.MenuItem();
             this.mnuReports = new System.Windows.Forms.MenuItem();
@@ -1054,6 +1057,8 @@ namespace ES_DKP_Utils
             this.mnuEventLog = new System.Windows.Forms.MenuItem();
             this.mnuNamesTiers = new System.Windows.Forms.MenuItem();
             this.mnuNameClass = new System.Windows.Forms.MenuItem();
+            this.mnuExport = new System.Windows.Forms.MenuItem();
+            this.mnuExportRaidJson = new System.Windows.Forms.MenuItem();
             this.mnuFileSep = new System.Windows.Forms.MenuItem();
             this.mnuExit = new System.Windows.Forms.MenuItem();
             this.mnuExitNoBackup = new System.Windows.Forms.MenuItem();
@@ -1123,10 +1128,11 @@ namespace ES_DKP_Utils
             this.mnuNewRaid,
             this.mnuOpenRaid,
             this.mnuSettings,
-            this.menuItem1,
+            this.mnuImport,
             this.mnuReports,
             this.mnuQueries,
             this.mnuTables,
+            this.mnuExport,
             this.mnuFileSep,
             this.mnuExit,
             this.mnuExitNoBackup});
@@ -1150,13 +1156,13 @@ namespace ES_DKP_Utils
             this.mnuSettings.Text = "Settings";
             this.mnuSettings.Click += new System.EventHandler(this.mnuSettings_Click);
             // 
-            // menuItem1
+            // mnuImport
             // 
-            this.menuItem1.Index = 3;
-            this.menuItem1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.mnuImport.Index = 3;
+            this.mnuImport.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.mnuImportLog,
             this.mnuImportRaidDump});
-            this.menuItem1.Text = "Import";
+            this.mnuImport.Text = "Import";
             // 
             // mnuImportLog
             // 
@@ -1286,20 +1292,33 @@ namespace ES_DKP_Utils
             this.mnuNameClass.Text = "NamesClassesRemix";
             this.mnuNameClass.Click += new System.EventHandler(this.mnuNameClass_Click);
             // 
+            // mnuExport
+            // 
+            this.mnuExport.Index = 7;
+            this.mnuExport.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.mnuExportRaidJson});
+            this.mnuExport.Text = "Export";
+            // 
+            // mnuExportRaidJson
+            // 
+            this.mnuExportRaidJson.Index = 0;
+            this.mnuExportRaidJson.Text = "Export Raid as JSON";
+            this.mnuExportRaidJson.Click += new System.EventHandler(this.mnuExportRaidJson_Click);
+            // 
             // mnuFileSep
             // 
-            this.mnuFileSep.Index = 7;
+            this.mnuFileSep.Index = 8;
             this.mnuFileSep.Text = "-";
             // 
             // mnuExit
             // 
-            this.mnuExit.Index = 8;
+            this.mnuExit.Index = 9;
             this.mnuExit.Text = "Exit";
             this.mnuExit.Click += new System.EventHandler(this.mnuExit_Click);
             // 
             // mnuExitNoBackup
             // 
-            this.mnuExitNoBackup.Index = 9;
+            this.mnuExitNoBackup.Index = 10;
             this.mnuExitNoBackup.Text = "Exit w/o Backup";
             this.mnuExitNoBackup.Click += new System.EventHandler(this.mnuExitNoBackup_Click);
             // 
@@ -1849,6 +1868,16 @@ namespace ES_DKP_Utils
             Application.Exit();
 
             log.Debug("End Method: mnuExitNoBackup_Click()");
+        }
+
+        private void mnuExportRaidJson_Click(object sender, EventArgs e)
+        {
+            log.Debug("Begin Method: mnuExportRaidJson_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+
+            string json = JsonConvert.SerializeObject(CurrentRaid);
+            MessageBox.Show(json);
+
+            log.Debug("End Method: mnuExportRaidJson_Click()");
         }
     }
 }
