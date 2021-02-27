@@ -300,9 +300,9 @@ namespace ES_DKP_Utils
                 BackupDirectory = inifile.Configs["Files"].GetString("backupdir", Directory.GetCurrentDirectory());
 				DKPTax = inifile.Configs["Other"].GetDouble("tax",0.0);
                 MinDKP = inifile.Configs["Other"].GetDouble("mindkp", 0);
-                TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.6);
-                TierBPct = inifile.Configs["Other"].GetDouble("tierbpct", 0.3);
-                TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.0);
+                TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.60);
+                TierBPct = inifile.Configs["Other"].GetDouble("tierbpct", 0.30);
+                TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.01);
                 GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
                 AutomaticBackups = inifile.Configs["Other"].GetBoolean("AutomaticBackups", true);
                 RaidDaysWindow = inifile.Configs["Other"].GetInt("RaidDaysWindow", 20);
@@ -339,9 +339,9 @@ namespace ES_DKP_Utils
                     BackupDirectory = inifile.Configs["Files"].GetString("backupdir", Directory.GetCurrentDirectory());
                     DKPTax = inifile.Configs["Other"].GetDouble("tax",0.0);
                     MinDKP = inifile.Configs["Other"].GetDouble("mindkp", 0);
-                    TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.6);
-                    TierBPct = inifile.Configs["Other"].GetDouble("tierbpct", 0.3);
-                    TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.0);
+                    TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.60);
+                    TierBPct = inifile.Configs["Other"].GetDouble("tierbpct", 0.30);
+                    TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.01);
                     GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
                     RaidDaysWindow = inifile.Configs["Other"].GetInt("RaidDaysWindow", 20);
                     LastRaidDaysThreshold = inifile.Configs["Other"].GetInt("LastRaidDaysThreshold", 7);
