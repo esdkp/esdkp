@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Collections;
 using System.Linq;
 using Newtonsoft.Json;
+using ES_DKP_Utils.Models;
 
 namespace ES_DKP_Utils
 {
@@ -129,6 +130,8 @@ namespace ES_DKP_Utils
 
         private ArrayList ignore;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        private RaidModel raidModel;
         #endregion
 
         #region Constuctor
@@ -138,6 +141,7 @@ namespace ES_DKP_Utils
 
             this.owner = owner;
             this.ignore = new ArrayList();
+            this.raidModel = new RaidModel();
             DoubleTier = false;
             string connectionStr;
             connectionStr = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + owner.DBString;
@@ -183,11 +187,40 @@ namespace ES_DKP_Utils
             try
             {
                 string query = "SELECT * FROM DKS WHERE (Date=#" + RaidDate.Month + "/" + RaidDate.Day + "/" + RaidDate.Year + "# AND (((EventNameOrLoot LIKE '" + RaidName + "%' AND LootRaid NOT LIKE '__%') OR LootRaid LIKE '" + RaidName + "%') AND EventNameOrLoot NOT LIKE '%1') )";
+                raidModel.Name = RaidName;
+                raidModel.Date = RaidDate;
                 dkpDA.SelectCommand = new OleDbCommand(query, dbConnect);
                 dbConnect.Open();
                 dkpDA.Fill(dbRaid);
                 cmdBld = new OleDbCommandBuilder(dkpDA);
                 Loaded = true;
+
+                DataRow[] modelLoader = dbRaid.Select();
+                // These rows are as follows:
+                // ItemArray[0] - string Raider Name
+                // ItemArray[1] - DateTime Raid Date
+                // ItemArray[2] - string EventNameOrLoot
+                // ItemArray[3] - double PTS
+                // ItemArray[4] - string ?
+                // ItemArray[5] - string ?
+                foreach (var row in modelLoader)
+                {
+                    if ((double)row.ItemArray[3] < 0) {
+                        raidModel.Loots.Add(
+                            new LootModel(
+                                (string)row.ItemArray[2],
+                                (string)row.ItemArray[0],
+                                Math.Abs((double)row.ItemArray[3])
+                            )
+                        );
+                    }
+                    else
+                    {
+                        if (!raidModel.Raiders.Contains((string)row.ItemArray[0])) {
+                            raidModel.Raiders.Add((string)row.ItemArray[0]);
+                        }
+                    }
+                }
 
                 DataRow[] tiercheck = dbRaid.Select("EventNameOrLoot LIKE '%0' OR LootRaid LIKE '%0'");
                 if (tiercheck.Length > 0)
@@ -823,9 +856,24 @@ namespace ES_DKP_Utils
                 finally { dbConnect.Close(); }
             }
 
-            if (true)
+            if (owner.AutosaveJsonRaidModels)
             {
-                MessageBox.Show(JsonConvert.SerializeObject(this));
+                try
+                {
+                    Directory.CreateDirectory(owner.JsonRaidModelDirectory);
+                    File.WriteAllText(
+                        Path.Combine(
+                            owner.JsonRaidModelDirectory,
+                            $"{this.RaidDate.ToString("yyyy-MM-dd")}-{this.RaidName}.json"
+                        ),
+                        JsonConvert.SerializeObject(raidModel)
+                    );
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed to save JSON Raid Model: " + ex.Message);
+                    MessageBox.Show("Failed to save JSON Raid Model: " + ex.Message, "Error");
+                }
             }
 
             log.Debug("End Method: Raid.SyncRaid()");
