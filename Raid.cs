@@ -869,7 +869,7 @@ namespace ES_DKP_Utils
             {
                 Name = RaidName,
                 Date = RaidDate,
-                AttendanceMultiplier = DoubleTier ? 2.0 : 1.0
+                Attendance = DoubleTier ? 2.0 : 1.0
             };
 
             DataRow[] modelLoader = dbRaid.Select();

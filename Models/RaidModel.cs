@@ -11,9 +11,20 @@ namespace ES_DKP_Utils
     {
         public DateTime Date { get; set; } = new DateTime();
         public string Name { get; set; }
-        public double AttendanceMultiplier { get; set; } = 1.0;
-        public List<string> Raiders { get; set; } = new List<string>();
 
+        /// <summary>
+        /// Amount of attendance this raid is worth
+        /// </summary>
+        public double Attendance { get; set; } = 1.0;
+        
+        /// <summary>
+        /// List of raiders who have attended the raid
+        /// </summary>
+        public List<string> Raiders { get; set; } = new List<string>();
+        
+        /// <summary>
+        /// List of awarded loots for a given raid
+        /// </summary>
         public List<LootModel> Loots { get; set; } = new List<LootModel>();
     }
 }
