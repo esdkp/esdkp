@@ -9,21 +9,11 @@ namespace ES_DKP_Utils
 {
     public class RaidModel
     {
-        public DateTime Date { get; set; }
+        public DateTime Date { get; set; } = new DateTime();
         public string Name { get; set; }
-        public List<string> Raiders { get; set; }
+        public double AttendanceMultiplier { get; set; } = 1.0;
+        public List<string> Raiders { get; set; } = new List<string>();
 
-        /// <summary>
-        /// List of Tuples representing awarded loots in Loot, Raider, Price order.
-        /// </summary>
-        public List<LootModel> Loots { get; set; }
-
-        public RaidModel()
-        {
-            Date = new DateTime();
-            Name = "";
-            Raiders = new List<string>();
-            Loots = new List<LootModel>();
-        }
+        public List<LootModel> Loots { get; set; } = new List<LootModel>();
     }
 }

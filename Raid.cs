@@ -130,8 +130,6 @@ namespace ES_DKP_Utils
 
         private ArrayList ignore;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-        private RaidModel raidModel;
         #endregion
 
         #region Constuctor
@@ -141,7 +139,6 @@ namespace ES_DKP_Utils
 
             this.owner = owner;
             this.ignore = new ArrayList();
-            this.raidModel = new RaidModel();
             DoubleTier = false;
             string connectionStr;
             connectionStr = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + owner.DBString;
@@ -187,40 +184,11 @@ namespace ES_DKP_Utils
             try
             {
                 string query = "SELECT * FROM DKS WHERE (Date=#" + RaidDate.Month + "/" + RaidDate.Day + "/" + RaidDate.Year + "# AND (((EventNameOrLoot LIKE '" + RaidName + "%' AND LootRaid NOT LIKE '__%') OR LootRaid LIKE '" + RaidName + "%') AND EventNameOrLoot NOT LIKE '%1') )";
-                raidModel.Name = RaidName;
-                raidModel.Date = RaidDate;
                 dkpDA.SelectCommand = new OleDbCommand(query, dbConnect);
                 dbConnect.Open();
                 dkpDA.Fill(dbRaid);
                 cmdBld = new OleDbCommandBuilder(dkpDA);
                 Loaded = true;
-
-                DataRow[] modelLoader = dbRaid.Select();
-                // These rows are as follows:
-                // ItemArray[0] - string Raider Name
-                // ItemArray[1] - DateTime Raid Date
-                // ItemArray[2] - string EventNameOrLoot
-                // ItemArray[3] - double PTS
-                // ItemArray[4] - string ?
-                // ItemArray[5] - string ?
-                foreach (var row in modelLoader)
-                {
-                    if ((double)row.ItemArray[3] < 0) {
-                        raidModel.Loots.Add(
-                            new LootModel(
-                                (string)row.ItemArray[2],
-                                (string)row.ItemArray[0],
-                                Math.Abs((double)row.ItemArray[3])
-                            )
-                        );
-                    }
-                    else
-                    {
-                        if (!raidModel.Raiders.Contains((string)row.ItemArray[0])) {
-                            raidModel.Raiders.Add((string)row.ItemArray[0]);
-                        }
-                    }
-                }
 
                 DataRow[] tiercheck = dbRaid.Select("EventNameOrLoot LIKE '%0' OR LootRaid LIKE '%0'");
                 if (tiercheck.Length > 0)
@@ -681,9 +649,9 @@ namespace ES_DKP_Utils
             owner.PBVal = 0;
 
             string query = "UPDATE DKS SET Comment='DeleteMe' WHERE Date=#" + RaidDate.Month + "/" + RaidDate.Day + "/" + RaidDate.Year + "# AND ( (EventNameOrLoot LIKE '" + RaidName + "%' AND PTS>=0)OR (LootRaid LIKE '" + RaidName + "%' AND PTS<0))";
-            OleDbCommand updateCommand = null;
-            OleDbCommand insertCommand = null;
-            OleDbCommand deleteCommand = null;
+            OleDbCommand updateCommand;
+            OleDbCommand insertCommand;
+            OleDbCommand deleteCommand;
             try
             {
                 updateCommand = new OleDbCommand(query, dbConnect);
@@ -858,25 +826,82 @@ namespace ES_DKP_Utils
 
             if (owner.AutosaveJsonRaidModels)
             {
-                try
-                {
-                    Directory.CreateDirectory(owner.JsonRaidModelDirectory);
-                    File.WriteAllText(
-                        Path.Combine(
-                            owner.JsonRaidModelDirectory,
-                            $"{this.RaidDate.ToString("yyyy-MM-dd")}-{this.RaidName}.json"
-                        ),
-                        JsonConvert.SerializeObject(raidModel)
-                    );
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Failed to save JSON Raid Model: " + ex.Message);
-                    MessageBox.Show("Failed to save JSON Raid Model: " + ex.Message, "Error");
-                }
+                SaveJsonRaidModel();
             }
 
             log.Debug("End Method: Raid.SyncRaid()");
+        }
+
+        /// <summary>
+        /// Saves a JSON file of the current raid as represented by a freshly-generated RaidModel
+        /// </summary>
+        public void SaveJsonRaidModel()
+        {
+            RaidModel raidModel = GenerateRaidModel();
+
+            try
+            {
+                Directory.CreateDirectory(owner.JsonRaidModelDirectory);
+                File.WriteAllText(
+                    Path.Combine(
+                        owner.JsonRaidModelDirectory,
+                        $"{this.RaidDate.ToString("yyyy-MM-dd")}-{this.RaidName}.json"
+                    ),
+                    JsonConvert.SerializeObject(raidModel)
+                );
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to save JSON Raid Model: " + ex.Message);
+                MessageBox.Show("Failed to save JSON Raid Model: " + ex.Message, "Error");
+            }
+        }
+
+        /// <summary>
+        /// Generates a RaidModel object from the current form's dbRaid object.
+        /// </summary>
+        /// <returns>
+        /// RaidModel generated from current dbRaid
+        /// </returns>
+        private RaidModel GenerateRaidModel()
+        {
+            RaidModel raidModel = new RaidModel
+            {
+                Name = RaidName,
+                Date = RaidDate,
+                AttendanceMultiplier = DoubleTier ? 2.0 : 1.0
+            };
+
+            DataRow[] modelLoader = dbRaid.Select();
+            // These rows are as follows:
+            // ItemArray[0] - string Name (of raider)
+            // ItemArray[1] - DateTime Date (of raid)
+            // ItemArray[2] - string EventNameOrLoot
+            // ItemArray[3] - double PTS
+            // ItemArray[4] - string Comment
+            // ItemArray[5] - string LootRaid
+            foreach (var row in modelLoader)
+            {
+                if ((double)row.ItemArray[3] < 0)
+                {
+                    raidModel.Loots.Add(
+                        new LootModel(
+                            (string)row.ItemArray[2],
+                            (string)row.ItemArray[0],
+                            Math.Abs((double)row.ItemArray[3])
+                        )
+                    );
+                }
+                else
+                {
+                    if (!raidModel.Raiders.Contains((string)row.ItemArray[0]))
+                    {
+                        raidModel.Raiders.Add((string)row.ItemArray[0]);
+                    }
+                }
+            }
+
+            return raidModel;
         }
 
         public void FigureTiers()

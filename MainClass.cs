@@ -1889,8 +1889,16 @@ namespace ES_DKP_Utils
         {
             log.Debug("Begin Method: mnuExportRaidJson_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
-            string json = JsonConvert.SerializeObject(CurrentRaid);
-            MessageBox.Show(json);
+            if (CurrentRaid != null)
+            {
+                CurrentRaid.SaveJsonRaidModel();
+                MessageBox.Show("Successfully exported JSON Raid Model", "Success!");
+            }
+            else
+            {
+                MessageBox.Show("No raid is currently loaded", "Nope!");
+            }
+            
 
             log.Debug("End Method: mnuExportRaidJson_Click()");
         }
