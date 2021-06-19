@@ -152,6 +152,9 @@ namespace ES_DKP_Utils
 		}
 
         private System.Double _MinDKP;
+        /// <summary>
+        /// Minimum balance to have tier considered (Tier 'D' limit, colloquially)
+        /// </summary>
         public System.Double MinDKP
         {
             get { return _MinDKP; }
@@ -258,6 +261,8 @@ namespace ES_DKP_Utils
         #endregion
 
         public int LastRaidDaysThreshold { get; set; }
+        public bool AutosaveJsonRaidModels { get; set; } = true;
+        public string JsonRaidModelDirectory { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "jsonRaidModels");
 
         private IConfigSource inifile;
         private LogParser parser;
@@ -294,19 +299,24 @@ namespace ES_DKP_Utils
 			try 
 			{
 				inifile = new IniConfigSource(Directory.GetCurrentDirectory() + "\\settings.ini");
+
 				DBString = inifile.Configs["Files"].GetString("dbfile", Directory.GetCurrentDirectory() + "\\DKP.mdb");
-				LogFile = inifile.Configs["Files"].GetString("logfile","");
+				LogFile = inifile.Configs["Files"].GetString("logfile", "");
 				OutputDirectory = inifile.Configs["Files"].GetString("outdir", Directory.GetCurrentDirectory());
                 BackupDirectory = inifile.Configs["Files"].GetString("backupdir", Directory.GetCurrentDirectory());
-				DKPTax = inifile.Configs["Other"].GetDouble("tax",0.0);
+                JsonRaidModelDirectory = inifile.Configs["Files"].GetString("JsonRaidModelDirectory", JsonRaidModelDirectory);
+
+                AutomaticBackups = inifile.Configs["Other"].GetBoolean("AutomaticBackups", true);
+                AutosaveJsonRaidModels = inifile.Configs["Other"].GetBoolean("AutosaveJsonRaidModels", AutosaveJsonRaidModels);
+                DKPTax = inifile.Configs["Other"].GetDouble("tax", 0.0);
+                GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
+                LastRaidDaysThreshold = inifile.Configs["Other"].GetInt("LastRaidDaysThreshold", 7);
                 MinDKP = inifile.Configs["Other"].GetDouble("mindkp", 0);
+                RaidDaysWindow = inifile.Configs["Other"].GetInt("RaidDaysWindow", 20);
                 TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.60);
                 TierBPct = inifile.Configs["Other"].GetDouble("tierbpct", 0.30);
                 TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.01);
-                GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
-                AutomaticBackups = inifile.Configs["Other"].GetBoolean("AutomaticBackups", true);
-                RaidDaysWindow = inifile.Configs["Other"].GetInt("RaidDaysWindow", 20);
-                LastRaidDaysThreshold = inifile.Configs["Other"].GetInt("LastRaidDaysThreshold", 7);
+
                 log.Info("Read settings from INI: DBFile=" + DBString + ", LogFile=" + LogFile + ", OutputDirectory="
                     + OutputDirectory + ", DKPTax=" + DKPTax + ", GuildNames=" + GuildNames);
 
@@ -333,20 +343,25 @@ namespace ES_DKP_Utils
 					inifile = new IniConfigSource(Directory.GetCurrentDirectory() + "\\settings.ini");
 					inifile.AddConfig("Files");
 					inifile.AddConfig("Other");
+
 					LogFile = inifile.Configs["Files"].GetString("logfile","");
 					DBString = inifile.Configs["Files"].GetString("dbfile", Directory.GetCurrentDirectory() + "\\DKP.mdb");
 					OutputDirectory = inifile.Configs["Files"].GetString("outdir", Directory.GetCurrentDirectory());
                     BackupDirectory = inifile.Configs["Files"].GetString("backupdir", Directory.GetCurrentDirectory());
+                    JsonRaidModelDirectory = inifile.Configs["Files"].GetString("JsonRaidModelDirectory", JsonRaidModelDirectory);
+
+                    AutomaticBackups = inifile.Configs["Other"].GetBoolean("AutomaticBackups", true);
+                    AutosaveJsonRaidModels = inifile.Configs["Other"].GetBoolean("AutosaveJsonRaidModels", AutosaveJsonRaidModels);
                     DKPTax = inifile.Configs["Other"].GetDouble("tax",0.0);
+                    GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
+                    LastRaidDaysThreshold = inifile.Configs["Other"].GetInt("LastRaidDaysThreshold", 7);
                     MinDKP = inifile.Configs["Other"].GetDouble("mindkp", 0);
+                    RaidDaysWindow = inifile.Configs["Other"].GetInt("RaidDaysWindow", 20);
                     TierAPct = inifile.Configs["Other"].GetDouble("tierapct", 0.60);
                     TierBPct = inifile.Configs["Other"].GetDouble("tierbpct", 0.30);
                     TierCPct = inifile.Configs["Other"].GetDouble("tiercpct", 0.01);
-                    GuildNames = inifile.Configs["Other"].GetString("GuildNames", "Eternal Sovereign");
-                    RaidDaysWindow = inifile.Configs["Other"].GetInt("RaidDaysWindow", 20);
-                    LastRaidDaysThreshold = inifile.Configs["Other"].GetInt("LastRaidDaysThreshold", 7);
-                    AutomaticBackups = inifile.Configs["Other"].GetBoolean("AutomaticBackups", true);
-					inifile.Save();
+
+                    inifile.Save();
 					log.Info("Read settings from INI: dbFile=" + DBString + ", logFile=" + LogFile
                         + ", outDir=" + OutputDirectory + ", tax=" + DKPTax + ", mindkp=" + MinDKP + ", GuildNames=" + GuildNames);
 				} 
@@ -1874,8 +1889,16 @@ namespace ES_DKP_Utils
         {
             log.Debug("Begin Method: mnuExportRaidJson_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
 
-            string json = JsonConvert.SerializeObject(CurrentRaid);
-            MessageBox.Show(json);
+            if (CurrentRaid != null)
+            {
+                CurrentRaid.SaveJsonRaidModel();
+                MessageBox.Show("Successfully exported JSON Raid Model", "Success!");
+            }
+            else
+            {
+                MessageBox.Show("No raid is currently loaded", "Nope!");
+            }
+            
 
             log.Debug("End Method: mnuExportRaidJson_Click()");
         }

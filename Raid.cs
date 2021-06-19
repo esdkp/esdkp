@@ -5,6 +5,9 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Collections;
+using System.Linq;
+using Newtonsoft.Json;
+using ES_DKP_Utils.Models;
 
 namespace ES_DKP_Utils
 {
@@ -646,9 +649,9 @@ namespace ES_DKP_Utils
             owner.PBVal = 0;
 
             string query = "UPDATE DKS SET Comment='DeleteMe' WHERE Date=#" + RaidDate.Month + "/" + RaidDate.Day + "/" + RaidDate.Year + "# AND ( (EventNameOrLoot LIKE '" + RaidName + "%' AND PTS>=0)OR (LootRaid LIKE '" + RaidName + "%' AND PTS<0))";
-            OleDbCommand updateCommand = null;
-            OleDbCommand insertCommand = null;
-            OleDbCommand deleteCommand = null;
+            OleDbCommand updateCommand;
+            OleDbCommand insertCommand;
+            OleDbCommand deleteCommand;
             try
             {
                 updateCommand = new OleDbCommand(query, dbConnect);
@@ -821,7 +824,84 @@ namespace ES_DKP_Utils
                 finally { dbConnect.Close(); }
             }
 
+            if (owner.AutosaveJsonRaidModels)
+            {
+                SaveJsonRaidModel();
+            }
+
             log.Debug("End Method: Raid.SyncRaid()");
+        }
+
+        /// <summary>
+        /// Saves a JSON file of the current raid as represented by a freshly-generated RaidModel
+        /// </summary>
+        public void SaveJsonRaidModel()
+        {
+            RaidModel raidModel = GenerateRaidModel();
+
+            try
+            {
+                Directory.CreateDirectory(owner.JsonRaidModelDirectory);
+                File.WriteAllText(
+                    Path.Combine(
+                        owner.JsonRaidModelDirectory,
+                        $"{this.RaidDate.ToString("yyyy-MM-dd")}-{this.RaidName}.json"
+                    ),
+                    JsonConvert.SerializeObject(raidModel)
+                );
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to save JSON Raid Model: " + ex.Message);
+                MessageBox.Show("Failed to save JSON Raid Model: " + ex.Message, "Error");
+            }
+        }
+
+        /// <summary>
+        /// Generates a RaidModel object from the current form's dbRaid object.
+        /// </summary>
+        /// <returns>
+        /// RaidModel generated from current dbRaid
+        /// </returns>
+        private RaidModel GenerateRaidModel()
+        {
+            RaidModel raidModel = new RaidModel
+            {
+                Name = RaidName,
+                Date = RaidDate,
+                Attendance = DoubleTier ? 2.0 : 1.0
+            };
+
+            DataRow[] modelLoader = dbRaid.Select();
+            // These rows are as follows:
+            // ItemArray[0] - string Name (of raider)
+            // ItemArray[1] - DateTime Date (of raid)
+            // ItemArray[2] - string EventNameOrLoot
+            // ItemArray[3] - double PTS
+            // ItemArray[4] - string Comment
+            // ItemArray[5] - string LootRaid
+            foreach (var row in modelLoader)
+            {
+                if ((double)row.ItemArray[3] < 0)
+                {
+                    raidModel.Loots.Add(
+                        new LootModel(
+                            (string)row.ItemArray[2],
+                            (string)row.ItemArray[0],
+                            Math.Abs((double)row.ItemArray[3])
+                        )
+                    );
+                }
+                else
+                {
+                    if (!raidModel.Raiders.Contains((string)row.ItemArray[0]))
+                    {
+                        raidModel.Raiders.Add((string)row.ItemArray[0]);
+                    }
+                }
+            }
+
+            return raidModel;
         }
 
         public void FigureTiers()
