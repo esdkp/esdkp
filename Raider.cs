@@ -15,54 +15,13 @@ namespace ES_DKP_Utils
         #endregion
 
         #region Declarations
-        private string _Person;
-		public string Person
-		{
-			get
-			{
-				return _Person;
-			}
-			set
-			{
-				_Person = value;
-                
-			}
-		}
-		private string _Tier;
-		public string Tier
-		{
-			get
-			{
-				return _Tier;
-			}
-			set
-			{
-				_Tier = value;
-                
-			}
-		}
-		private System.Double _DKP;
-		public System.Double DKP
-		{
-			get
-			{
-				return _DKP;
-			}
-			set
-			{
-				_DKP = value;
-                
-			}
-		}
-        private System.Double _AttendancePCT;
-        public System.Double AttendancePCT
-        {
-            get { return _AttendancePCT; }
-            set { _AttendancePCT = value; }
-        }
-
+        public string Person { get; set; }
+        public string Tier { get; set; }
+        public System.Double DKP { get; set; }
+        public System.Double AttendancePCT { get; set; }
         public string TellType { get; set; }
-
+        public int Upgradeable { get; set; }
+        public int Upgrades { get; set; }
 		public string ItemMessage { get; set; }
 
         private frmMain owner;
@@ -70,9 +29,9 @@ namespace ES_DKP_Utils
 		#endregion
 
 		#region Constructor
-		public Raider(frmMain owner, string p, string t, double d, double a, string tellType = "N/A", string itemMessage = "")
+		public Raider(frmMain owner, string p, string t, double d, double a, string tellType = "N/A", int upgradeable = -1, int upgrades = -1, string itemMessage = "")
 		{
-            log.Debug($"Begin Method: Raider.Raider(frmMain,string,string,double,double,string,string) ({owner}, {p}, {t}, {d}, {a}, {tellType}, {itemMessage}");
+            log.Debug($"Begin Method: Raider.Raider(frmMain,string,string,double,double,string,string) ({owner}, {p}, {t}, {d}, {a}, {tellType}, {upgradeable}, {upgrades}, {itemMessage}");
 
 			this.owner = owner;
 			Person = p;
@@ -82,6 +41,8 @@ namespace ES_DKP_Utils
             MINDKP = owner.MinDKP;
 			TellType = tellType;
 			ItemMessage = itemMessage;
+            Upgradeable = upgradeable;
+            Upgrades = upgrades;
 
             log.Debug("End Method: Raider.Raider()");
 		}

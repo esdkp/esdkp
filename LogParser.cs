@@ -225,11 +225,14 @@ namespace ES_DKP_Utils
 
                         if (raider.Length>0)
                         {
-                            ItemTells[message].Add(new Raider(owner, (string)raider[0]["Name"], (string)raider[0]["Tier"], (double)raider[0]["SumOfPTS"], (double)Decimal.ToDouble((decimal)raider[0]["TPercent"]), tellType, message));
+                            // string upgradeableQuery = $"SELECT COUNT(*) FROM DKS WHERE PTS=-7200 AND Name={(string)raider[0]["Name"]}";
+                            // string upgradesQuery = $"SELECT COUNT(*) FROM DKS WHERE PTS=-10800 AND Name={(string)raider[0]["Name"]}";
+                            // TODO: Calculate and add the actual values for upgradeable and upgrades
+                            ItemTells[message].Add(new Raider(owner, (string)raider[0]["Name"], (string)raider[0]["Tier"], (double)raider[0]["SumOfPTS"], (double)Decimal.ToDouble((decimal)raider[0]["TPercent"]), tellType, -1, -1, message));
                         }
                         else
                         {
-                            ItemTells[message].Add(new Raider(owner, name, Raider.NOTIER, Raider.NODKP, Raider.NOATTENDANCE, tellType, message));
+                            ItemTells[message].Add(new Raider(owner, name, Raider.NOTIER, Raider.NODKP, Raider.NOATTENDANCE, tellType, -1, -1, message));
                         }
                         
                         // This is the tell sorting here
