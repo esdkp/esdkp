@@ -283,10 +283,11 @@ namespace ES_DKP_Utils
         private CheckBox chkSortIncludesItemMessage;
         private MenuItem mnuExport;
         private MenuItem mnuExportRaidJson;
+        private MenuItem mnuExportAllRaidJson;
         private System.Windows.Forms.Timer UITimer;
 
-		#region Constructor
-		public frmMain()
+        #region Constructor
+        public frmMain()
 		{
             log.Debug("Begin Method: frmMain.frmMain()");
 
@@ -393,9 +394,7 @@ namespace ES_DKP_Utils
 			log.Debug("End Method: frmMain.frmMain()");
 		}
 
-
-
-#endregion
+        #endregion
 
 #region Methods
 		[STAThread]
@@ -1074,6 +1073,7 @@ namespace ES_DKP_Utils
             this.mnuNameClass = new System.Windows.Forms.MenuItem();
             this.mnuExport = new System.Windows.Forms.MenuItem();
             this.mnuExportRaidJson = new System.Windows.Forms.MenuItem();
+            this.mnuExportAllRaidJson = new System.Windows.Forms.MenuItem();
             this.mnuFileSep = new System.Windows.Forms.MenuItem();
             this.mnuExit = new System.Windows.Forms.MenuItem();
             this.mnuExitNoBackup = new System.Windows.Forms.MenuItem();
@@ -1311,7 +1311,9 @@ namespace ES_DKP_Utils
             // 
             this.mnuExport.Index = 7;
             this.mnuExport.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.mnuExportRaidJson});
+                this.mnuExportRaidJson, 
+                this.mnuExportAllRaidJson
+            });
             this.mnuExport.Text = "Export";
             // 
             // mnuExportRaidJson
@@ -1319,6 +1321,12 @@ namespace ES_DKP_Utils
             this.mnuExportRaidJson.Index = 0;
             this.mnuExportRaidJson.Text = "Export Raid as JSON";
             this.mnuExportRaidJson.Click += new System.EventHandler(this.mnuExportRaidJson_Click);
+            // 
+            // mnuExportAllRaidJson
+            // 
+            this.mnuExportAllRaidJson.Index = 1;
+            this.mnuExportAllRaidJson.Text = "Export All Raids as JSON";
+            this.mnuExportAllRaidJson.Click += new System.EventHandler(this.mnuExportAllRaidJson_Click);
             // 
             // mnuFileSep
             // 
@@ -1901,6 +1909,111 @@ namespace ES_DKP_Utils
             
 
             log.Debug("End Method: mnuExportRaidJson_Click()");
+        }
+
+        private void mnuExportAllRaidJson_Click(object sender, EventArgs e)
+        {
+            log.Debug("Begin Method: mnuExportAllRaidJson_Click(object,EventArgs) (" + sender.ToString() + "," + e.ToString() + ")");
+
+            if (CurrentRaid != null)
+            {
+                MessageBox.Show("There is a raid open; please close this raid or restart the program before using this feature.", "Oh No =(");
+            }
+            else
+            {
+                OleDbConnection dbConnect;
+                OleDbDataAdapter dkpDA;
+                DataTable raidTable = new DataTable("Raids");
+                DataView raidView = new DataView(raidTable);
+                string connectionStr = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + DBString;
+
+
+                try
+                {
+                    dbConnect = new OleDbConnection(connectionStr);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed to create data connection: " + ex.Message);
+                    MessageBox.Show("Could not create data connection. \n(" + ex.Message + ")", "Error");
+                    return;
+                }
+
+                try
+                {
+                    dkpDA = new OleDbDataAdapter("SELECT DISTINCT FORMAT(DKS.Date, \"yyyy/mm/dd\") AS formatDate, DKS.EventNameOrLoot AS EventName FROM DKS WHERE DKS.PTS >= 0", dbConnect);
+                    dbConnect.Open();
+                    dkpDA.Fill(raidTable);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed to get list of distinct dates and raids: " + ex.Message);
+                    MessageBox.Show("Failed to get list of distinct dates and raids:\n\n" + ex.Message, "Error");
+                }
+                finally { dbConnect.Close(); }
+
+                // Note: At this point, we have a list of formatDate and EventName, but there are still multiple tiers in it, such as:
+                // 2023/01/12 NosSvFight_TierA0
+                // 2023/01/12 NosSvFight_TierA1
+                //
+                // We will sort the list by formatDate and EventName, so a double tier raid should always have the raid first, and the correspoding double tier raid entry second.
+                // This should allow the following pseudocode to work:
+                // for row in table
+                //   if raid ends in '1', skip it
+                //   open raid
+                //   check if next raid exists, and if it ends in '1', and set double tier to true
+                //   export the raid
+
+                raidView.Sort = "formatDate, EventName";
+                int record, actualRaids = 0;
+
+                // TODO: Make these configurable when you run the command, maybe?
+                // DateTime start = DateTime.Parse(raidView[0][0].ToString());
+                DateTime start = DateTime.Parse("2004/01/20");
+                DateTime end = DateTime.Now;
+
+                log.Debug($"Beginning export of {raidTable.Rows.Count} raids.");
+
+                PBMin = 0;
+                PBMax = raidTable.Rows.Count;
+                PBVal = 0;
+
+                for (record = 0; record < raidTable.Rows.Count; record++)
+                {
+                    if (record % 10 == 0) {
+                        log.Debug($"Processed {record} out of {raidTable.Rows.Count} raid records.");
+                    }
+
+                    DataRowView row = raidView[record];
+
+                    // If this is a "tier" record for double tier, don't process it. LoadRaid() will handle
+                    if (row[1].ToString().EndsWith("1")) continue;
+
+                    // If the raid record date doesn't fall between our start and end times, don't process it.
+                    if (!DateTime.TryParse(row[0].ToString(), out DateTime raidDate) || start.Date > raidDate.Date || raidDate.Date > end.Date) continue;
+
+                    CurrentRaid = new Raid(this);
+                    CurrentRaid.RaidDate = raidDate;
+                    CurrentRaid.RaidName = row[1].ToString();
+                    CurrentRaid.LoadRaid();
+                    if (CurrentRaid.DoubleTier) chkDouble.Checked = true;
+                    else chkDouble.Checked = false;
+                    panel.Enabled = true;
+                    dtpRaidDate.Value = CurrentRaid.RaidDate;
+                    txtRaidName.Text = CurrentRaid.RaidName;
+                    log.Debug("Raid Loaded: " + CurrentRaid.RaidName + " (" + CurrentRaid.RaidDate.ToString("dd/mm/yyyy") + ")");
+
+                    CurrentRaid.SaveJsonRaidModel();
+                    actualRaids++;
+                    PBVal = record;
+                    sbpMessage.Text = $"Processed {record} of {raidTable.Rows.Count} raid records.";
+                }
+
+                MessageBox.Show($"Successfully exported {actualRaids} raids out of {raidTable.Rows.Count} records");
+                log.Debug($"Completed export of {raidTable.Rows.Count} raids, resulting in {actualRaids} actual raid events.");
+            }
+
+            log.Debug("End Method: mnuExportAllRaidJson_Click()");
         }
     }
 }

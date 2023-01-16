@@ -9,7 +9,14 @@ namespace ES_DKP_Utils
 {
     public class RaidModel
     {
+        /// <summary>
+        /// Date the raid took place
+        /// </summary>
         public DateTime Date { get; set; } = new DateTime();
+
+        /// <summary>
+        /// Name of the raid
+        /// </summary>
         public string Name { get; set; }
 
         /// <summary>
