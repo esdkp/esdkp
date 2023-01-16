@@ -183,6 +183,9 @@ namespace ES_DKP_Utils
 
             try
             {
+                // TODO: make raid names SQL safe
+                // erroring raid 12/21/2004 "L'Fay Epic" because it screws up quotation marks:
+                // 2023-01-16 13:55:26,717 [1] ERROR ES_DKP_Utils.Raid [(null)] - Failed to load raid: Syntax error (missing operator) in query expression '(Date=#12/21/2004# AND (((EventNameOrLoot LIKE 'L'Fay Epic%' AND LootRaid NOT LIKE '__%') OR LootRaid LIKE 'L'Fay Epic%') AND EventNameOrLoot NOT LIKE '%1') )'.
                 string query = "SELECT * FROM DKS WHERE (Date=#" + RaidDate.Month + "/" + RaidDate.Day + "/" + RaidDate.Year + "# AND (((EventNameOrLoot LIKE '" + RaidName + "%' AND LootRaid NOT LIKE '__%') OR LootRaid LIKE '" + RaidName + "%') AND EventNameOrLoot NOT LIKE '%1') )";
                 dkpDA.SelectCommand = new OleDbCommand(query, dbConnect);
                 dbConnect.Open();
@@ -839,14 +842,17 @@ namespace ES_DKP_Utils
         {
             RaidModel raidModel = GenerateRaidModel();
 
+            string fileName = $"{this.RaidDate.ToString("yyyy-MM-dd")}-{this.RaidName}.json";
+            foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+            {
+                fileName = fileName.Replace(c, '_');
+            }
+
             try
             {
                 Directory.CreateDirectory(owner.JsonRaidModelDirectory);
                 File.WriteAllText(
-                    Path.Combine(
-                        owner.JsonRaidModelDirectory,
-                        $"{this.RaidDate.ToString("yyyy-MM-dd")}-{this.RaidName}.json"
-                    ),
+                    Path.Combine(owner.JsonRaidModelDirectory, fileName),
                     JsonConvert.SerializeObject(raidModel)
                 );
             }
