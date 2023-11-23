@@ -347,7 +347,7 @@ namespace ES_DKP_Utils
             // 
             // lblRaidName
             // 
-            this.lblRaidName.Font = new System.Drawing.Font("Comic Sans MS", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+            this.lblRaidName.Font = new System.Drawing.Font("Comic Sans MS", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblRaidName.Location = new System.Drawing.Point(56, 16);
             this.lblRaidName.Name = "lblRaidName";
             this.lblRaidName.Size = new System.Drawing.Size(112, 24);
@@ -355,7 +355,7 @@ namespace ES_DKP_Utils
             // 
             // lblRaidDate
             // 
-            this.lblRaidDate.Font = new System.Drawing.Font("Comic Sans MS", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+            this.lblRaidDate.Font = new System.Drawing.Font("Comic Sans MS", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblRaidDate.Location = new System.Drawing.Point(56, 40);
             this.lblRaidDate.Name = "lblRaidDate";
             this.lblRaidDate.Size = new System.Drawing.Size(112, 24);
@@ -365,7 +365,7 @@ namespace ES_DKP_Utils
             // 
             this.lblDate.Location = new System.Drawing.Point(8, 40);
             this.lblDate.Name = "lblDate";
-            this.lblDate.Size = new System.Drawing.Size(32, 16);
+            this.lblDate.Size = new System.Drawing.Size(40, 15);
             this.lblDate.TabIndex = 2;
             this.lblDate.Text = "Date:";
             // 
@@ -398,7 +398,7 @@ namespace ES_DKP_Utils
             this.cboPeople.CausesValidation = false;
             this.cboPeople.Location = new System.Drawing.Point(56, 96);
             this.cboPeople.Name = "cboPeople";
-            this.cboPeople.Size = new System.Drawing.Size(176, 21);
+            this.cboPeople.Size = new System.Drawing.Size(387, 21);
             this.cboPeople.TabIndex = 2;
             this.cboPeople.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.cboPeople_KeyPress);
             this.cboPeople.Leave += new System.EventHandler(this.cboPeople_Leave);
@@ -408,24 +408,24 @@ namespace ES_DKP_Utils
             this.cboLoot.DisplayMember = "LootName";
             this.cboLoot.Location = new System.Drawing.Point(56, 64);
             this.cboLoot.Name = "cboLoot";
-            this.cboLoot.Size = new System.Drawing.Size(176, 21);
+            this.cboLoot.Size = new System.Drawing.Size(387, 21);
             this.cboLoot.TabIndex = 1;
-            this.cboLoot.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.cboLoot_KeyPress);
             this.cboLoot.SelectedIndexChanged += new System.EventHandler(this.cboLoot_SelectedIndexChanged);
+            this.cboLoot.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.cboLoot_KeyPress);
             this.cboLoot.Leave += new System.EventHandler(this.cboLoot_Leave);
             // 
             // cboPrice
             // 
             this.cboPrice.Location = new System.Drawing.Point(56, 128);
             this.cboPrice.Name = "cboPrice";
-            this.cboPrice.Size = new System.Drawing.Size(176, 21);
+            this.cboPrice.Size = new System.Drawing.Size(387, 21);
             this.cboPrice.TabIndex = 3;
             this.cboPrice.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.cboPrice_KeyPress);
             this.cboPrice.Leave += new System.EventHandler(this.cboPrice_Leave);
             // 
             // btnRecord
             // 
-            this.btnRecord.Location = new System.Drawing.Point(160, 152);
+            this.btnRecord.Location = new System.Drawing.Point(293, 155);
             this.btnRecord.Name = "btnRecord";
             this.btnRecord.Size = new System.Drawing.Size(72, 32);
             this.btnRecord.TabIndex = 4;
@@ -436,22 +436,22 @@ namespace ES_DKP_Utils
             // 
             this.lblStatus.Location = new System.Drawing.Point(8, 160);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(144, 64);
+            this.lblStatus.Size = new System.Drawing.Size(279, 27);
             this.lblStatus.TabIndex = 7;
             // 
             // btnClose
             // 
-            this.btnClose.Location = new System.Drawing.Point(160, 192);
+            this.btnClose.Location = new System.Drawing.Point(371, 155);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(72, 32);
             this.btnClose.TabIndex = 5;
             this.btnClose.Text = "Close";
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
             // 
-            // frmRecordLoot
+            // RecordLootDialog
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(232, 231);
+            this.ClientSize = new System.Drawing.Size(455, 194);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.btnRecord);
@@ -466,7 +466,7 @@ namespace ES_DKP_Utils
             this.Controls.Add(this.lblRaidName);
             this.Controls.Add(this.lblRaid);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Name = "frmRecordLoot";
+            this.Name = "RecordLootDialog";
             this.Text = "Record loot";
             this.ResumeLayout(false);
 
