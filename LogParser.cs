@@ -11,7 +11,7 @@ namespace ES_DKP_Utils
 {
     public class LogParser
     {
-        public enum LogLineType { TELL, WHO, LOOT, NA }
+        public enum LogLineType { TELL, WHO, LOOT, LOOT_LEFT, NA }
 
         #region Declarations
         private FileStream logStream;
@@ -28,6 +28,7 @@ namespace ES_DKP_Utils
         public bool TellsOn { get; set; }
         public bool AttendanceOn { get; set; }
         public bool LootOn { get; set; }
+        public bool LootLeftOn { get; set; }
 
         private frmMain owner;
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -83,6 +84,7 @@ namespace ES_DKP_Utils
             }
             TellsOn = false;
             AttendanceOn = false;
+            LootLeftOn = true;
             ItemTells = new Dictionary<string, ArrayList>();
             logTimer = new System.Timers.Timer(5000);
             logTimer.Start();
@@ -267,6 +269,26 @@ namespace ES_DKP_Utils
                     return LogLineType.WHO;
                 }
             }
+
+            if (LootLeftOn)
+            {
+                // Example log message:
+                // [Sun Sep 22 19:26:11 2024] --Kazh left a Katar of the Mist Falcon on a supply chest .--
+                Regex r = new Regex(@"\[.*\] --(?<name>\S+) left a (?<item>.*?) on (?<location>.*?) \.--");
+                Match m = r.Match(s.Trim());
+
+                if (m.Success)
+                {
+                    string name = m.Groups["name"].ToString();
+                    string item = m.Groups["item"].ToString();
+                    string location = m.Groups["location"].ToString();
+
+
+
+                    return LogLineType.LOOT_LEFT;
+                }
+            }
+
             return LogLineType.NA;
         }
         #endregion
@@ -324,6 +346,7 @@ namespace ES_DKP_Utils
 
             int tells = 0;
             int whos = 0;
+            int leftloot = 0;
             int lines = 0;
 
             while (toRead > 0)
@@ -339,6 +362,9 @@ namespace ES_DKP_Utils
                         case LogLineType.WHO:
                             whos++;
                             break;
+                        case LogLineType.LOOT_LEFT:
+                            leftloot++;
+                            break;
                         case LogLineType.NA:
                             break;
                     }
@@ -348,7 +374,7 @@ namespace ES_DKP_Utils
                 owner.PBVal += line.Length + 1;
             }
 
-            owner.StatusMessage = "New lines: " + lines + ", " + tells + " tells, " + whos + " who results";
+            owner.StatusMessage = "New lines: " + lines + ", " + tells + " tells, " + whos + " who results, " + leftloot + " left loot";
 
             logger.Debug("End Method: logTimer_Elapsed()");
         }
