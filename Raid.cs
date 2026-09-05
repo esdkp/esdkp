@@ -1055,7 +1055,7 @@ namespace ES_DKP_Utils
             int j = 0;
             foreach (DataRow r in p.Rows)
             {
-                if (dbRaid.Select("Name='" + r.ItemArray[0] + "'").Length > 0)
+                if (dbRaid.Select("Name='" + r.ItemArray[0] + "' AND PTS>=0").Length > 0)
                 {
                     deleteMe[i] = r;
                     i++;
@@ -1245,7 +1245,7 @@ namespace ES_DKP_Utils
                     if (dtDKS.Select("Name='" + r["Name"] + "' AND EventNameOrLoot='" + ev["EventName"] + "'").Length > 0)
                     {
                         earned += (double)dtDKS.Select("Name='" + r["Name"] + "' AND EventNameOrLoot='" + ev["EventName"] + "'")[0]["PTS"];
-                        sw.Write("<td>•</td>");
+                        sw.Write("<td>ï¿½</td>");
                         sw2.Write("[td]" + event_counter + "[/td]");
                     }
                     else
