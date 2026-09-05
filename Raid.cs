@@ -1055,7 +1055,7 @@ namespace ES_DKP_Utils
             int j = 0;
             foreach (DataRow r in p.Rows)
             {
-                if (dbRaid.Select("Name='" + r.ItemArray[0] + "'").Length > 0)
+                if (dbRaid.Select("Name='" + r.ItemArray[0] + "' AND PTS=0").Length > 0)
                 {
                     deleteMe[i] = r;
                     i++;
