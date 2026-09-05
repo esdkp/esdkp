@@ -1245,6 +1245,7 @@ namespace ES_DKP_Utils
                     if (dtDKS.Select("Name='" + r["Name"] + "' AND EventNameOrLoot='" + ev["EventName"] + "'").Length > 0)
                     {
                         earned += (double)dtDKS.Select("Name='" + r["Name"] + "' AND EventNameOrLoot='" + ev["EventName"] + "'")[0]["PTS"];
+                        sw.Write("<td>�</td>");
                         sw2.Write("[td]" + event_counter + "[/td]");
                     }
                     else
